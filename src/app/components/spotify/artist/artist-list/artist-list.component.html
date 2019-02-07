@@ -1,0 +1,11 @@
+
+<ng-container *ngIf="artists.length > 0; else noArtists">
+  <div *ngFor="let artist of artists">
+    <p>You listened to {{ artist.name }} for {{ artist.minutesListened }} minutes</p>
+  </div>
+</ng-container>
+<ng-template #noArtists>
+  <p>No Artists Currently</p>
+</ng-template>
+
+
