@@ -31,7 +31,7 @@ export class ArtistCreateComponent implements OnInit {
         return this.name && this.minutesListened;
     }
 
-    resetForm()
+    private resetForm()
     {
         this.name = null;
         this.minutesListened = null;
