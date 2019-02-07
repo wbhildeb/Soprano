@@ -1,12 +1,16 @@
 const express = require('express');
+const bodyParser = require('body-parser');
 
 const app = express();
+
+app.use(bodyParser.json());
+app.use(bodyParser.urlencoded({ extended: false }));
 
 app.use((req, res, next) =>
 {
     res.setHeader("Access-Control-Allow-Origin", '*');
     res.setHeader(
-        "Access-Control-Allow-Header",
+        "Access-Control-Allow-Headers",
         'Origin, X-Request-With, Content-Type, Accept'
     );
     res.setHeader(
@@ -16,7 +20,16 @@ app.use((req, res, next) =>
     next();
 });
 
-app.use("/api/artists", (req, res, next) => {
+app.post("/api/artists", (req, res, next) =>
+{
+    const artist = req.body;
+    console.log(artist);
+    res.status(201).json({
+        message: 'Artist sucessfully ignored'
+    });
+});
+
+app.get("/api/artists", (req, res, next) => {
     const artists = 
     [
         {
