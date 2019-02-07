@@ -1,7 +1,21 @@
 const express = require('express');
+const mongoose = require('mongoose');
 const bodyParser = require('body-parser');
 
+const Artist = require('./models/artist');
+
 const app = express();
+
+mongoose.connect('mongodb+srv://walker:uhVohgU5zD8d1F6H@cluster0-svu8u.mongodb.net/test?retryWrites=true', { useNewUrlParser: true })
+    .then(() =>
+    {
+        console.log('Database connection successful...');
+    })
+    .catch((err) =>
+    {
+        console.log(err);
+    });
+
 
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: false }));
@@ -22,49 +36,32 @@ app.use((req, res, next) =>
 
 app.post("/api/artists", (req, res, next) =>
 {
-    const artist = req.body;
-    console.log(artist);
+    const artist = new Artist({
+        name: req.body.name,
+        minutesListened: req.body.minutesListened
+    });
+    
+    artist.save();
+
     res.status(201).json({
-        message: 'Artist sucessfully ignored'
+        message: 'Artist sucessfully saved'
     });
 });
 
 app.get("/api/artists", (req, res, next) => {
-    const artists = 
-    [
+    Artist.find()
+        .then(documents =>
         {
-            id: "ajlkjdlajsld",
-            name: "Rainbow Kitten Surprise",
-            minutesListened: 600,
-            topSongs: [
-                "Fever Pitch",
-                "Moody Orange",
-                "Devil Like Me",
-                "Cocaine Jesus"
-            ]
-        },
+            res.status(200).json({
+                message: 'Artists fetched successfully',
+                artists: documents
+            });
+            console.log(documents);
+        })
+        .catch(err =>
         {
-            id: "qpoamxiuhq39",
-            name: "The Sheepdogs",
-            minutesListened: 400,
-            topSongs: [
-                "Please Don't Lead Me On",
-                "I Don't Know",
-                "Feeling Good",
-                "Laid Back"
-            ]
-        },
-    ]
-
-    res.status(200).json({
-        message: "Walker's Top Artists fetched",
-        artists: artists
-    });
-});
-
-app.use((req, res, next) => {
-    console.log('Second middleware executed...');
-    res.send('End');
+            console.log(err);
+        });
 });
 
 module.exports = app;
