@@ -8,20 +8,32 @@ import { ArtistsService } from '../artists.service';
     styleUrls: ['./artist-create.component.css']
 })
 export class ArtistCreateComponent implements OnInit {
-    name: string = '';
+    name: string;
     minutesListened: number;
 
     constructor(public artistsService: ArtistsService) { }
 
     ngOnInit()
     {
-        
+        this.resetForm()
     }
 
     onAddArtist()
     {
+        if (!this.isArtistEntered()) return;
+
         this.artistsService.addArtist(this.name, this.minutesListened);
-        this.name = '';
+        this.resetForm();
+    }
+
+    isArtistEntered()
+    {
+        return this.name && this.minutesListened;
+    }
+
+    resetForm()
+    {
+        this.name = null;
         this.minutesListened = null;
     }
 }
