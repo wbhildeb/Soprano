@@ -1,6 +1,7 @@
 import { Injectable } from '@angular/core';
-import { Subject, Observable, empty } from 'rxjs';
 import { HttpClient } from '@angular/common/http';
+import { Subject, Observable, empty } from 'rxjs';
+import { map } from 'rxjs/operators';
 
 import { Artist } from './artist.model';
 
@@ -14,7 +15,22 @@ export class ArtistsService
 
     getArtists()
     {
-        this.http.get<{message: string, artists: Artist[]}>('http://localhost:3000/api/artists')
+        this.http
+            .get<{message: string, artists: any}>(
+                'http://localhost:3000/api/artists'
+            )
+            .pipe(map(artistData => 
+            {
+                return artistData.artists.map(artist => 
+                {
+                    return {
+                        id: artist._id,
+                        name: artist.name,
+                        minutesListened: artist.minutesListened,
+                        topSongs: artist.topSongs
+                    }
+                });
+            }))
             .subscribe((artistData) =>
             {
                 this.artists = artistData.artists;
