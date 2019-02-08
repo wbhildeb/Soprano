@@ -24,17 +24,17 @@ app.use((req, res, next) =>
 {
     res.setHeader("Access-Control-Allow-Origin", '*');
     res.setHeader(
-        "Access-Control-Allow-Headers",
+        'Access-Control-Allow-Headers',
         'Origin, X-Request-With, Content-Type, Accept'
     );
     res.setHeader(
-        "Access-Control-Allow-Methods",
-        "GET, POST, PATCH, DELETE, OPTIONS"
+        'Access-Control-Allow-Methods',
+        'GET, POST, PATCH, DELETE, OPTIONS'
     )
     next();
 });
 
-app.post("/api/artists", (req, res, next) =>
+app.post('/api/artists', (req, res, next) =>
 {
     const artist = new Artist({
         name: req.body.name,
@@ -48,7 +48,7 @@ app.post("/api/artists", (req, res, next) =>
     });
 });
 
-app.get("/api/artists", (req, res, next) => {
+app.get('/api/artists', (req, res, next) => {
     Artist.find()
         .then(documents =>
         {

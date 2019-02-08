@@ -31,9 +31,9 @@ export class ArtistsService
                     }
                 });
             }))
-            .subscribe((artistData) =>
+            .subscribe((artists) =>
             {
-                this.artists = artistData.artists;
+                this.artists = artists;
                 this.artistsUpdated.next([...this.artists]);
             })
     }
