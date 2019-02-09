@@ -1,7 +1,12 @@
-const express = require('express');
-const mongoose = require('mongoose');
-const bodyParser = require('body-parser');
+const express       = require('express');
+const mongoose      = require('mongoose');
+const bodyParser    = require('body-parser');
+const cookieParser  = require('cookie-parser');
+const querystring   = require('querystring');
+const request       = require('request');
 
+
+const spotify = require('./spotify-credentials');
 const Artist = require('./models/artist');
 
 const app = express();
@@ -17,8 +22,9 @@ mongoose.connect('mongodb+srv://walker:uhVohgU5zD8d1F6H@cluster0-svu8u.mongodb.n
     });
 
 
-app.use(bodyParser.json());
-app.use(bodyParser.urlencoded({ extended: false }));
+app .use(bodyParser.json())
+    .use(bodyParser.urlencoded({ extended: false }))
+    .use(cookieParser());
 
 app.use((req, res, next) =>
 {
@@ -33,6 +39,89 @@ app.use((req, res, next) =>
     )
     next();
 });
+
+/////////// SPOTIFY AUTHORIZATION ///////////
+app.get('/spotify/login', (req, res, next) =>
+{
+    var state = spotify.generateState();
+    res.cookie(spotify.stateKey, state);
+
+    res.redirect(spotify.authorizeLink +
+        querystring.stringify({
+            response_type: 'code',
+            client_id: spotify.clientID,
+            scope: spotify.scope,
+            redirect_uri: spotify.redirectURI,
+            state: state
+        })
+    );
+});
+
+app.get('/spotify/callback', function (req, res, next)
+{
+    var code = req.query.code;
+    var state = req.query.state;
+    var storedState = req.cookies ? req.cookies[spotify.stateKey] : null;
+    
+    if (state == null || state != storedState)
+    {
+        res.redirect('/#' +
+            querystring.stringify({
+                error: state + "," + storedState
+            })
+        );
+    }
+    else
+    {        
+        var authOptions =
+        {
+            url: 'https://accounts.spotify.com/api/token',
+            form: {
+              code: code,
+              redirect_uri: spotify.redirectURI,
+              grant_type: 'authorization_code'
+            },
+            headers: {
+              'Authorization': 'Basic ' + (new Buffer(spotify.clientID + ':' + spotify.clientSecret).toString('base64'))
+            },
+            json: true
+        };
+
+        request.post(authOptions, function(error, response, body)
+        {
+            if (!error && response.statusCode === 200) {
+                var access_token = body.access_token;
+                var refresh_token = body.refresh_token;
+      
+                var options = {
+                    url: 'https://api.spotify.com/v1/me',
+                    headers: { 'Authorization': 'Bearer ' + access_token },
+                    json: true
+                };
+                
+                request(options, function(err, res, body)
+                {
+                    if (err)
+                    {
+                        console.log(err);
+                    }
+
+                    console.log(body);
+                });
+
+                res.redirect('http://localhost:4200/spotify');
+            }
+            else
+            {
+                res.redirect('/#' +
+                    querystring.stringify({
+                        error: 'invalid_token'
+                }));
+            }
+        });
+    }
+})
+/////////// SPOTIFY AUTHORIZATION ///////////
 
 app.post('/api/artists', (req, res, next) =>
 {
