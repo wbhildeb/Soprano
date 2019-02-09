@@ -11,6 +11,7 @@ import { PaperShowcaseComponent } from './components/paper-showcase/paper-showca
 import { ArtistListComponent } from './components/spotify/artist/artist-list/artist-list.component';
 import { ArtistCreateComponent } from './components/spotify/artist/artist-create/artist-create.component';
 import { TrackListComponent } from './components/spotify/track/track-list/track-list.component';
+import { SpotifyLoginComponent } from './components/spotify/spotify-login/spotify-login.component';
 
 @NgModule({
   declarations: [
@@ -20,7 +21,8 @@ import { TrackListComponent } from './components/spotify/track/track-list/track-
     PaperShowcaseComponent,
     ArtistListComponent,
     ArtistCreateComponent,
-    TrackListComponent
+    TrackListComponent,
+    SpotifyLoginComponent
   ],
   imports: [
     BrowserModule,
