@@ -3,7 +3,7 @@ import { HttpClient } from '@angular/common/http';
 import { Subject, Observable, empty } from 'rxjs';
 import { map } from 'rxjs/operators';
 
-import { Artist } from './artist.model';
+import { Artist } from '../spotify.models';
 
 @Injectable({providedIn: 'root'})
 export class ArtistsService

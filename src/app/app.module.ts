@@ -10,6 +10,7 @@ import { SpotifyComponent } from './components/spotify/spotify.component';
 import { PaperShowcaseComponent } from './components/paper-showcase/paper-showcase.component';
 import { ArtistListComponent } from './components/spotify/artist/artist-list/artist-list.component';
 import { ArtistCreateComponent } from './components/spotify/artist/artist-create/artist-create.component';
+import { TrackListComponent } from './components/spotify/track/track-list/track-list.component';
 
 @NgModule({
   declarations: [
@@ -18,7 +19,8 @@ import { ArtistCreateComponent } from './components/spotify/artist/artist-create
     SpotifyComponent,
     PaperShowcaseComponent,
     ArtistListComponent,
-    ArtistCreateComponent
+    ArtistCreateComponent,
+    TrackListComponent
   ],
   imports: [
     BrowserModule,

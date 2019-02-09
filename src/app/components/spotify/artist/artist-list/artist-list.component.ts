@@ -1,8 +1,8 @@
 import { Component, OnInit, OnDestroy } from '@angular/core';
 import { Subscription } from 'rxjs';
 
-import { Artist } from '../artist.model';
-import { ArtistsService } from '../artists.service';
+import { Artist } from '../../spotify.models';
+import { ArtistsService } from '../../services/artists.service';
 
 @Component({
   selector: 'app-artist-list',

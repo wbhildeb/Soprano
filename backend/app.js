@@ -64,4 +64,13 @@ app.get('/api/artists', (req, res, next) => {
         });
 });
 
+app.delete('/api/artists/:id', (req, res, next) =>
+{
+    console.log(req.params.id);
+    res.statusCode(200).json({
+        message: 'Delete request ignored! ...for now...'
+    });
+});
+
+
 module.exports = app;

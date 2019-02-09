@@ -1,6 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 
-import { ArtistsService } from '../artists.service';
+import { ArtistsService } from '../../services/artists.service';
 
 @Component({
     selector: 'app-artist-create',

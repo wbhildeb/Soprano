@@ -1,6 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 
-import { Artist } from './artist/artist.model'
+import { Artist } from './spotify.models'
 
 @Component({
   selector: 'app-spotify',
