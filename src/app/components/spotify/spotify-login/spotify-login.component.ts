@@ -4,6 +4,7 @@ import { Subscription } from 'rxjs';
 import { User } from '../spotify.models';
 import { UsersService } from '../services/users.service';
 import { userInfo } from 'os';
+import { HttpClient } from '@angular/common/http';
 
 @Component({
   selector: 'app-spotify-login',
@@ -15,11 +16,12 @@ export class SpotifyLoginComponent implements OnInit, OnDestroy
     user: User;
     userSub: Subscription;
 
-    constructor(private usersService: UsersService) { }
+    constructor(private usersService: UsersService, private http: HttpClient) { }
 
     ngOnInit()
     {
         this.usersService.getUser();
+
         this.userSub = this.usersService.getUserUpdateListener()
             .subscribe((user: User) => {
                 this.user = user;
@@ -28,7 +30,7 @@ export class SpotifyLoginComponent implements OnInit, OnDestroy
 
     ngOnDestroy()
     {
-        this.user
+        this.userSub.unsubscribe();
     }
 
     isLoggedIn()
@@ -36,4 +38,9 @@ export class SpotifyLoginComponent implements OnInit, OnDestroy
         return this.user;
     }
 
+    onLogin()
+    {
+        // this.http.get('http://localhost:3000/spotify/login', { withCredentials: true });
+        this.usersService.getUser();
+    }
 }

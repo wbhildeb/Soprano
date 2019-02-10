@@ -20,7 +20,10 @@ export class UsersService {
     getUser()
     {
         this.http
-            .get<{message: string, user: any}>('http://localhost:3000/spotify/user')
+            .get<{message: string, user: any}>(
+                'http://localhost:3000/spotify/user',
+                { withCredentials: true }
+            )
             .subscribe((userData) =>
             {
                 this.user = {

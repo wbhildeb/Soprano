@@ -1,17 +1,119 @@
-const express       = require('express');
-const mongoose      = require('mongoose');
-const bodyParser    = require('body-parser');
-const cookieParser  = require('cookie-parser');
-const querystring   = require('querystring');
-const request       = require('request');
-const session       = require('express-session');
+const express           = require('express');
+const mongoose          = require('mongoose');
+const bodyParser        = require('body-parser');
+const querystring       = require('querystring');
+const request           = require('request');
+const expressSession    = require('express-session');
 
-const spotify       = require('./spotify-credentials');
+const spotify           = require('./spotify-credentials');
 
-const Artist        = require('./models/artist');
-const Session       = require('./models/session');
-const User          = require('./models/user')
+const Artist            = require('./models/artist');
+const Session           = require('./models/session');
+const User              = require('./models/user')
 
+
+/**
+ * 
+ * @param {Session} session
+ */
+const addOrUpdateSession = function(session)
+{
+    Session
+        .deleteMany({ sessionID : session.sessionID })
+        .then(() =>
+        {
+            session.save();
+        });
+}
+
+/**
+ * 
+ * @param {User} user
+ */
+const addOrUpdateUser = function(user)
+{
+    User
+        .deleteMany({ userID : user.userID })
+        .then(() =>
+        {
+            user.save();
+        });
+}
+
+const getSession = function(request)
+{
+    return new Promise((resolve, reject) =>
+    {
+        Session
+            .find( {sessionID : request.sessionID} )
+            .then(sessions =>
+            {
+                if (sessions && sessions.length == 1) resolve(sessions[0]);
+                else if (sessions) reject("Multiple sessions found");
+                else reject("No sessions found");
+            });
+    });
+}
+
+const getAuthToken = function(request)
+{
+    return new Promise((resolve, reject) =>
+    {
+        getSession(request)
+            .then(
+                success =>
+                {
+                    resolve(success.authToken);
+                },
+                failure =>
+                {
+                    reject(failure);
+                }
+            );
+    });
+}
+
+const getRefreshToken = function(request)
+{
+    return new Promise((resolve, reject) =>
+    {
+        getSession(request)
+            .then(
+                success =>
+                {
+                    resolve(success.refreshToken);
+                },
+                failure =>
+                {
+                    reject(failure);
+                }
+            );
+    });
+}
+
+const requestUser = function(options)
+{
+    return new Promise((resolve, reject) => 
+    {
+        request.get(options, function(error, response, body)
+        {
+            if (error) console.log(error);
+
+            var user = new User({
+                userID:     body.id,
+                name:       body.display_name
+            });
+
+            if (body.images[0])
+            {
+                user.imageURL = body.images[0].url
+            }
+                        
+            resolve(user);
+        });
+    });
+    
+}
 
 const app = express();
 
@@ -28,8 +130,7 @@ mongoose.connect('mongodb+srv://walker:uhVohgU5zD8d1F6H@cluster0-svu8u.mongodb.n
 
 app .use(bodyParser.json())
     .use(bodyParser.urlencoded({ extended: false }))
-    .use(cookieParser())
-    .use(session({
+    .use(expressSession({
         secret: 'inigo montoya',
         resave: false,
         saveUninitialized: true
@@ -37,7 +138,8 @@ app .use(bodyParser.json())
 
 app.use((req, res, next) =>
 {
-    res.setHeader('Access-Control-Allow-Origin', '*');
+    res.setHeader('Access-Control-Allow-Origin', 'http://localhost:4200');
+    res.setHeader('Access-Control-Allow-Credentials', 'true');
     res.setHeader(
         'Access-Control-Allow-Headers',
         'Origin, X-Request-With, Content-Type, Accept'
@@ -49,11 +151,19 @@ app.use((req, res, next) =>
     next();
 });
 
+// app.all('*', function (req, res, next) {
+//     console.log('hit');
+//     console.log(req.session);
+//     console.log(req.sessionID);
+//     next(); // pass control to the next handler
+// });
+
+
 /////////// SPOTIFY AUTHORIZATION ///////////
 app.get('/spotify/login', (req, res, next) =>
 {
     var state = spotify.generateState();
-    res.cookie(spotify.stateKey, state);
+    req.session.auth_state = state;
 
     res.redirect(spotify.authorizeLink +
         querystring.stringify({
@@ -66,11 +176,28 @@ app.get('/spotify/login', (req, res, next) =>
     );
 });
 
+app.get('/spotify/logout', (req, res, next) =>
+{
+    var state = spotify.generateState();
+    req.session.auth_state = state;
+
+    res.redirect(spotify.authorizeLink +
+        querystring.stringify({
+            response_type: 'code',
+            client_id: spotify.clientID,
+            scope: spotify.scope,
+            redirect_uri: spotify.redirectURI,
+            state: state,
+            show_dialog: true
+        })
+    );
+});
+
 app.get('/spotify/callback', function (req, res, next)
 {
-    var code = req.query.code;
-    var state = req.query.state;
-    var storedState = req.cookies ? req.cookies[spotify.stateKey] : null;
+    const code = req.query.code;
+    const state = req.query.state;
+    const storedState = req.session.auth_state;
     
     if (state == null || state != storedState)
     {
@@ -101,18 +228,15 @@ app.get('/spotify/callback', function (req, res, next)
             if (!err && res.statusCode === 200)
             {
                 const session = new Session({
-                    sessionID: sessionID,
+                    sessionID: req.sessionID,
                     authToken: body.access_token,
                     refreshToken: body.refresh_token
                 });
         
-                session.save();
+                addOrUpdateSession(session);
             }
         });
 
-        const sessionID = spotify.generateState();
-        res.cookie(spotify.sessionKey, sessionID);
-        console.log(req.cookies)
         res.redirect('http://localhost:4200/spotify');
     }
 });
@@ -120,9 +244,30 @@ app.get('/spotify/callback', function (req, res, next)
 
 app.get('/spotify/user', (req, res, next) =>
 {
-    console.log(req.cookies[spotify.sessionKey]);
+    getAuthToken(req)
+        .then(authToken =>
+        {
+            var options = {
+                url: 'https://api.spotify.com/v1/me',
+                headers: { 'Authorization': 'Bearer ' + authToken },
+                json: true
+            };
+    
+            requestUser(options)
+                .then(user =>
+                {
+                    console.log(user);
+                    res.status(200).json({
+                        message: 'User fetched successfully',
+                        user: user
+                    });
+                });
+        }, failure =>
+        {
+            console.log(failure);
+            console.log(req.sessionID);
+        });
 });
-
 
 app.post('/api/artists', (req, res, next) =>
 {
