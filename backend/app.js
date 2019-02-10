@@ -4,10 +4,14 @@ const bodyParser    = require('body-parser');
 const cookieParser  = require('cookie-parser');
 const querystring   = require('querystring');
 const request       = require('request');
+const session       = require('express-session');
 
+const spotify       = require('./spotify-credentials');
 
-const spotify = require('./spotify-credentials');
-const Artist = require('./models/artist');
+const Artist        = require('./models/artist');
+const Session       = require('./models/session');
+const User          = require('./models/user')
+
 
 const app = express();
 
@@ -24,11 +28,16 @@ mongoose.connect('mongodb+srv://walker:uhVohgU5zD8d1F6H@cluster0-svu8u.mongodb.n
 
 app .use(bodyParser.json())
     .use(bodyParser.urlencoded({ extended: false }))
-    .use(cookieParser());
+    .use(cookieParser())
+    .use(session({
+        secret: 'inigo montoya',
+        resave: false,
+        saveUninitialized: true
+    }));
 
 app.use((req, res, next) =>
 {
-    res.setHeader("Access-Control-Allow-Origin", '*');
+    res.setHeader('Access-Control-Allow-Origin', '*');
     res.setHeader(
         'Access-Control-Allow-Headers',
         'Origin, X-Request-With, Content-Type, Accept'
@@ -67,12 +76,12 @@ app.get('/spotify/callback', function (req, res, next)
     {
         res.redirect('/#' +
             querystring.stringify({
-                error: state + "," + storedState
+                error: state + ',' + storedState
             })
         );
     }
     else
-    {        
+    {
         var authOptions =
         {
             url: 'https://accounts.spotify.com/api/token',
@@ -87,41 +96,33 @@ app.get('/spotify/callback', function (req, res, next)
             json: true
         };
 
-        request.post(authOptions, function(error, response, body)
+        request.post(authOptions, function(err, res, body)
         {
-            if (!error && response.statusCode === 200) {
-                var access_token = body.access_token;
-                var refresh_token = body.refresh_token;
-      
-                var options = {
-                    url: 'https://api.spotify.com/v1/me',
-                    headers: { 'Authorization': 'Bearer ' + access_token },
-                    json: true
-                };
-                
-                request(options, function(err, res, body)
-                {
-                    if (err)
-                    {
-                        console.log(err);
-                    }
-
-                    console.log(body);
-                });
-
-                res.redirect('http://localhost:4200/spotify');
-            }
-            else
+            if (!err && res.statusCode === 200)
             {
-                res.redirect('/#' +
-                    querystring.stringify({
-                        error: 'invalid_token'
-                }));
+                const session = new Session({
+                    sessionID: sessionID,
+                    authToken: body.access_token,
+                    refreshToken: body.refresh_token
+                });
+        
+                session.save();
             }
         });
+
+        const sessionID = spotify.generateState();
+        res.cookie(spotify.sessionKey, sessionID);
+        console.log(req.cookies)
+        res.redirect('http://localhost:4200/spotify');
     }
-})
+});
 /////////// SPOTIFY AUTHORIZATION ///////////
+
+app.get('/spotify/user', (req, res, next) =>
+{
+    console.log(req.cookies[spotify.sessionKey]);
+});
+
 
 app.post('/api/artists', (req, res, next) =>
 {
@@ -160,6 +161,5 @@ app.delete('/api/artists/:id', (req, res, next) =>
         message: 'Delete request ignored! ...for now...'
     });
 });
-
 
 module.exports = app;

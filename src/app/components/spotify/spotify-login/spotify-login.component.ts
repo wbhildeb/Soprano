@@ -1,34 +1,39 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, OnDestroy } from '@angular/core';
+import { Subscription } from 'rxjs';
+
+import { User } from '../spotify.models';
+import { UsersService } from '../services/users.service';
+import { userInfo } from 'os';
 
 @Component({
   selector: 'app-spotify-login',
   templateUrl: './spotify-login.component.html',
   styleUrls: ['./spotify-login.component.css']
 })
-export class SpotifyLoginComponent implements OnInit
+export class SpotifyLoginComponent implements OnInit, OnDestroy
 {
-    private loggedIn : boolean = false;
-    
+    user: User;
+    userSub: Subscription;
 
+    constructor(private usersService: UsersService) { }
 
-    constructor() { }
-
-    ngOnInit() {
+    ngOnInit()
+    {
+        this.usersService.getUser();
+        this.userSub = this.usersService.getUserUpdateListener()
+            .subscribe((user: User) => {
+                this.user = user;
+            });
     }
 
-    isLoggedIn() : boolean
+    ngOnDestroy()
     {
-        return this.loggedIn;
+        this.user
     }
 
-    onLogin()
+    isLoggedIn()
     {
-        this.loggedIn = true;
-    }
-
-    onLogout()
-    {
-        this.loggedIn = false;
+        return this.user;
     }
 
 }

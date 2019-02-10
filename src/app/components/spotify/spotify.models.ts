@@ -22,3 +22,10 @@ export interface Artist
     minutesListened:    number;
     topSongs:           string[];
 }
+
+export interface User
+{
+    id:                 string;
+    name:               string;
+    imageURL:           string;
+}

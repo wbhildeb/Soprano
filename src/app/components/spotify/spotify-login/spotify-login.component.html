@@ -2,19 +2,18 @@
   <!-- Logged In -->
   <div *ngIf="isLoggedIn()" class="row justify-content-end">
     <div class="col-3 px-2">
-      <div class="float-right">Walker Hildebrand</div>
+      <div class="float-right">{{ user.name }}</div>
       <button
         id="spotify-logout"
         type="button"
-        class="float-right btn btn-link p-0"
-        (click)="onLogout()">
-        (Not you?)
+        class="float-right btn btn-link p-0">
+        <a href="http://localhost:3000/spotify/logout">Not You?</a>
       </button>
     </div>
     <div class="col-md-auto px-0">
         <img
           class="rounded-circle icon float-right"
-          src="https://scontent.fyto1-1.fna.fbcdn.net/v/t1.0-1/p320x320/21317638_1745842612386204_1530069141758424828_n.jpg?_nc_cat=106&_nc_ht=scontent.fyto1-1.fna&oh=c1fcaf10bd1ee8f60fc48bc78fb06c34&oe=5CE718B5"
+          src="{{ user.imageURL }}"
         >
     </div>
   </div>
@@ -24,8 +23,7 @@
     <div class="col-md-auto px-0">
       <button
         type="button"
-        class="btn btn-link"
-        (click)="onLogin()">
+        class="btn btn-link">
         <a href="http://localhost:3000/spotify/login">Login</a>
       </button>
     </div>
