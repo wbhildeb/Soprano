@@ -1,3 +1,5 @@
+const request = require('request');
+
 exports.clientID        = '391e2916ad4a4709908a2d71ffaeb0c5';
 exports.clientSecret    = '8bfdab0cdbd841bfb127f58545b90402';
 exports.redirectURI     = 'http://localhost:3000/spotify/callback';
@@ -5,6 +7,8 @@ exports.scope           = 'user-library-modify user-read-private user-modify-pla
 exports.stateKey        = 'spotify_auth_state';
 exports.sessionKey      = 'spotify_session'
 exports.authorizeLink   = 'https://accounts.spotify.com/authorize?';
+
+
 /**
  * Generates a random state
  * @return {string}: The generated state
@@ -20,3 +24,30 @@ module.exports.generateState = function()
     }
     return text;
 };
+
+
+
+module.exports.requestUser = function(auth_token)
+{
+    var options = {
+        url: 'https://api.spotify.com/v1/me',
+        headers: { 'Authorization': 'Bearer ' + auth_token },
+        json: true
+    };
+
+    return new Promise((resolve, reject) =>
+    {
+        request.get(options, (err, res, body) =>
+        {
+            if (err || res.statusCode != 200)
+            {
+                console.log(err);
+                reject(err);
+            }
+            else
+            {
+                resolve(body);
+            }
+        });
+    });
+}

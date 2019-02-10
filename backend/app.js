@@ -5,7 +5,7 @@ const querystring       = require('querystring');
 const request           = require('request');
 const expressSession    = require('express-session');
 
-const spotify           = require('./spotify-credentials');
+const spotify           = require('./spotify');
 
 const Artist            = require('./models/artist');
 const Session           = require('./models/session');
@@ -89,30 +89,6 @@ const getRefreshToken = function(request)
                 }
             );
     });
-}
-
-const requestUser = function(options)
-{
-    return new Promise((resolve, reject) => 
-    {
-        request.get(options, function(error, response, body)
-        {
-            if (error) console.log(error);
-
-            var user = new User({
-                userID:     body.id,
-                name:       body.display_name
-            });
-
-            if (body.images[0])
-            {
-                user.imageURL = body.images[0].url
-            }
-                        
-            resolve(user);
-        });
-    });
-    
 }
 
 const app = express();
@@ -247,25 +223,24 @@ app.get('/spotify/user', (req, res, next) =>
     getAuthToken(req)
         .then(authToken =>
         {
-            var options = {
-                url: 'https://api.spotify.com/v1/me',
-                headers: { 'Authorization': 'Bearer ' + authToken },
-                json: true
-            };
-    
-            requestUser(options)
-                .then(user =>
-                {
-                    console.log(user);
-                    res.status(200).json({
-                        message: 'User fetched successfully',
-                        user: user
-                    });
-                });
-        }, failure =>
+            return spotify.requestUser(authToken);
+        })
+        .then(userData =>
         {
-            console.log(failure);
-            console.log(req.sessionID);
+            var user = new User({
+                userID:     userData.id,
+                name:       userData.display_name
+            });
+
+            if (userData.images[0])
+            {
+                user.imageURL = userData.images[0].url;
+            }
+            
+            res.status(200).json({
+                message: 'User fetched sucessfully',
+                user: user
+            });
         });
 });
 
