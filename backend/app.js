@@ -11,33 +11,72 @@ const Artist            = require('./models/artist');
 const Session           = require('./models/session');
 const User              = require('./models/user')
 
+const fs = require('fs');
 
-/**
- * 
- * @param {Session} session
- */
+const app = express();
+
+const DEBUG = true;
+
+mongoose.connect('mongodb+srv://walker:uhVohgU5zD8d1F6H@cluster0-svu8u.mongodb.net/test?retryWrites=true', { useNewUrlParser: true })
+    .then(() =>
+    {
+        console.log('Database connection successful...');
+    })
+    .catch(err =>
+    {
+        console.log(err);
+    });
+
+app .use(bodyParser.json())
+    .use(bodyParser.urlencoded({ extended: false }))
+    .use(expressSession({
+        secret: 'inigo montoya',
+        resave: false,
+        saveUninitialized: true
+    }))
+    .use((req, res, next) =>
+    {
+        res.setHeader('Access-Control-Allow-Origin', 'http://localhost:4200');
+        res.setHeader('Access-Control-Allow-Credentials', 'true');
+        res.setHeader(
+            'Access-Control-Allow-Headers',
+            'Origin, X-Request-With, Content-Type, Accept'
+        );
+        res.setHeader(
+            'Access-Control-Allow-Methods',
+            'GET, POST, PATCH, DELETE, OPTIONS'
+        )
+        next();
+    });
+
+// DEBUG
+app.all('*', function (req, res, next)
+{
+    if (DEBUG)
+    {
+        console.log("--- DEBUG INFO ---------------");
+        console.log(req.method + " " + req.url);
+        console.log("sessionID: " + req.sessionID);
+        console.log(req.session);
+        console.log("------------------------------");
+    }
+    next(); // pass control to the next handler
+});
+
 const addOrUpdateSession = function(session)
 {
-    Session
-        .deleteMany({ sessionID : session.sessionID })
-        .then(() =>
-        {
-            session.save();
-        });
-}
-
-/**
- * 
- * @param {User} user
- */
-const addOrUpdateUser = function(user)
-{
-    User
-        .deleteMany({ userID : user.userID })
-        .then(() =>
-        {
-            user.save();
-        });
+    return new Promise(() =>
+    {
+        Session
+            //.deleteMany({ sessionID : session.sessionID })
+            .deleteMany({}) // for now
+            .then(() =>
+            {
+                session.save();
+                Promise.resolve();
+            });
+    });
+    
 }
 
 const getSession = function(request)
@@ -49,9 +88,12 @@ const getSession = function(request)
             .then(sessions =>
             {
                 if (sessions && sessions.length == 1) resolve(sessions[0]);
-                else if (sessions) reject("Multiple sessions found");
-                else reject("No sessions found");
-            });
+                else
+                {
+                    console.log("Found sessions:")
+                    console.log(sessions);
+                }
+            })
     });
 }
 
@@ -60,16 +102,14 @@ const getAuthToken = function(request)
     return new Promise((resolve, reject) =>
     {
         getSession(request)
-            .then(
-                success =>
-                {
-                    resolve(success.authToken);
-                },
-                failure =>
-                {
-                    reject(failure);
-                }
-            );
+            .then(session =>
+            {
+                resolve(session.authToken);
+            })
+            .catch(err =>
+            {
+                console.log(err);
+            });
     });
 }
 
@@ -78,61 +118,17 @@ const getRefreshToken = function(request)
     return new Promise((resolve, reject) =>
     {
         getSession(request)
-            .then(
-                success =>
-                {
-                    resolve(success.refreshToken);
-                },
-                failure =>
-                {
-                    reject(failure);
-                }
-            );
+            .then(session =>
+            {
+                return session.refreshToken;
+            });
     });
 }
 
-const app = express();
-
-mongoose.connect('mongodb+srv://walker:uhVohgU5zD8d1F6H@cluster0-svu8u.mongodb.net/test?retryWrites=true', { useNewUrlParser: true })
-    .then(() =>
-    {
-        console.log('Database connection successful...');
-    })
-    .catch((err) =>
-    {
-        console.log(err);
-    });
 
 
-app .use(bodyParser.json())
-    .use(bodyParser.urlencoded({ extended: false }))
-    .use(expressSession({
-        secret: 'inigo montoya',
-        resave: false,
-        saveUninitialized: true
-    }));
 
-app.use((req, res, next) =>
-{
-    res.setHeader('Access-Control-Allow-Origin', 'http://localhost:4200');
-    res.setHeader('Access-Control-Allow-Credentials', 'true');
-    res.setHeader(
-        'Access-Control-Allow-Headers',
-        'Origin, X-Request-With, Content-Type, Accept'
-    );
-    res.setHeader(
-        'Access-Control-Allow-Methods',
-        'GET, POST, PATCH, DELETE, OPTIONS'
-    )
-    next();
-});
 
-// app.all('*', function (req, res, next) {
-//     console.log('hit');
-//     console.log(req.session);
-//     console.log(req.sessionID);
-//     next(); // pass control to the next handler
-// });
 
 
 /////////// SPOTIFY AUTHORIZATION ///////////
@@ -177,6 +173,10 @@ app.get('/spotify/callback', function (req, res, next)
     
     if (state == null || state != storedState)
     {
+        console.log("--- Mismatched State Error ----------");
+        console.log(error);
+        console.log("-------------------------------------");
+
         res.redirect('/#' +
             querystring.stringify({
                 error: state + ',' + storedState
@@ -194,7 +194,7 @@ app.get('/spotify/callback', function (req, res, next)
               grant_type: 'authorization_code'
             },
             headers: {
-              'Authorization': 'Basic ' + (new Buffer(spotify.clientID + ':' + spotify.clientSecret).toString('base64'))
+              'Authorization': 'Basic ' + Buffer.from(spotify.clientID + ':' + spotify.clientSecret).toString('base64')
             },
             json: true
         };
@@ -210,6 +210,11 @@ app.get('/spotify/callback', function (req, res, next)
                 });
         
                 addOrUpdateSession(session);
+            }
+            else
+            {
+                console.log(`POST request error - status code ${res.statusCode}`);
+                console.log(err);
             }
         });
 
@@ -243,6 +248,27 @@ app.get('/spotify/user', (req, res, next) =>
             });
         });
 });
+
+app.get('/spotify/tracks', (req, res, next) =>
+{
+    getAuthToken(req)
+        .then(authToken =>
+        {
+            console.log("Successfully fetched authentication token: " + authToken);
+            return spotify.requestTracks(authToken);
+        })
+        .then(tracksData =>
+        {
+            fs.writeFile('myjsonfile.json', JSON.stringify(tracksData), 'utf8', () =>{});
+            res.end();
+        })
+        .catch(err =>
+        {
+            console.log(err);
+            res.end();
+        });
+});
+
 
 app.post('/api/artists', (req, res, next) =>
 {

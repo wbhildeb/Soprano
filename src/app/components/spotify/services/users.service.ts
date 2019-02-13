@@ -39,4 +39,17 @@ export class UsersService {
     {
         return this.userUpdated.asObservable();
     }
+
+    getTracks()
+    {
+        console.log("users.service.getTracks() called");
+        this.http.get<{message: string, user: any}>(
+            'http://localhost:3000/spotify/tracks',
+            { withCredentials: true }
+        )
+        .subscribe(() => 
+        {
+            console.log("GET request complete");
+        });
+    }
 }

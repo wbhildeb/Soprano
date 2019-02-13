@@ -51,3 +51,36 @@ module.exports.requestUser = function(auth_token)
         });
     });
 }
+
+/**
+ * This function returns recently listened to tracks of a user
+ * @param {string} auth_token - The authentication token needed by spotify
+ * @param {number} limit - The number of tracks to get back (between 1 and 50, inclusive)
+ */
+module.exports.requestTracks = function(auth_token, limit)
+{
+    var options = {
+        url: 'https://api.spotify.com/v1/me/player/recently-played',
+        headers: { 'Authorization' : 'Bearer ' + auth_token },
+        limit: limit,
+        json: true
+    };
+
+    return new Promise((resolve, reject) =>
+    {
+        request.get(options, (err, res, body) =>
+        {
+            if (err)
+            {
+                console.log(err);
+            }
+
+            if (res.statusCode != 200)
+            {
+                console.log("Status code: " + res.statusCode);
+            }
+
+            resolve(body);
+        });
+    });
+}

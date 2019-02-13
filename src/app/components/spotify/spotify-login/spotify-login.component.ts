@@ -43,4 +43,11 @@ export class SpotifyLoginComponent implements OnInit, OnDestroy
         // this.http.get('http://localhost:3000/spotify/login', { withCredentials: true });
         this.usersService.getUser();
     }
+
+
+    onGetTracks()
+    {
+        console.log("onGetTracks triggered");
+        this.usersService.getTracks();
+    }
 }
