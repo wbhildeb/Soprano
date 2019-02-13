@@ -259,7 +259,7 @@ app.get('/spotify/tracks', (req, res, next) =>
         })
         .then(tracksData =>
         {
-            fs.writeFile('myjsonfile.json', JSON.stringify(tracksData), 'utf8', () =>{});
+            console.log(tracksData);
             res.end();
         })
         .catch(err =>

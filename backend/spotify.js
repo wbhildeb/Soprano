@@ -46,6 +46,7 @@ module.exports.requestUser = function(auth_token)
             }
             else
             {
+                console.log(body);
                 resolve(body);
             }
         });
