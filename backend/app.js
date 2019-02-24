@@ -106,14 +106,15 @@ const getSession = function(request)
     });
 }
 
-const getAuthToken = function(request)
+const setAccessToken = function(request)
 {
     return new Promise((resolve, reject) =>
     {
         getSession(request)
             .then(session =>
             {
-                resolve(session.authToken);
+                spotify.setAccessToken(session.authToken);
+                resolve();
             })
             .catch(err =>
             {
@@ -218,10 +219,10 @@ app.get('/spotify/callback', function (req, res, next)
 ///////////////////////////////// Spotify API /////////////////////////////////
 app.get('/spotify/user', (req, res, next) =>
 {
-    getAuthToken(req)
-        .then(authToken =>
+    setAccessToken(req)
+        .then(() =>
         {
-            return spotify.getUser(authToken);
+            return spotify.getUser();
         })
         .then(user =>
         {
@@ -235,19 +236,19 @@ app.get('/spotify/user', (req, res, next) =>
 
 app.get('/spotify/tracks', (req, res, next) =>
 {
-    getAuthToken(req)
-        .then(authToken =>
+    setAccessToken(req)
+        .then(() =>
         {
-            console.log("Successfully fetched authentication token: " + authToken);
-            return spotify.getTracks(authToken);
+            return spotify.getLastTracks(1);
         })
         .then(tracksData =>
         {
-            //console.log(tracksData);
+            console.log(tracksData);
             res.end();
         })
         .catch(err =>
         {
+            console.log('ERROR: /spotify/tracks');
             console.log(err);
             res.end();
         });

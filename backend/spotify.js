@@ -6,7 +6,7 @@
  * www.walkerhildebrand.com
  */
 
-//////////////////////////////////// Imports ////////////////////////////////////
+/////////////////////////////////// Imports ///////////////////////////////////
 var SpotifyObject       = require('spotify-web-api-node');
 
 /////////////////////////////////// Settings ///////////////////////////////////
@@ -28,10 +28,15 @@ var wrapper = new SpotifyObject({
     secret: "asd"
 });
 
-/////////////////////////// Basic Request Functions ///////////////////////////
-exports.getUser = function(auth_token)
+/////////////////////////////// Helper Functions ///////////////////////////////
+exports.setAccessToken = function(authToken)
 {
-    wrapper.setAccessToken(auth_token);
+    wrapper.setAccessToken(authToken);
+}
+
+/////////////////////////// Basic Request Functions ///////////////////////////
+exports.getUser = function()
+{
     return new Promise((resolve, reject) =>
     {
         wrapper
@@ -59,17 +64,29 @@ exports.getUser = function(auth_token)
     });
 }
 
-exports.getTracks = function(auth_token)
+const getTracks = function(limit = 20)
 {
-    wrapper.setAccessToken(auth_token);
-
     return new Promise((resolve, reject) =>
     {
         wrapper
-            .getMyRecentlyPlayedTracks({ limit: '2' })
+            .getMyRecentlyPlayedTracks({ limit: limit })
             .then(data =>
             {
-                console.log(data);
+                var tracks = data.body.items.map(trackData =>
+                {
+                    return new Track(
+                    {
+                        duration_ms:    trackData.track.duration_ms,
+                        explicit:       trackData.track.explicit,
+                        href:           trackData.track.href,
+                        id:             trackData.track.id,
+                        name:           trackData.track.name,
+                        popularity:     trackData.track.popularity,
+                        played_at:      trackData.played_at,
+                    });
+                });
+
+                resolve(tracks);
             });
     });
 }
@@ -78,13 +95,36 @@ exports.getTracks = function(auth_token)
 /**
  * Returns all of the tracks listened to between the start and end dates
  * 
- * @param {String} auth_token 
  * @param {Date} start
  * @param {Date} end
  * 
  * @returns {Array<Track>}
  */
-exports.getTracksBetween = function(auth_token, start, end)
+exports.getTracksBetween = function(start, end)
 {
     // TODO: Implement
+}
+
+/**
+ * Returns the last trakcs listened to, with max of 'limit'.
+ * 
+ * limit > 0
+ * 
+ * @param {number} limit 
+ * 
+ * @returns {Array<Track>}
+ */
+exports.getLastTracks = function(limit = 20)
+{
+    // TODO: Allow limit greater than 50
+    if (limit > 50 )
+    {
+        limit = 50;
+    }
+    else if (limit < 0)
+    {
+        limit = 20;
+    }
+
+    return getTracks(limit);
 }
