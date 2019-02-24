@@ -1,5 +1,8 @@
-const request = require('request');
+//////////////////////////////////// Imports ////////////////////////////////////
+var SpotifyObject       = require('spotify-web-api-node');
+const request           = require('request');
 
+/////////////////////////////////// Settings ///////////////////////////////////
 exports.clientID        = '391e2916ad4a4709908a2d71ffaeb0c5';
 exports.clientSecret    = '8bfdab0cdbd841bfb127f58545b90402';
 exports.redirectURI     = 'http://localhost:3000/spotify/callback';
@@ -8,80 +11,73 @@ exports.stateKey        = 'spotify_auth_state';
 exports.sessionKey      = 'spotify_session'
 exports.authorizeLink   = 'https://accounts.spotify.com/authorize?';
 
+//////////////////////////////////// Models ////////////////////////////////////
+const User              = require('./models/user')
+const Track             = require('./models/track')
 
-/**
- * Generates a random state
- * @return {string}: The generated state
- */
-module.exports.generateState = function()
+//////////////////////////////// Wrapper Object ////////////////////////////////
+var wrapper = new SpotifyObject({
+    id: "fuku",
+    secret: "asd"
+});
+
+/////////////////////////// Basic Request Functions ///////////////////////////
+exports.getUser = function(auth_token)
 {
-    var length = 16;
-    var text = '';
-    var possible = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
-  
-    for (var i = 0; i < length; i++) {
-      text += possible.charAt(Math.floor(Math.random() * possible.length));
-    }
-    return text;
-};
-
-
-
-module.exports.requestUser = function(auth_token)
-{
-    var options = {
-        url: 'https://api.spotify.com/v1/me',
-        headers: { 'Authorization': 'Bearer ' + auth_token },
-        json: true
-    };
-
+    wrapper.setAccessToken(auth_token);
     return new Promise((resolve, reject) =>
     {
-        request.get(options, (err, res, body) =>
-        {
-            if (err || res.statusCode != 200)
+        wrapper
+            .getMe()
+            .then(data =>
             {
-                console.log(err);
-                reject(err);
-            }
-            else
-            {
-                console.log(body);
-                resolve(body);
-            }
-        });
+                var userData = data.body;
+                var user = new User({
+                    country:        userData.country,
+                    display_name:   userData.display_name,
+                    href:           userData.href,
+                    id:             userData.id,
+                    product:        userData.product,
+                    type:           userData.type,
+                    uri:            userData.uri
+                });
+
+                if (userData.images[0])
+                {
+                    user.image_url = userData.images[0].url;
+                }
+
+                resolve(user);
+            });
     });
 }
 
-/**
- * This function returns recently listened to tracks of a user
- * @param {string} auth_token - The authentication token needed by spotify
- * @param {number} limit - The number of tracks to get back (between 1 and 50, inclusive)
- */
-module.exports.requestTracks = function(auth_token, limit)
+exports.getTracks = function(auth_token)
 {
-    var options = {
-        url: 'https://api.spotify.com/v1/me/player/recently-played',
-        headers: { 'Authorization' : 'Bearer ' + auth_token },
-        limit: limit,
-        json: true
-    };
+    wrapper.setAccessToken(auth_token);
 
     return new Promise((resolve, reject) =>
     {
-        request.get(options, (err, res, body) =>
-        {
-            if (err)
+        wrapper
+            .getMyRecentlyPlayedTracks({ limit: '2' })
+            .then(data =>
             {
-                console.log(err);
-            }
-
-            if (res.statusCode != 200)
-            {
-                console.log("Status code: " + res.statusCode);
-            }
-
-            resolve(body);
-        });
+                console.log(data);
+            });
     });
+}
+
+////////////////////////// Advanced Request Functions //////////////////////////
+/**
+ * Returns all of the tracks listened to between the start and end dates
+ * 
+ * @param {String} auth_token 
+ * @param {Date} start
+ * @param {Date} end
+ * 
+ * @returns {Array<Track>}
+ */
+exports.getTracksBetween = function(auth_token, start, end)
+{
+    // TODO: Implement
 }
