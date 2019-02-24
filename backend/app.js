@@ -1,22 +1,29 @@
+/**
+ * app.js
+ * 
+ * Walker Hildebrand
+ * February 2019
+ * www.walkerhildebrand.com
+ */
+
+/////////////////////////////////// Imports ///////////////////////////////////
 const express           = require('express');
 const mongoose          = require('mongoose');
 const bodyParser        = require('body-parser');
 const querystring       = require('querystring');
 const request           = require('request');
 const expressSession    = require('express-session');
-
 const spotify           = require('./spotify');
 
+//////////////////////////////////// Models ////////////////////////////////////
 const Artist            = require('./models/artist');
 const Session           = require('./models/session');
 const User              = require('./models/user')
 
-const fs = require('fs');
-
-const app = express();
-
+/////////////////////////////////// Settings ///////////////////////////////////
 const DEBUG = true;
 
+/////////////////////////////////// Database ///////////////////////////////////
 mongoose.connect('mongodb+srv://walker:uhVohgU5zD8d1F6H@cluster0-svu8u.mongodb.net/test?retryWrites=true', { useNewUrlParser: true })
     .then(() =>
     {
@@ -27,6 +34,8 @@ mongoose.connect('mongodb+srv://walker:uhVohgU5zD8d1F6H@cluster0-svu8u.mongodb.n
         console.log(err);
     });
 
+////////////////////////////////// Database //////////////////////////////////
+const app = express();
 app .use(bodyParser.json())
     .use(bodyParser.urlencoded({ extended: false }))
     .use(expressSession({
@@ -49,7 +58,7 @@ app .use(bodyParser.json())
         next();
     });
 
-// DEBUG
+//////////////////////////////////// Debug ////////////////////////////////////
 app.all('*', function (req, res, next)
 {
     if (DEBUG)
@@ -63,6 +72,7 @@ app.all('*', function (req, res, next)
     next(); // pass control to the next handler
 });
 
+/////////////////////////////// Helper Functions ///////////////////////////////
 const addOrUpdateSession = function(session)
 {
     return new Promise(() =>
@@ -76,7 +86,6 @@ const addOrUpdateSession = function(session)
                 Promise.resolve();
             });
     });
-    
 }
 
 const getSession = function(request)
@@ -125,41 +134,29 @@ const getRefreshToken = function(request)
     });
 }
 
-
-
-
-
-
-
-/////////// SPOTIFY AUTHORIZATION ///////////
+//////////////////////////// Spotify Authorization ////////////////////////////
 app.get('/spotify/login', (req, res, next) =>
 {
-    var state = spotify.generateState();
-    req.session.auth_state = state;
-
     res.redirect(spotify.authorizeLink +
         querystring.stringify({
             response_type: 'code',
             client_id: spotify.clientID,
             scope: spotify.scope,
             redirect_uri: spotify.redirectURI,
-            state: state
+            state: req.sessionID
         })
     );
 });
 
 app.get('/spotify/logout', (req, res, next) =>
 {
-    var state = spotify.generateState();
-    req.session.auth_state = state;
-
     res.redirect(spotify.authorizeLink +
         querystring.stringify({
             response_type: 'code',
             client_id: spotify.clientID,
             scope: spotify.scope,
             redirect_uri: spotify.redirectURI,
-            state: state,
+            state: req.sessionID,
             show_dialog: true
         })
     );
@@ -169,19 +166,15 @@ app.get('/spotify/callback', function (req, res, next)
 {
     const code = req.query.code;
     const state = req.query.state;
-    const storedState = req.session.auth_state;
     
-    if (state == null || state != storedState)
+    if (state == null || state != req.sessionID)
     {
         console.log("--- Mismatched State Error ----------");
-        console.log(error);
+        console.log(`State:        ${state}`);
+        console.log(`Stored State: ${req.sessionID}`)
         console.log("-------------------------------------");
 
-        res.redirect('/#' +
-            querystring.stringify({
-                error: state + ',' + storedState
-            })
-        );
+        res.redirect('/error');
     }
     else
     {
@@ -221,27 +214,18 @@ app.get('/spotify/callback', function (req, res, next)
         res.redirect('http://localhost:4200/spotify');
     }
 });
-/////////// SPOTIFY AUTHORIZATION ///////////
 
+///////////////////////////////// Spotify API /////////////////////////////////
 app.get('/spotify/user', (req, res, next) =>
 {
     getAuthToken(req)
         .then(authToken =>
         {
-            return spotify.requestUser(authToken);
+            return spotify.getUser(authToken);
         })
-        .then(userData =>
+        .then(user =>
         {
-            var user = new User({
-                userID:     userData.id,
-                name:       userData.display_name
-            });
-
-            if (userData.images[0])
-            {
-                user.imageURL = userData.images[0].url;
-            }
-            
+            console.log(user);
             res.status(200).json({
                 message: 'User fetched sucessfully',
                 user: user
@@ -255,11 +239,11 @@ app.get('/spotify/tracks', (req, res, next) =>
         .then(authToken =>
         {
             console.log("Successfully fetched authentication token: " + authToken);
-            return spotify.requestTracks(authToken);
+            return spotify.getTracks(authToken);
         })
         .then(tracksData =>
         {
-            console.log(tracksData);
+            //console.log(tracksData);
             res.end();
         })
         .catch(err =>
@@ -268,7 +252,6 @@ app.get('/spotify/tracks', (req, res, next) =>
             res.end();
         });
 });
-
 
 app.post('/api/artists', (req, res, next) =>
 {
@@ -308,4 +291,5 @@ app.delete('/api/artists/:id', (req, res, next) =>
     });
 });
 
+/////////////////////////////////// Exports ///////////////////////////////////
 module.exports = app;
