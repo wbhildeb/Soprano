@@ -1,6 +1,13 @@
+/**
+ * spotify.js
+ * 
+ * Walker Hildebrand
+ * February 2019
+ * www.walkerhildebrand.com
+ */
+
 //////////////////////////////////// Imports ////////////////////////////////////
 var SpotifyObject       = require('spotify-web-api-node');
-const request           = require('request');
 
 /////////////////////////////////// Settings ///////////////////////////////////
 exports.clientID        = '391e2916ad4a4709908a2d71ffaeb0c5';
