@@ -27,9 +27,9 @@ export class UsersService {
             .subscribe((userData) =>
             {
                 this.user = {
-                    id:         userData.user.userID,
-                    name:       userData.user.name,
-                    imageURL:   userData.user.imageURL
+                    id:         userData.user.id,
+                    name:       userData.user.display_name,
+                    imageURL:   userData.user.image_url
                 };
                 this.userUpdated.next(this.user);
             });
