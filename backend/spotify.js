@@ -63,16 +63,20 @@ exports.getUser = function()
             });
     });
 }
-
-const getTracks = function(limit = 20)
+/**
+ * 
+ * @param {*} options
+ * 
+ */
+exports.getTracks = function(options = {})
 {
     return new Promise((resolve, reject) =>
     {
         wrapper
-            .getMyRecentlyPlayedTracks({ limit: limit })
+            .getMyRecentlyPlayedTracks(options)
             .then(data =>
             {
-                var tracks = data.body.items.map(trackData =>
+                const tracks = data.body.items.map(trackData =>
                 {
                     return new Track(
                     {
@@ -86,8 +90,12 @@ const getTracks = function(limit = 20)
                     });
                 });
 
-                resolve(tracks);
+                resolve({
+                    tracks: tracks,
+                    before: data.body.cursors.before,
+                    after:  data.body.cursors.after
             });
+    });
     });
 }
 
