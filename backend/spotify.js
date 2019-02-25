@@ -94,8 +94,8 @@ exports.getTracks = function(options = {})
                     tracks: tracks,
                     before: data.body.cursors.before,
                     after:  data.body.cursors.after
+                });
             });
-    });
     });
 }
 
@@ -108,13 +108,42 @@ exports.getTracks = function(options = {})
  * 
  * @returns {Array<Track>}
  */
-exports.getTracksBetween = function(start, end)
+exports.getTracksBetween = async function(start, end)
 {
-    // TODO: Implement
+    start = start.getTime();
+    end = end.getTime();
+
+    var tracks = [];
+    while (true)
+    {
+        var trackData = await getTracks({
+            limit: 50,
+            after: start
+        });
+
+        // Remove any tracks listened to after the end
+        if (trackData.after > end)
+        {
+            tracks = tracks.concat(
+                trackData.tracks.filter((value, index, array) =>
+                {
+                    return value.played_at.getTime() <= end;
+                })
+            );
+            break;
+        }
+
+        tracks = tracks.concat(trackData.tracks);
+        start = trackData.after;
+
+        if (trackData.tracks.length < 50) break;
+    }
+
+    return tracks;
 }
 
 /**
- * Returns the last trakcs listened to, with max of 'limit'.
+ * Returns the last tracks listened to, with max of 'limit'.
  * 
  * limit > 0
  * 
@@ -122,17 +151,33 @@ exports.getTracksBetween = function(start, end)
  * 
  * @returns {Array<Track>}
  */
-exports.getLastTracks = function(limit = 20)
+exports.getLastTracks = async function(limit = 20)
 {
-    // TODO: Allow limit greater than 50
-    if (limit > 50 )
+    if (limit < 0) limit = 20;
+
+    var before = Date.now();
+    var tracks = [];
+
+    while (tracks.length < limit)
     {
-        limit = 50;
-    }
-    else if (limit < 0)
-    {
-        limit = 20;
+        const numToFetch = (limit > 50) ? 50 : limit;
+
+        var trackData = await getTracks({
+            limit: numToFetch,
+            before: before,
+        });
+
+        console.log(trackData);
+
+        before = trackData.before;
+        tracks = tracks.concat(trackData.tracks);
+
+        if (trackData.tracks.length < numToFetch)
+        {
+            // not enough data to fufill request
+            break;
+        }
     }
 
-    return getTracks(limit);
+    return tracks;
 }
