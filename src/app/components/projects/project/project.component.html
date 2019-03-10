@@ -1,6 +1,10 @@
-<a [href]="project.repositoryURL"><fa size="2x" name="github"></fa></a>
+
+<span *ngIf="project.repositoryURL">
+    <a [href]="project.repositoryURL"><fa size="2x" name="github"></fa></a>
+</span>
+
 <h3 id="project-header">{{ project.title }}</h3>
-<p>
+<p *ngIf="technologies">
   Technologies Used: <span id="project-technologies">{{ technologies }}</span>
 </p>
 <div [innerHTML]="description"></div>

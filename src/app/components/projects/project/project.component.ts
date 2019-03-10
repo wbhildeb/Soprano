@@ -1,4 +1,4 @@
-import { Component, OnInit, Input } from '@angular/core';
+import { Component, Input, OnChanges, SimpleChanges } from '@angular/core';
 
 import { Project } from '../project';
 import { ProjectsService } from '../projects.service';
@@ -9,7 +9,7 @@ import { ProjectsService } from '../projects.service';
     templateUrl: './project.component.html',
     styleUrls: ['./project.component.css']
 })
-export class ProjectComponent implements OnInit {
+export class ProjectComponent implements OnChanges {
     @Input() project: Project;
 
     description: string = "";
@@ -17,7 +17,7 @@ export class ProjectComponent implements OnInit {
 
     constructor(private projectsService: ProjectsService) { }
 
-    ngOnInit()
+    ngOnChanges(changes: SimpleChanges)
     {
         this.updateDescription();
         this.updateTechnologies();
@@ -34,11 +34,12 @@ export class ProjectComponent implements OnInit {
 
     updateTechnologies()
     {
-       this.technologies = "";
-        for (let i = 0; i < this.technologies.length; ++i)
+        const techList = this.project.technologies;
+        this.technologies = "";
+        for (let i = 0; i < techList.length; ++i)
         {
-            this.technologies += this.technologies[i];
-            if (i != this.technologies.length - 1) this.technologies += ", ";
+            this.technologies += techList[i];
+            if (i != techList.length - 1) this.technologies += ", ";
         }
     }
 }
