@@ -27,14 +27,16 @@
 }
 
 #projects-sidebar-list > li {
-    text-decoration-line: none;
     color: white;
 }
 
 #projects-sidebar-list > li:hover {
-    text-decoration-line: none;
-    color: lightgray;
+    color: rgb(178, 88, 200);
     cursor: pointer;
+}
+
+#projects-sidebar-list > li.selected {
+    color: gray;
 }
 
 #projects-content {

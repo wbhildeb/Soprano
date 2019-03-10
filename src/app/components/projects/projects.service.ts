@@ -11,9 +11,8 @@ export class ProjectsService
 {
     constructor() {}
 
-    getProjects(): Observable<Project[]>
+    public getProjects(): Observable<Project[]>
     {
         return of(PROJECTS);
     }
-
 }

@@ -2,9 +2,12 @@
   <div id="projects-sidebar">
     <span id="projects-sidebar-title">Projects</span>
     <ul id="projects-sidebar-list">
-      <li>Multiquadris</li>
-      <li>Localize CS</li>
-
+      <li
+        *ngFor="let project of projects; let i=index"
+        (click)="onSelectProject(i)"
+        [class.selected]="selectedProject == project">
+        {{ project.title }}
+      </li>
     </ul>
   </div>
   <div id="projects-content">

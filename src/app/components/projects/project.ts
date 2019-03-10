@@ -1,8 +1,8 @@
 export class Project
 {
-    id: number;
-    title: string;
-    technologies: string[];
-    repositoryURL: string;
-    descriptionHTML: string;
+    id: number = -1;
+    title: string = "";
+    technologies: string[] = [];
+    repositoryURL: string = "";
+    descriptionHTML: string = "";
 }
