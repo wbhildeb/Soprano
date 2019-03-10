@@ -1,8 +1,12 @@
 export class Project
 {
-    id: number = -1;
-    title: string = "";
+    title: string = "Silly Walker forgot a title...";
     technologies: string[] = [];
-    repositoryURL: string = "";
-    descriptionHTML: string = "";
+    repositoryURL: string = null;
+    descriptionHTML: string = "default.htm";
+
+    constructor (data: Partial<Project>)
+    {
+        Object.assign(this, data);
+    }
 }
