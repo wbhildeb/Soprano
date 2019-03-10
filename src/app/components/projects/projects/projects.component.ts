@@ -27,7 +27,6 @@ export class ProjectsComponent implements OnInit
             .getProjects()
             .subscribe(projects => {
                 this.projects = projects;
-                console.log(this.projects);
             });
     }
 

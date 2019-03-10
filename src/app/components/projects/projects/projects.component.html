@@ -10,7 +10,8 @@
       </li>
     </ul>
   </div>
-  <div id="projects-content">
-    <app-project></app-project>
+  <div id="projects-content" *ngIf="selectedProject">
+    <app-project [project]="selectedProject"></app-project>
   </div>
+  
 </div>

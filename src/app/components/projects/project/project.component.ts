@@ -1,44 +1,44 @@
-import { Component, OnInit } from '@angular/core';
-import { HttpClient } from '@angular/common/http';
+import { Component, OnInit, Input } from '@angular/core';
+
+import { Project } from '../project';
+import { ProjectsService } from '../projects.service';
 
 
 @Component({
-  selector: 'app-project',
-  templateUrl: './project.component.html',
-  styleUrls: ['./project.component.css']
+    selector: 'app-project',
+    templateUrl: './project.component.html',
+    styleUrls: ['./project.component.css']
 })
-export class ProjectComponent implements OnInit
-{
-  repositoryURL : string = "https://github.com/wbhildeb/Multiquadris";
-  title : string = "Multiquadris";
-  technologies : string[] = [
-    "C++",
-  ];
+export class ProjectComponent implements OnInit {
+    @Input() project: Project;
 
-  descriptionPath : string = "multiquadris.htm";
-  projectDescription : string = "";
+    description: string = "";
+    technologies: string = "";
 
-  constructor(private http: HttpClient)
-  {
-    this.http.get('assets/project-descriptions/' + this.descriptionPath, { responseType: 'text' })
-      .subscribe(data => {
-        this.projectDescription = data;
-        console.log(data);
-      });
-  }
+    constructor(private projectsService: ProjectsService) { }
 
-  ngOnInit() {}
-
-  getTechnologiesList() : string
-  {
-    var retval: string = "";
-    for (let i = 0; i < this.technologies.length; ++i)
+    ngOnInit()
     {
-      retval += this.technologies[i];
-      if (i != this.technologies.length - 1) retval += ", ";
+        this.updateDescription();
+        this.updateTechnologies();
     }
 
-    return retval;
-  }
+    updateDescription()
+    {
+        this.projectsService
+            .getDescription(this.project)
+            .subscribe(desc => {
+                this.description = desc;
+            });
+    }
 
+    updateTechnologies()
+    {
+       this.technologies = "";
+        for (let i = 0; i < this.technologies.length; ++i)
+        {
+            this.technologies += this.technologies[i];
+            if (i != this.technologies.length - 1) this.technologies += ", ";
+        }
+    }
 }
