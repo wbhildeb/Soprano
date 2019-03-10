@@ -14,6 +14,7 @@ import { ArtistCreateComponent } from './components/spotify/artist/artist-create
 import { TrackListComponent } from './components/spotify/track/track-list/track-list.component';
 import { SpotifyLoginComponent } from './components/spotify/spotify-login/spotify-login.component';
 import { ProjectComponent } from './components/projects/project/project.component';
+import { ProjectsComponent } from './components/projects/projects/projects.component';
 
 @NgModule({
   declarations: [
@@ -25,7 +26,8 @@ import { ProjectComponent } from './components/projects/project/project.componen
     ArtistCreateComponent,
     TrackListComponent,
     SpotifyLoginComponent,
-    ProjectComponent
+    ProjectComponent,
+    ProjectsComponent
   ],
   imports: [
     BrowserModule,
