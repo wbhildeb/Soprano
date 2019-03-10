@@ -1,0 +1,45 @@
+#projects {
+    width: 100%;
+    height: 100%;
+    padding: 0%;
+}
+
+#projects-sidebar {
+    padding-top: 5px;
+    padding: 5px;
+    width: 15%;
+    height: 100%;
+    background-color: rgb(113, 13, 138);
+    float: left;
+}
+
+#projects-sidebar-title {
+    font-size: 28px;
+    text-align: center;
+    text-decoration-line: underline;
+}
+
+#projects-sidebar-list {
+    font-size: 14px;
+    text-align: left;
+    padding-left: 0px;
+    list-style-type: none;
+}
+
+#projects-sidebar-list > li {
+    text-decoration-line: none;
+    color: white;
+}
+
+#projects-sidebar-list > li:hover {
+    text-decoration-line: none;
+    color: lightgray;
+    cursor: pointer;
+}
+
+#projects-content {
+    width: 85%;
+    height: 100%;
+    float: left;
+    padding: 10px
+}
