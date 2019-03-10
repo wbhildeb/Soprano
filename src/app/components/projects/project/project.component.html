@@ -5,6 +5,9 @@
 
 <h3 id="project-header">{{ project.title }}</h3>
 <p *ngIf="technologies">
-  Technologies Used: <span id="project-technologies">{{ technologies }}</span>
+    Technologies Used: <span id="project-technologies">{{ technologies }}</span>
 </p>
-<div [innerHTML]="description"></div>
+
+<div [innerHTML]="description">
+    <!-- Here we have an imported description of the project -->
+</div>

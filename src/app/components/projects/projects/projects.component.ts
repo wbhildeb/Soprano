@@ -32,7 +32,6 @@ export class ProjectsComponent implements OnInit
 
     onSelectProject(index: number)
     {
-        console.log(index);
         if (this.projects.length == 0)
         {
             throw 'Projects array is empty'
@@ -44,5 +43,10 @@ export class ProjectsComponent implements OnInit
 
         this.selectedProject = this.projects[index];
         this.index = index;
+    }
+
+    onUnselect()
+    {
+        this.selectedProject = null;
     }
 }

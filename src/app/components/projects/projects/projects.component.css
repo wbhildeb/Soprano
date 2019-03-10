@@ -4,6 +4,7 @@
     padding: 0%;
 }
 
+/************  Sidebar ************/
 #projects-sidebar {
     padding-top: 5px;
     padding: 5px;
@@ -17,6 +18,7 @@
     font-size: 28px;
     text-align: center;
     text-decoration-line: underline;
+    cursor: pointer;
 }
 
 #projects-sidebar-list {
@@ -39,9 +41,10 @@
     color: gray;
 }
 
-#projects-content {
+/************ Main ************/
+.projects-main {
     width: 85%;
     height: 100%;
     float: left;
-    padding: 10px
+    padding: 10px;
 }
