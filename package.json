@@ -8,7 +8,6 @@
     "lint": "ng lint",
     "e2e": "ng e2e",
     "server": "nodemon server.js",
-    "postinstall": "ng build --aot --prod",
     "start": "node main.js"
   },
   "private": true,
