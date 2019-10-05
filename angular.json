@@ -3,7 +3,7 @@
   "version": 1,
   "newProjectRoot": "projects",
   "projects": {
-    "personal-site": {
+    "Site": {
       "root": "",
       "sourceRoot": "src",
       "projectType": "application",
@@ -13,7 +13,7 @@
         "build": {
           "builder": "@angular-devkit/build-angular:browser",
           "options": {
-            "outputPath": "dist/personal-site",
+            "outputPath": "dist/Site",
             "index": "src/index.html",
             "main": "src/main.ts",
             "polyfills": "src/polyfills.ts",
@@ -23,13 +23,9 @@
               "src/assets"
             ],
             "styles": [
-              "node_modules/bootstrap/dist/css/bootstrap.darkly.min.css",
-              "node_modules/font-awesome/css/font-awesome.min.css",
               "src/styles.css"
             ],
-            "scripts": [
-              "node_modules/paper/dist/paper-full.min.js"
-            ]
+            "scripts": []
           },
           "configurations": {
             "production": {
@@ -61,18 +57,18 @@
         "serve": {
           "builder": "@angular-devkit/build-angular:dev-server",
           "options": {
-            "browserTarget": "personal-site:build"
+            "browserTarget": "Site:build"
           },
           "configurations": {
             "production": {
-              "browserTarget": "personal-site:build:production"
+              "browserTarget": "Site:build:production"
             }
           }
         },
         "extract-i18n": {
           "builder": "@angular-devkit/build-angular:extract-i18n",
           "options": {
-            "browserTarget": "personal-site:build"
+            "browserTarget": "Site:build"
           }
         },
         "test": {
@@ -106,7 +102,7 @@
         }
       }
     },
-    "personal-site-e2e": {
+    "Site-e2e": {
       "root": "e2e/",
       "projectType": "application",
       "prefix": "",
@@ -115,11 +111,11 @@
           "builder": "@angular-devkit/build-angular:protractor",
           "options": {
             "protractorConfig": "e2e/protractor.conf.js",
-            "devServerTarget": "personal-site:serve"
+            "devServerTarget": "Site:serve"
           },
           "configurations": {
             "production": {
-              "devServerTarget": "personal-site:serve:production"
+              "devServerTarget": "Site:serve:production"
             }
           }
         },
@@ -135,5 +131,5 @@
       }
     }
   },
-  "defaultProject": "personal-site"
+  "defaultProject": "Site"
 }
