@@ -1,0 +1,19 @@
+#topbar
+{
+    margin: 0;
+    background: darkblue;
+    display: inline-block;
+    padding: 5px;
+    width: 100%;
+}
+
+#topbar-name
+{
+    background: lightblue;
+    float: left;
+}
+
+#topbar-action
+{
+    float: right;
+}
