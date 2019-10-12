@@ -32,6 +32,7 @@ export class PlaylistService {
             console.log("subplaylists keys: ", subplaylists);
         });
         return subplaylists;
+    }
      
         //Given a userID and a playlistID, return all parents' IDs 
     GetParentPlaylistsByKey(userID: string, playlistkey: string): string[] {
@@ -62,16 +63,14 @@ export class PlaylistService {
 
     private DeleteDeadPlaylistsInDB()
     {
-
     }
+}
 
 export class Playlist
 {
-    public spotifyID : string;
     public name: string;
     public image;
-
-    constructor(public spotifyID) { }
+    constructor(public spotifyID: string) { }
 }
 
 
