@@ -10,7 +10,8 @@ export class PlaylistService {
 
     constructor(private db: AngularFireDatabase) {}
 
-    GetUserPlaylists(userID: string) {
+    //Given a userID, return all the playlists' pairings the user has.
+    GetUserPlaylists(userID: string) { //Replaces  GetPlaylistTrees()
         var userTree: any; //JSON tree representing the user playlists relationships. To be used for UI. 
         this.db.list('/User_Playlists/' + userID + '/').snapshotChanges().pipe(map(changes => {
             return changes.map(c => ({ id: c.payload.key, ...c.payload.toJSON() }))
@@ -20,7 +21,8 @@ export class PlaylistService {
         });
         return userTree;
     }
-
+    
+    //Given a userID and a playlistID, return all childrens' IDs
     GetSubPlaylistsByKey(userID: string, playlistkey: string): string[] {
         var subplaylists: string[];
         this.db.list("/User_Playlists/" + userID + '/playlists/' + playlistkey).snapshotChanges().pipe(map(changes => {
@@ -30,9 +32,8 @@ export class PlaylistService {
             console.log("subplaylists keys: ", subplaylists);
         });
         return subplaylists;
-    }
-
-    //Given a sub-playlist id, give me all parent IDs
+     
+        //Given a userID and a playlistID, return all parents' IDs 
     GetParentPlaylistsByKey(userID: string, playlistkey: string): string[] {
         var parents: string[];
         this.db.list("/User_Playlists/" + userID + '/sub_playlists/' + playlistkey).snapshotChanges().pipe(map(changes => {
@@ -44,15 +45,33 @@ export class PlaylistService {
         return parents;
     }
 
-    CreateSubPlaylist(userID: string, parent: Playlist, child: Playlist) {
+    CreateSubPlaylist(userID: string, parent: Playlist, child: Playlist) { //Replaces PairPlaylists()
         //Make API call to Spotify API, verify parent playlist exists 
         //Make API call to Spotify API to check if child playlist exist (If not create one?)
         //Some circular dependancy check
-        this.db.list("/User_Playlists/" + userID + '/playlists/').update(parent.id, { [child.id]: true });
-        this.db.list("/User_Playlists/" + userID + '/sub_playlists/').update(child.id, { [parent.id]: true });
+        this.db.list("/User_Playlists/" + userID + '/playlists/').update(parent.spotifyID, { [child.spotifyID]: true });
+        this.db.list("/User_Playlists/" + userID + '/sub_playlists/').update(child.spotifyID, { [parent.spotifyID]: true });
     }
+      
+    public GetUserPlaylistsFromSpotify()
+    {
+        throw 'PlaylistService:GetUserPlaylists() not implemented'
+        // GetPlaylists from spotify: HttpRequest
+
+    }
+
+    private DeleteDeadPlaylistsInDB()
+    {
+
+    }
+
+export class Playlist
+{
+    public spotifyID : string;
+    public name: string;
+    public image;
+
+    constructor(public spotifyID) { }
 }
 
-export class Playlist {
-    constructor(public id) {}
-  }
+
