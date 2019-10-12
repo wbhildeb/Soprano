@@ -19,14 +19,14 @@ export class UserService
     public LogIn() : void
     {
         throw "UserService:LogIn() not implemented";
-        // HTTP request: Get /spotify/login
+        // HTTP request: GET /spotify/login
         this.GetUserID();
     }
 
     public GetUser() : User
     {
         throw "UserService:GetUser() not implemented";
-
+        
     }
 
     public GetUserID() : string {
@@ -34,7 +34,7 @@ export class UserService
 
         if (this.userID === undefined)
         {
-            // make http request
+            // make http request to server
         }
         else
         {
