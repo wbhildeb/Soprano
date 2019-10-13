@@ -16,7 +16,12 @@ export class SubPlaylistsComponent {
   public selectedPlaylist: string; //For testing, to be removed. In reality we will fetch the playlistID from Spotify API
 
   constructor(private playlistService: PlaylistService) {
-    this.playlists= this.playlistService.GetSubPlaylistsByKey('UserID', 'playlist1' );
+    console.log(this.playlistService.GetParentPlaylistsByKey('UserID', 'sub-playlist1'));
+    console.log(this.playlistService.GetSubPlaylistsByKey('UserID', 'playlist1'));
+
+  }
+
+  private update(){
     console.log(this.playlists);
   }
 
