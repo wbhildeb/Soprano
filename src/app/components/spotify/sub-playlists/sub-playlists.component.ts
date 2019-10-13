@@ -15,7 +15,8 @@ export class SubPlaylistsComponent {
   public sub_playlists: string[]; // list of all playlists that have parents
   public selectedPlaylist: string; // For testing, to be removed. In reality we will fetch the playlistID from Spotify API
 
-  constructor(private playlistService: PlaylistService) {
+  constructor(private playlistService: PlaylistService)
+  {
     console.log(this.playlistService.GetParentPlaylistsByKey('UserID', 'sub-playlist1'));
     console.log(this.playlistService.GetSubPlaylistsByKey('UserID', 'playlist1'));
   }
