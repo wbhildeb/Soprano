@@ -1,10 +1,7 @@
-/**
- * 
- */
 class Database
 {
   /**
-   * 
+   * TODO: Comments
    * @param {*} sessionID 
    * @param {*} userID 
    */
@@ -16,27 +13,39 @@ class Database
     // Link the user and the session ID
   }
 
+  /**
+   * TODO: Comments
+   * @param {string} userID 
+   * @param {string} authToken 
+   * @param {string} refreshToken 
+   */
   UpdateAuthenticationInfo(userID, authToken, refreshToken) 
   {
 
   }
 
+  /**
+   * TODO: Comments
+   * @param {string} sessionID 
+   * @returns {string} spotify user id
+   */
   GetUserID(sessionID) 
   {
     // return the user ID associated with the session ID
   }
 
+  /**
+   * TODO: Comments
+   * @param {string} userID 
+   * @returns {User}
+   */
   GetUser(userID) 
   {
 
   }
 }
+
 /**
  * @returns Database
  */
-exports.database();
-{
-  return new Database();
-}
-
-
+module.exports = () => new Database();

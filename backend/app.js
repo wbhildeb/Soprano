@@ -9,16 +9,12 @@
 // /////// Imports /////////////////////////////////////////
 const express = require('express');
 const session = require('express-session');
-const querystring = require('querystring');
-
-const SPOTIFY_INFO = {
-  AuthorizeLink: 'https://accounts.spotify.com/authorize?',
-  ClientID: '391e2916ad4a4709908a2d71ffaeb0c5',
-  Scope: 'user-library-modify user-read-private user-modify-playback-state user-read-currently-playing user-read-recently-played user-modify-playback-state user-read-private',
-  RedirectURI: 'http://localhost:3000/spotify/callback',
-};
+const database = require('./database');
+const spotifyWrapper = require('./spotify');
 
 const app = express();
+const db = database();
+const spotify = spotifyWrapper();
 
 app
   .use(session({
@@ -37,32 +33,65 @@ app.get('*', (req, res, next) =>
   next();
 });
 
-app.get('/spotify/login', (req, res, next) => 
+app.get('/spotify/login', (req, res) => 
 {
-  const query = querystring.stringify({
-    response_type: 'code',
-    client_id: SPOTIFY_INFO.ClientID,
-    scope: SPOTIFY_INFO.Scope,
-    redirect_uri: SPOTIFY_INFO.RedirectURI,
-    state: req.sessionID,
-  });
-
-  res.redirect(SPOTIFY_INFO.AuthorizeLink + query);
+  const authURL = spotify.GetAuthorizationURL(req.sessionID);
+  res.redirect(authURL);
 });
 
-app.get('/spotify/callback', (req, res, next) => 
+app.get('/spotify/callback', (req, res) => 
 {
   const state = req.query.state;
   const code = req.query.code;
 
-  if (req.query.state != req.sessionID) 
+  if (state != req.sessionID)
   {
     console.error(`Mismatched state error - session: ${req.sessionID}, state: ${state}`);
     res.redirect('/error');
   }
+  else
+  {
+    var authOptions =
+    {
+      url: 'https://accounts.spotify.com/api/token',
+      form: {
+        code: code,
+        redirect_uri: spotify.redirectURI,
+        grant_type: 'authorization_code'
+      },
+      headers: {
+        'Authorization': 'Basic ' + Buffer.from(spotify.clientID + ':' + spotify.clientSecret).toString('base64')
+      },
+      json: true
+    };
 
-  console.log(code);
-  res.send();
+    req.post(authOptions, function(err, res, body)
+    {
+      if (!err && res.statusCode === 200)
+      {
+        // const session = new Session({
+        //   sessionID: req.sessionID,
+        //   authToken: body.access_token,
+        //   refreshToken: body.refresh_token
+        // });
+    
+        // addOrUpdateSession(session);
+      }
+      else
+      {
+        console.log(`POST request error - status code ${res.statusCode}`);
+        console.log(err);
+      }
+    });
+
+    res.redirect('http://localhost:4200/sub-playlists/');
+  }
+});
+
+app.get('spotify/playlists', (req, res, next) =>
+{
+  const state = req.sessionID;
+  const id = db.GetUserID(state);
 });
 
 app.listen(3000);
