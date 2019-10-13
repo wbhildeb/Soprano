@@ -1,7 +1,8 @@
 /**
  * 
  */
-class Database {
+class Database
+{
   /**
    * 
    * @param {*} sessionID 
@@ -15,15 +16,18 @@ class Database {
     // Link the user and the session ID
   }
 
-  UpdateAuthenticationInfo(userID, authToken, refreshToken) {
+  UpdateAuthenticationInfo(userID, authToken, refreshToken) 
+  {
 
   }
 
-  GetUserID(sessionID) {
+  GetUserID(sessionID) 
+  {
     // return the user ID associated with the session ID
   }
 
-  GetUser(userID) {
+  GetUser(userID) 
+  {
 
   }
 }

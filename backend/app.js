@@ -28,7 +28,8 @@ app
   }));
 
 // Debugging
-app.get('*', (req, res, next) => {
+app.get('*', (req, res, next) => 
+{
   console.log(`request type:  ${req.method}`);
   console.log(`url:           ${req.url}`);
   console.log(`session:       ${req.sessionID}`);
@@ -36,7 +37,8 @@ app.get('*', (req, res, next) => {
   next();
 });
 
-app.get('/spotify/login', (req, res, next) => {
+app.get('/spotify/login', (req, res, next) => 
+{
   const query = querystring.stringify({
     response_type: 'code',
     client_id: SPOTIFY_INFO.ClientID,
@@ -48,11 +50,13 @@ app.get('/spotify/login', (req, res, next) => {
   res.redirect(SPOTIFY_INFO.AuthorizeLink + query);
 });
 
-app.get('/spotify/callback', (req, res, next) => {
+app.get('/spotify/callback', (req, res, next) => 
+{
   const state = req.query.state;
   const code = req.query.code;
 
-  if (req.query.state != req.sessionID) {
+  if (req.query.state != req.sessionID) 
+  {
     console.error(`Mismatched state error - session: ${req.sessionID}, state: ${state}`);
     res.redirect('/error');
   }

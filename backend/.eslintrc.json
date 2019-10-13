@@ -9,15 +9,15 @@
     "Atomics": "readonly",
     "SharedArrayBuffer": "readonly"
   },
-  "brace-style": [
-    "error",
-    "allman",
-    { "allowSingleLine": true }
-  ],
   "parserOptions": {
     "ecmaVersion": 2018
   },
   "rules": {
+    "brace-style": [
+      "error",
+      "allman",
+      { "allowSingleLine": true }
+    ],
     "indent": [
         "error",
         2
