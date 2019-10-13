@@ -1,46 +1,47 @@
 import { Injectable } from '@angular/core';
 
 @Injectable({
-    providedIn: 'root'
+  providedIn: 'root'
 })
 export class UserService
 {
-    private userID: string;
+  private userID: string;
 
-    constructor() { }
+  constructor() { }
 
-    public LogOut() : void
-    {
-        throw "UserService:LogOut() not implemented";
+  public LogOut(): void
+  {
+    throw new Error('UserService:LogOut() not implemented');
         // HTTP request: Get /spotify/logout
-        this.userID = undefined;
-    }
+    this.userID = undefined;
+  }
 
-    public LogIn() : void
-    {
-        throw "UserService:LogIn() not implemented";
+  public LogIn(): void
+  {
+    throw new Error('UserService:LogIn() not implemented');
         // HTTP request: GET /spotify/login
-        this.GetUserID();
-    }
+    this.GetUserID();
+  }
 
-    public GetUser() : User
+  public GetUser(): User
+  {
+    throw new Error('UserService:GetUser() not implemented');
+
+  }
+
+  public GetUserID(): string
+  {
+    throw new Error('UserService:GetUserID() not implemented');
+
+    if (this.userID === undefined)
     {
-        throw "UserService:GetUser() not implemented";
-        
-    }
-
-    public GetUserID() : string {
-        throw "UserService:GetUserID() not implemented";
-
-        if (this.userID === undefined)
-        {
             // make http request to server
-        }
-        else
-        {
-            return this.userID;
-        }
     }
+    else
+    {
+      return this.userID;
+    }
+  }
 }
 
 export class User
