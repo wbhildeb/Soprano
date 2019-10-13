@@ -24,7 +24,7 @@ import { FormsModule } from '@angular/forms';
     BrowserModule,
     AppRoutingModule,
     AngularFireModule.initializeApp(environment.firebaseConfig, 'spotify'),
-    AngularFireDatabaseModule, 
+    AngularFireDatabaseModule,
     FormsModule
   ],
   providers: [],

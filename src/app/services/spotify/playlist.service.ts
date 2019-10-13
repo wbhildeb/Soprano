@@ -5,19 +5,12 @@ import { resolve, PromiseState } from 'q';
 import { Observable } from 'rxjs';
 
 @Injectable({
-    providedIn: 'root'
+  providedIn: 'root'
 })
 
 export class PlaylistService {
-    private parents: string[];
-    private children: string[];
-    private userTree: JSON[];
-
+  
     constructor(private db: AngularFireDatabase) { }
-
-    private updatePlaylists() {
-        return this.parents;
-    }
 
     //Given a userID, return all the playlists' pairings the user has.
     GetUserPlaylists(userID: string) { //Replaces  GetPlaylistTrees()
