@@ -1,6 +1,4 @@
 import { Component } from '@angular/core';
-import { AngularFireDatabase, AngularFireList } from 'angularfire2/database';
-import { map } from 'rxjs/operators';
 import { Playlist, PlaylistService } from 'src/app/services/spotify/playlist.service';
 
 @Component({
@@ -17,13 +15,19 @@ export class SubPlaylistsComponent {
 
   constructor(private playlistService: PlaylistService)
   {
-    console.log(this.playlistService.GetParentPlaylistsByKey('UserID', 'sub-playlist1'));
-    console.log(this.playlistService.GetSubPlaylistsByKey('UserID', 'playlist1'));
+    this.playlistService
+      .GetParentPlaylists('mid22')
+      .subscribe(idk =>
+      {
+        console.log(idk);
+      });
+    // console.log(this.playlistService.GetSubPlaylistsByKey('UserID', 'playlist1'));
   }
 
   public AddSubPlaylist(sub_playlist: string): void
   {
-    this.playlistService.CreateSubPlaylist('UserID', new Playlist(this.selectedPlaylist), new Playlist(sub_playlist));
+    this.playlistService
+      .CreateSubPlaylist(new Playlist(this.selectedPlaylist), new Playlist(sub_playlist));
   }
 }
 
