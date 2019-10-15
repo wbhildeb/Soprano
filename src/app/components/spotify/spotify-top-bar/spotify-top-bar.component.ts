@@ -9,7 +9,6 @@ export class SpotifyTopBarComponent implements OnInit {
 
   constructor() { }
 
-  ngOnInit() {
-  }
+  ngOnInit() { }
 
 }
