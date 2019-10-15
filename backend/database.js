@@ -14,12 +14,27 @@ firebase.initializeApp({
 class Database
 {
   /**
+   * @typedef {Object} User
+   * @property {string} authToken - The token used for authentication
+   * @property {string} refreshToken - The token used for refreshing credentials
+   */
+
+  /**
    * TODO: Comments
    * @param {*} sessionID 
    * @param {*} userID 
    */
   SaveSession(sessionID, userID)
   {
+    // Make a session
+    firebase
+      .database()
+      .ref(`Sessions/${userID}`)
+      .set({
+        UserID: sessionID
+      });
+    
+    
     // session
     // Break any links between 'sessionID' and other users
     // If user with id: 'userID' does not exist, initialize a new user
@@ -40,11 +55,23 @@ class Database
   /**
    * TODO: Comments
    * @param {string} sessionID 
-   * @returns {string} spotify user id
+   * @returns {Promise<string>} spotify user id
    */
   GetUserID(sessionID) 
   {
-    // return the user ID associated with the session ID
+    return new Promise(
+      (resolve, reject) =>
+      {
+        // TODO: Make this actually connect to the database
+        if (sessionID == '1234567890')
+        {
+          resolve('cjsn83u3');
+        }
+        else
+        {
+          reject('No user in database for session id: ' + sessionID);
+        }
+      });
   }
 
   /**
@@ -59,6 +86,6 @@ class Database
 }
 
 /**
- * @returns Database
+ * @returns {Database}
  */
 module.exports = () => new Database();
