@@ -62,15 +62,18 @@ class Database
     return new Promise(
       (resolve, reject) =>
       {
-        // TODO: Make this actually connect to the database
-        if (sessionID == '1234567890')
-        {
-          resolve('cjsn83u3');
-        }
-        else
-        {
-          reject('No user in database for session id: ' + sessionID);
-        }
+        firebase
+          .database()
+          .ref(`Sessions/${sessionID}`)
+          .once('value')
+          .then(
+            data =>
+            {
+              if (data.val() && data.val().UserID) resolve(data.val().UserID);
+              else reject(`Unable to get user id: no entry with session id '${sessionID}'`);
+            },
+            err => { reject('Unable to get user id: ' + err); }
+          );
       });
   }
 
