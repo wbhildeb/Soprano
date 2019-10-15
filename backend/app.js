@@ -88,10 +88,33 @@ app.get('/spotify/callback', (req, res) =>
   }
 });
 
-app.get('spotify/playlists', (req, res, next) =>
+app.get('/spotify/userID', (req, res) =>
 {
-  const state = req.sessionID;
-  const id = db.GetUserID(state);
+  db
+    // TODO: Use below code connection to server is setup
+    // .GetUserID(req.sessionID)
+    .GetUserID('1234567890')
+    .then(
+      id => res.status(200).json(id),
+      err => res.status(201).json(err)
+    );
+});
+
+app.get('/spotify/playlists', (req, res) =>
+{
+  db
+    .GetUserID(req.sessionID)
+    .then(
+      id => db.GetUser(id),
+      err => { res.status(201).json(err); })
+    .then(
+      user =>
+      {
+        spotify.SetAuthCredentials({ authToken: user.authToken, refreshToken: user.refreshToken});
+        spotify.GetPlaylists();
+      },
+      err => res.status(201).json(err)
+    );
 });
 
 app.listen(3000);
