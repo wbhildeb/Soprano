@@ -51,37 +51,29 @@ app.get('/spotify/callback', (req, res) =>
   }
   else
   {
-    var authOptions =
+    var authToken;
+    var refreshToken;
+    var userID;
+    spotify.GetAuthCredentials(code)
+      .then(
+        creds =>
     {
-      url: 'https://accounts.spotify.com/api/token',
-      form: {
-        code: code,
-        redirect_uri: spotify.redirectURI,
-        grant_type: 'authorization_code'
-      },
-      headers: {
-        'Authorization': 'Basic ' + Buffer.from(spotify.clientID + ':' + spotify.clientSecret).toString('base64')
-      },
-      json: true
-    };
+          authToken = creds.authToken;
+          refreshToken = creds.refreshToken;
 
-    req.post(authOptions, function(err, res, body)
-    {
-      if (!err && res.statusCode === 200)
+          spotify.SetAuthCredentials(creds);
+          return spotify.GetUserID();
+        })
+      .then(
+        id =>
       {
-        // const session = new Session({
-        //   sessionID: req.sessionID,
-        //   authToken: body.access_token,
-        //   refreshToken: body.refresh_token
-        // });
-    
-        // addOrUpdateSession(session);
-      }
-      else
+          userID = id;
+          return db.SaveSession(req.sessionID, id);
+        })
+      .then(
+        () =>
       {
-        console.log(`POST request error - status code ${res.statusCode}`);
-        console.log(err);
-      }
+          db.UpdateAuthenticationInfo(userID, authToken, refreshToken);
     });
 
     res.redirect('http://localhost:4200/sub-playlists/');
