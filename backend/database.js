@@ -29,9 +29,9 @@ class Database
     // Make a session
     firebase
       .database()
-      .ref(`Sessions/${userID}`)
+      .ref(`Sessions/${sessionID}`)
       .set({
-        UserID: sessionID
+        UserID: userID
       });
     
     
