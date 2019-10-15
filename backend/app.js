@@ -21,7 +21,22 @@ app
     secret: 'gotta go home',
     resave: false,
     saveUninitialized: true,
-  }));
+  }))
+  .use(
+    (req, res, next) =>
+    {
+      res.setHeader('Access-Control-Allow-Origin', 'http://localhost:4200');
+      res.setHeader('Access-Control-Allow-Credentials', 'true');
+      res.setHeader(
+        'Access-Control-Allow-Headers',
+        'Origin, X-Request-With, Content-Type, Accept'
+      );
+      res.setHeader(
+        'Access-Control-Allow-Methods',
+        'GET, POST, PATCH, DELETE, OPTIONS'
+      );
+      next();
+    });
 
 // Debugging
 app.get('*', (req, res, next) => 
@@ -57,7 +72,7 @@ app.get('/spotify/callback', (req, res) =>
     spotify.GetAuthCredentials(code)
       .then(
         creds =>
-    {
+        {
           authToken = creds.authToken;
           refreshToken = creds.refreshToken;
 
@@ -66,16 +81,16 @@ app.get('/spotify/callback', (req, res) =>
         })
       .then(
         id =>
-      {
+        {
           userID = id;
           return db.SaveSession(req.sessionID, id);
         })
       .then(
         () =>
-      {
+        {
           db.UpdateAuthenticationInfo(userID, authToken, refreshToken);
-    });
-
+        });
+    
     res.redirect('http://localhost:4200/sub-playlists/');
   }
 });
