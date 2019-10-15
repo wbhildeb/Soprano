@@ -1,15 +1,7 @@
 const firebase = require('firebase');
+const environment = require('../environments/environment');
 
-firebase.initializeApp({
-  apiKey: 'AIzaSyCF-LkQmXiN32_40jJgN4hxyqnojBorTPw',
-  authDomain: 'spotify-24cc8.firebaseapp.com',
-  databaseURL: 'https://spotify-24cc8.firebaseio.com',
-  projectId: 'spotify-24cc8',
-  storageBucket: '',
-  messagingSenderId: '917844942595',
-  appId: '1:917844942595:web:aa0c30595a95ab48625336',
-  measurementId: 'G-X20F0RDS21'
-});
+firebase.initializeApp(environment.firebaseConfig);
 
 class Database
 {
