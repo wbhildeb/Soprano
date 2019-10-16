@@ -1,5 +1,4 @@
 const firebase = require('firebase');
-
 firebase.initializeApp({
   apiKey: 'AIzaSyCF-LkQmXiN32_40jJgN4hxyqnojBorTPw',
   authDomain: 'spotify-24cc8.firebaseapp.com',
@@ -11,19 +10,27 @@ firebase.initializeApp({
   measurementId: 'G-X20F0RDS21'
 });
 
-class Database
-{
+const db = firebase.database();
+
+class Database {
   /**
    * TODO: Comments
    * @param {*} sessionID 
    * @param {*} userID 
    */
-  SaveSession(sessionID, userID)
-  {
+  SaveSession(sessionID, userID) {
     // session
     // Break any links between 'sessionID' and other users
     // If user with id: 'userID' does not exist, initialize a new user
     // Link the user and the session ID
+    var updates = {};
+
+    updates['/Sessions/'] = { [sessionID]: userID };
+    updates[`/User_Metadata/${userID}/Sessions/`] = { [sessionID]: true };
+
+    db
+      .ref()
+      .update(updates);
   }
 
   /**
@@ -32,9 +39,11 @@ class Database
    * @param {string} authToken 
    * @param {string} refreshToken 
    */
-  UpdateAuthenticationInfo(userID, authToken, refreshToken) 
-  {
-
+  //Will create a new user if userID does not exist.
+  UpdateAuthenticationInfo(userID, authToken, refreshToken) {
+    db
+      .ref(`/User_Metadata/${userID}/`)
+      .update({authToken: authToken, refreshToken: refreshToken});
   }
 
   /**
@@ -42,9 +51,15 @@ class Database
    * @param {string} sessionID 
    * @returns {string} spotify user id
    */
-  GetUserID(sessionID) 
-  {
-    // return the user ID associated with the session ID
+  //returns a promise
+   async GetUserID(sessionID)  {
+     var userID;
+     await db
+      .ref(`/Sessions/${sessionID}`)
+      .on('value', function(value){
+        userID = value.val();
+      });
+      return userID;
   }
 
   /**
@@ -52,10 +67,17 @@ class Database
    * @param {string} userID 
    * @returns {User}
    */
-  GetUser(userID) 
-  {
-
+  GetUser(userID) {
+    var rval;
+    db
+      .ref(`/User_Metadata/${userID}`)
+      .on('value', function(value){
+        rval = value.val();
+        console.log(value.val());
+      });
+    return rval;
   }
+
 }
 
 /**

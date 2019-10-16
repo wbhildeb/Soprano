@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core';
-import { AngularFireDatabase, AngularFireList } from 'angularfire2/database';
+import { AngularFireDatabase } from 'angularfire2/database';
 import { map, switchMap } from 'rxjs/operators';
 import { Observable } from 'rxjs';
 import { UserService } from './user.service';
