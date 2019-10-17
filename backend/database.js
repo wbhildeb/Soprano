@@ -61,7 +61,7 @@ class Database
       {
         db
           .ref(`Sessions/${sessionID}`)
-          .on('value', (data) => 
+          .once('value', (data) => 
           {
             if (data.exists()) 
             {
@@ -91,7 +91,7 @@ class Database
       {
         db
           .ref(`/User_Metadata/${userID}`)
-          .on('value', (data) => 
+          .once('value', (data) => 
           {
             if (data.exists()) 
             {
