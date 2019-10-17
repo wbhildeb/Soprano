@@ -112,15 +112,35 @@ app.get('/spotify/playlists', (req, res) =>
     .GetUserID(req.sessionID)
     .then(
       id => db.GetUser(id),
-      err => { res.status(201).json(err); })
+      err => res.status(201).json(err))
     .then(
       user =>
       {
         spotify.SetAuthCredentials({ authToken: user.authToken, refreshToken: user.refreshToken});
-        spotify.GetPlaylists();
+        return spotify.GetPlaylists();
+      },
+      err => res.status(201).json(err))
+    .then(
+      playlists =>
+      {
+        console.log(playlists);
+        res.status(200).json(playlists);
       },
       err => res.status(201).json(err)
     );
 });
 
 app.listen(3000);
+
+function UpdateAllAuthCredentials()
+{
+  var users = [];
+  users.foreach(
+    user =>
+    {
+      const newCreds = spotify.SetAuthCredentials({authToken: user.authToken, refreshToken: user.refreshToken});
+      db.UpdateAuthCredentials(user.id, newCreds);
+    });
+}
+
+setInterval(UpdateAllAuthCredentials, 1200000);

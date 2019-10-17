@@ -110,7 +110,7 @@ class Database
   /**
    * TODO: Comments
    * @param {string} userID 
-   * @returns {User}
+   * @returns {Promise<User>}
    */
   GetUser(userID) 
   {
