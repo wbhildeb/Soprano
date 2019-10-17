@@ -69,15 +69,13 @@ app.get('/spotify/callback', (req, res) =>
   }
   else
   {
-    var authToken;
-    var refreshToken;
+    var credentials;
     var userID;
     spotify.GetAuthCredentials(code)
       .then(
         creds =>
         {
-          authToken = creds.authToken;
-          refreshToken = creds.refreshToken;
+          credentials = creds;
 
           spotify.SetAuthCredentials(creds);
           return spotify.GetUserID();
@@ -91,7 +89,7 @@ app.get('/spotify/callback', (req, res) =>
       .then(
         () =>
         {
-          db.UpdateAuthenticationInfo(userID, authToken, refreshToken);
+          db.UpdateAuthCredentials(userID, credentials);
         });
     
     res.redirect('http://localhost:4200/sub-playlists/');

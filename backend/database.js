@@ -10,9 +10,15 @@ class Database
    * @typedef {Object} User
    * @property {string} authToken - The token used for authentication
    * @property {string} refreshToken - The token used for refreshing credentials
+   * TODO: Complete
    */
 
-  
+  /**
+   * @typedef {Object} AuthCredentials
+   * @property {string} authToken - The token used for authentication
+   * @property {string} refreshToken - The token used for refreshing credentials
+   */
+
   /**
    * Delete all sessions in Sessions/ and User_Metadata/
    */
@@ -29,8 +35,8 @@ class Database
 
   /**
    * TODO: Comments
-   * @param {*} sessionID 
-   * @param {*} userID 
+   * @param {string} sessionID 
+   * @param {string} userID 
    */
 
   // session
@@ -58,17 +64,16 @@ class Database
   }
 
   /**
-   * TODO: Comments
-   * @param {string} userID 
-   * @param {string} authToken 
-   * @param {string} refreshToken 
+   * Updates the authentication credentials for a user,
+   *  and creates a new user if none exists with given userID
+   * @param {string} userID
+   * @param {AuthCredentials} creds 
    */
-  //Will create a new user if userID does not exist.
-  UpdateAuthenticationInfo(userID, authToken, refreshToken) 
+  UpdateAuthCredentials(userID, creds) 
   {
     db
       .ref(`/User_Metadata/${userID}/`)
-      .update({ authToken: authToken, refreshToken: refreshToken });
+      .update(creds);
   }
 
   /**
