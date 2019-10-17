@@ -16,6 +16,9 @@ const app = express();
 const db = database();
 const spotify = spotifyWrapper();
 
+// Refresh since none of the cookies are going to be the same
+db.DeleteSessionData();
+
 app
   .use(session({
     secret: 'gotta go home',

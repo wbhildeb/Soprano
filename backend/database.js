@@ -12,6 +12,21 @@ class Database
    * @property {string} refreshToken - The token used for refreshing credentials
    */
 
+  
+  /**
+   * Delete all sessions in Sessions/ and User_Metadata/
+   */
+  DeleteSessionData()
+  {
+    // Delete stored sessions
+    firebase
+      .database()
+      .ref('Sessions/*')
+      .remove();
+
+    // TODO: Delete session references in User_Metadata/
+  }
+
   /**
    * TODO: Comments
    * @param {*} sessionID 
