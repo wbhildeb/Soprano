@@ -1,28 +1,36 @@
 const firebase = require('firebase');
-firebase.initializeApp({
-  apiKey: 'AIzaSyCF-LkQmXiN32_40jJgN4hxyqnojBorTPw',
-  authDomain: 'spotify-24cc8.firebaseapp.com',
-  databaseURL: 'https://spotify-24cc8.firebaseio.com',
-  projectId: 'spotify-24cc8',
-  storageBucket: '',
-  messagingSenderId: '917844942595',
-  appId: '1:917844942595:web:aa0c30595a95ab48625336',
-  measurementId: 'G-X20F0RDS21'
-});
+const environment = require('../environments/environment');
 
+firebase.initializeApp(environment.firebaseConfig);
 const db = firebase.database();
 
 class Database {
+  /**
+   * @typedef {Object} User
+   * @property {string} authToken - The token used for authentication
+   * @property {string} refreshToken - The token used for refreshing credentials
+   */
+
   /**
    * TODO: Comments
    * @param {*} sessionID 
    * @param {*} userID 
    */
-  SaveSession(sessionID, userID) {
-    // session
-    // Break any links between 'sessionID' and other users
-    // If user with id: 'userID' does not exist, initialize a new user
-    // Link the user and the session ID
+  
+  // session
+  // Break any links between 'sessionID' and other users
+  // If user with id: 'userID' does not exist, initialize a new user
+  // Link the user and the session ID
+  SaveSession(sessionID, userID)
+  {
+    // Make a session
+    firebase
+      .database()
+      .ref(`Sessions/${sessionID}`)
+      .set({
+        UserID: userID
+      });
+    
     var updates = {};
 
     updates['/Sessions/'] = { [sessionID]: userID };
@@ -49,7 +57,7 @@ class Database {
   /**
    * TODO: Comments
    * @param {string} sessionID 
-   * @returns {string} spotify user id
+   * @returns {Promise<string>} spotify user id
    */
   //returns a promise, keeps listening. Can add logic inside function to deal with change. Change to ONCE to stop listening
   async GetUserID(sessionID) {
@@ -99,6 +107,6 @@ class Database {
 }
 
 /**
- * @returns Database
+ * @returns {Database}
  */
 module.exports = () => new Database();

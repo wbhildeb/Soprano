@@ -98,9 +98,7 @@ app.get('/spotify/callback', (req, res) =>
 app.get('/spotify/userID', (req, res) =>
 {
   db
-    // TODO: Use below code connection to server is setup
-    // .GetUserID(req.sessionID)
-    .GetUserID('1234567890')
+    .GetUserID(req.sessionID)
     .then(
       id => res.status(200).json(id),
       err => res.status(201).json(err)
