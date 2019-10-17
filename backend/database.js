@@ -43,7 +43,7 @@ class Database {
   UpdateAuthenticationInfo(userID, authToken, refreshToken) {
     db
       .ref(`/User_Metadata/${userID}/`)
-      .update({authToken: authToken, refreshToken: refreshToken});
+      .update({ authToken: authToken, refreshToken: refreshToken });
   }
 
   /**
@@ -51,15 +51,25 @@ class Database {
    * @param {string} sessionID 
    * @returns {string} spotify user id
    */
-  //returns a promise
-   async GetUserID(sessionID)  {
-     var userID;
-     await db
-      .ref(`/Sessions/${sessionID}`)
-      .on('value', function(value){
-        userID = value.val();
+  //returns a promise, keeps listening. Can add logic inside function to deal with change. Change to ONCE to stop listening
+  async GetUserID(sessionID) {
+    return new Promise(
+      (resolve, reject) => {
+        db
+          .ref(`Sessions/${sessionID}`)
+          .on('value', function (data) {
+            if (data.exists) {
+              resolve(data.val());
+              console.log('User exists:', data.val());
+            }
+            else {
+              reject(`Unable to get user id: no entry with session id '${sessionID}'`);
+              console.log('User not found')
+            }
+          },
+            err => { reject('Unable to get user id: ' + err); }
+          );
       });
-      return userID;
   }
 
   /**
@@ -68,16 +78,24 @@ class Database {
    * @returns {User}
    */
   GetUser(userID) {
-    var rval;
-    db
-      .ref(`/User_Metadata/${userID}`)
-      .on('value', function(value){
-        rval = value.val();
-        console.log(value.val());
+    return new Promise(
+      (resolve, reject) => {
+        db
+          .ref(`/User_Metadata/${userID}`)
+          .on('value', function (data) {
+            if (data.exists) {
+              resolve(data.val());
+              console.log('User exists, metadata:', data.val());
+            }
+            else {
+              reject(`Unable to get user metadata: no user with entry '${userID}`);
+              console.log('User not found. UserID', userID);
+            }
+          },
+            err => { reject('Unable to get user id: ' + err); }
+          );
       });
-    return rval;
   }
-
 }
 
 /**
