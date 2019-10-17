@@ -2,8 +2,9 @@ const firebase = require('firebase');
 const environment = require('../environments/environment');
 
 firebase.initializeApp(environment.firebaseConfig);
+const db = firebase.database();
 
-class Database
+class Database 
 {
   /**
    * @typedef {Object} User
@@ -16,7 +17,12 @@ class Database
    * @param {*} sessionID 
    * @param {*} userID 
    */
-  SaveSession(sessionID, userID)
+
+  // session
+  // Break any links between 'sessionID' and other users
+  // If user with id: 'userID' does not exist, initialize a new user
+  // Link the user and the session ID
+  SaveSession(sessionID, userID) 
   {
     // Make a session
     firebase
@@ -25,12 +31,15 @@ class Database
       .set({
         UserID: userID
       });
-    
-    
-    // session
-    // Break any links between 'sessionID' and other users
-    // If user with id: 'userID' does not exist, initialize a new user
-    // Link the user and the session ID
+
+    var updates = {};
+
+    updates['/Sessions/'] = { [sessionID]: userID };
+    updates[`/User_Metadata/${userID}/Sessions/`] = { [sessionID]: true };
+
+    db
+      .ref()
+      .update(updates);
   }
 
   /**
@@ -39,9 +48,12 @@ class Database
    * @param {string} authToken 
    * @param {string} refreshToken 
    */
+  //Will create a new user if userID does not exist.
   UpdateAuthenticationInfo(userID, authToken, refreshToken) 
   {
-
+    db
+      .ref(`/User_Metadata/${userID}/`)
+      .update({ authToken: authToken, refreshToken: refreshToken });
   }
 
   /**
@@ -49,22 +61,28 @@ class Database
    * @param {string} sessionID 
    * @returns {Promise<string>} spotify user id
    */
+  //returns a promise, keeps listening. Can add logic inside function to deal with change. Change to ONCE to stop listening
   GetUserID(sessionID) 
   {
     return new Promise(
-      (resolve, reject) =>
+      (resolve, reject) => 
       {
-        firebase
-          .database()
+        db
           .ref(`Sessions/${sessionID}`)
-          .once('value')
-          .then(
-            data =>
+          .on('value', (data) => 
+          {
+            if (data.exists) 
             {
-              if (data.val() && data.val().UserID) resolve(data.val().UserID);
-              else reject(`Unable to get user id: no entry with session id '${sessionID}'`);
-            },
-            err => { reject('Unable to get user id: ' + err); }
+              resolve(data.val());
+              console.log('User exists:', data.val());
+            }
+            else 
+            {
+              reject(`Unable to get user id: no entry with session id '${sessionID}'`);
+              console.log('User not found');
+            }
+          },
+          err => { reject('Unable to get user id: ' + err); }
           );
       });
   }
@@ -76,7 +94,27 @@ class Database
    */
   GetUser(userID) 
   {
-
+    return new Promise(
+      (resolve, reject) => 
+      {
+        db
+          .ref(`/User_Metadata/${userID}`)
+          .on('value', (data) => 
+          {
+            if (data.exists) 
+            {
+              resolve(data.val());
+              console.log('User exists, metadata:', data.val());
+            }
+            else 
+            {
+              reject(`Unable to get user metadata: no user with entry '${userID}`);
+              console.log('User not found. UserID', userID);
+            }
+          },
+          err => { reject('Unable to get user id: ' + err); }
+          );
+      });
   }
 }
 
