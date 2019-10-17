@@ -19,44 +19,16 @@ class Database
    * @property {string} refreshToken - The token used for refreshing credentials
    */
 
-  /**
-   * Delete all sessions in Sessions/ and User_Metadata/
-   */
-  DeleteSessionData()
-  {
-    // Delete stored sessions
-    firebase
-      .database()
-      .ref('Sessions/*')
-      .remove();
-
-    // TODO: Delete session references in User_Metadata/
-  }
-
-  /**
-   * TODO: Comments
-   * @param {string} sessionID 
-   * @param {string} userID 
-   */
-
   // session
   // Break any links between 'sessionID' and other users
   // If user with id: 'userID' does not exist, initialize a new user
   // Link the user and the session ID
   SaveSession(sessionID, userID) 
   {
-    // Make a session
-    firebase
-      .database()
-      .ref(`Sessions/${sessionID}`)
-      .set({
-        UserID: userID
-      });
-
     var updates = {};
 
-    updates['/Sessions/'] = { [sessionID]: userID };
-    updates[`/User_Metadata/${userID}/Sessions/`] = { [sessionID]: true };
+    updates[`/Sessions/${sessionID}`] = userID;
+    updates[`/User_Metadata/${userID}/Sessions/${sessionID}`] = true;
 
     db
       .ref()
@@ -91,7 +63,7 @@ class Database
           .ref(`Sessions/${sessionID}`)
           .on('value', (data) => 
           {
-            if (data.exists) 
+            if (data.exists()) 
             {
               resolve(data.val());
               console.log('User exists:', data.val());
@@ -121,7 +93,7 @@ class Database
           .ref(`/User_Metadata/${userID}`)
           .on('value', (data) => 
           {
-            if (data.exists) 
+            if (data.exists()) 
             {
               resolve(data.val());
               console.log('User exists, metadata:', data.val());
@@ -136,6 +108,61 @@ class Database
           );
       });
   }
+
+  /**
+   * Delete all sessions in Sessions/ and User_Metadata/
+   */
+  DeleteSessionData() 
+  {
+    // Delete stored sessions
+    db
+      .ref('/Sessions/')
+      .remove();
+
+    // Delete session references in User_Metadata/
+    db
+      .ref('/User_Metadata/')
+      .once('value')
+      .then((users) => 
+      {
+        users.forEach((user) => 
+        {
+          db
+            .ref(`/User_Metadata/${user.key}/Sessions/`)
+            .remove();
+        });
+      });
+  }
+
+  /**
+   * Delete all user sessions in Sessions/ and User_Metadata/
+   */
+  DeleteUserSessions(userID) 
+  {
+    var ref = db
+      .ref(`User_Metadata/${userID}/Sessions/`);
+
+    ref
+      .once('value')
+      .then((sessions) =>
+        sessions.forEach((session) => 
+        {
+          console.log(session.key);
+          db
+            .ref(`Sessions/${session.key}/`)
+            .remove();
+        }
+        ));
+    ref
+      .remove();
+  }
+
+  /**
+   * TODO: Comments
+   * @param {string} sessionID 
+   * @param {string} userID 
+   */
+
 }
 
 /**
