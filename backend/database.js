@@ -10,7 +10,7 @@ class Database
    * @typedef {Object} User
    * @property {string} authToken - The token used for authentication
    * @property {string} refreshToken - The token used for refreshing credentials
-   * TODO: Complete
+   * @property {Sessions} sessions
    */
 
   /**
@@ -65,11 +65,11 @@ class Database
   }
 
   /**
-   * TODO: Comments
-   * @param {string} sessionID 
-   * @returns {Promise<string>} spotify user id
+   * Fetches the spotify user ID associated with the given session
+   * @param {string} sessionID
+   * @returns {Promise<string>} resolves to the spotify user ID connected to the
+   *   session and rejects if no session with the given session ID exists
    */
-  //returns a promise, keeps listening. Can add logic inside function to deal with change. Change to ONCE to stop listening
   GetUserID(sessionID) 
   {
     return new Promise(
@@ -77,28 +77,22 @@ class Database
       {
         db
           .ref(`Sessions/${sessionID}`)
-          .once('value', (data) => 
-          {
-            if (data.exists()) 
+          .once('value')
+          .then(
+            data => 
             {
-              resolve(data.val());
-              console.log('User exists:', data.val());
-            }
-            else 
-            {
-              reject(`Unable to get user id: no entry with session id '${sessionID}'`);
-              console.log('User not found');
-            }
-          },
-          err => { reject('Unable to get user id: ' + err); }
+              if (data.exists()) resolve(data.val());
+              else reject(`No session with id '${sessionID}'`);
+            },
+            reject
           );
       });
   }
 
   /**
-   * TODO: Comments
-   * @param {string} userID 
-   * @returns {User}
+   * Retrieves the User_Metadata object with the associated userID
+   * @param {string} userID the spotify user ID to look for
+   * @returns {Promise<User>}
    */
   GetUser(userID) 
   {
@@ -107,20 +101,14 @@ class Database
       {
         db
           .ref(`/User_Metadata/${userID}`)
-          .once('value', (data) => 
-          {
-            if (data.exists()) 
+          .once('value')
+          .then(
+            data => 
             {
-              resolve(data.val());
-              console.log('User exists, metadata:', data.val());
-            }
-            else 
-            {
-              reject(`Unable to get user metadata: no user with entry '${userID}`);
-              console.log('User not found. UserID', userID);
-            }
-          },
-          err => { reject('Unable to get user id: ' + err); }
+              if (data.exists()) resolve(data.val());
+              else reject(`No user with entry '${userID}'`);
+            },
+            reject
           );
       });
   }
@@ -131,23 +119,22 @@ class Database
   DeleteSessionData() 
   {
     // Delete stored sessions
-    db
-      .ref('/Sessions/')
-      .remove();
+    db.ref('/Sessions/').remove();
 
     // Delete session references in User_Metadata/
-    db
-      .ref('/User_Metadata/')
+    db.ref('/User_Metadata/')
       .once('value')
-      .then((users) => 
-      {
-        users.forEach((user) => 
+      .then(
+        users => 
         {
-          db
-            .ref(`/User_Metadata/${user.key}/Sessions/`)
-            .remove();
-        });
-      });
+          users.forEach(user => 
+          {
+            db.ref(`/User_Metadata/${user.key}/Sessions/`)
+              .remove();
+          });
+        },
+        console.error
+      );
   }
 
   /**
