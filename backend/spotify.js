@@ -24,6 +24,43 @@ const scopes = [
   'user-read-private'
 ];
 
+// Helper functions
+const PLAYLIST_FETCH_LIMIT = 50;
+
+const _getAllUserPlaylists = function(offset)
+{
+  if (!offset) offset = 0;
+  return new Promise((resolve, reject) =>
+  {
+    spotifyAPI
+      .getUserPlaylists({limit: PLAYLIST_FETCH_LIMIT, offset})
+      .then(
+        data =>
+        {
+          const playlists = data.body.items.map(playlist => ({
+            id: playlist.id,
+            name: playlist.name
+          }));
+
+          if (data.body.offset + data.body.limit >= data.body.total)
+          {
+            // Got the last of the playlists
+            resolve(playlists);
+          }
+          else
+          {
+            _getAllUserPlaylists(offset+data.body.limit).then(
+              data => resolve(playlists.concat(data)),
+              err => reject(err)
+            );
+          }
+        },
+        err => reject('Failed to get user playlists from api')
+      );
+  });
+};
+
+
 class SpotifyWrapper
 {
   /**
@@ -129,22 +166,11 @@ class SpotifyWrapper
   }
 
   /**
-   * 
+   * @returns {Promise<Object[]>}
    */
   GetPlaylists()
   {
-    return new Promise(
-      (resolve, reject) =>
-      {
-        spotifyAPI
-          .getUserPlaylists()
-          .then(
-            data => console.log(data.body), // TODO: Parse data.body
-            err => reject('Unable to retrieve playlists: ' + err)
-          );
-        resolve();
-      }
-    );
+    return _getAllUserPlaylists();
   }
 }
 
