@@ -19,20 +19,36 @@ class Database
    * @property {string} refreshToken - The token used for refreshing credentials
    */
 
-  // session
-  // Break any links between 'sessionID' and other users
-  // If user with id: 'userID' does not exist, initialize a new user
-  // Link the user and the session ID
+
+  /**
+   * Connects the sessionID to the given user, and breaks any 
+   *   existing connections with sessionID
+   * @param {string} sessionID 
+   * @param {string} userID 
+   */
   SaveSession(sessionID, userID) 
   {
-    var updates = {};
+    // Disconnect if the sessionID already exists, remove it in oldUserID
+    this
+      .GetUserID(sessionID)
+      .then(
+        oldUserID =>
+        {
+          // No need to update, already as it should be
+          if (oldUserID === userID) return;
 
-    updates[`/Sessions/${sessionID}`] = userID;
-    updates[`/User_Metadata/${userID}/Sessions/${sessionID}`] = true;
+          // Delete the old connection between sessionID and oldUserID
+          db
+            .ref(`/User_Metadata/${oldUserID}/Sessions/${sessionID}`)
+            .remove();
+        }
+      );
 
-    db
-      .ref()
-      .update(updates);
+    // Connect sessionID and userID
+    db.ref().update({
+      [`/Sessions/${sessionID}`]: userID,
+      [`/User_Metadata/${userID}/Sessions/${sessionID}`]: true
+    });
   }
 
   /**
