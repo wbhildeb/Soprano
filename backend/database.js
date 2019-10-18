@@ -152,33 +152,29 @@ class Database
 
   /**
    * Delete all user sessions in Sessions/ and User_Metadata/
+   * @param {string} userID
    */
   DeleteUserSessions(userID) 
   {
-    var ref = db
-      .ref(`User_Metadata/${userID}/Sessions/`);
+    var sessionsNode = db.ref(`User_Metadata/${userID}/Sessions/`);
 
-    ref
+    sessionsNode
       .once('value')
-      .then((sessions) =>
-        sessions.forEach((session) => 
+      .then(
+        sessions =>
         {
-          console.log(session.key);
-          db
-            .ref(`Sessions/${session.key}/`)
-            .remove();
-        }
-        ));
-    ref
-      .remove();
+          sessions.forEach(session => 
+          {
+            db
+              .ref(`Sessions/${session.key}/`)
+              .remove();
+          });
+        },
+        err => console.error('Failed to delete user sessions', err)
+      );
+
+    sessionsNode.remove();
   }
-
-  /**
-   * TODO: Comments
-   * @param {string} sessionID 
-   * @param {string} userID 
-   */
-
 }
 
 /**
