@@ -10,7 +10,7 @@ class Database
    * @typedef {Object} User
    * @property {string} authToken - The token used for authentication
    * @property {string} refreshToken - The token used for refreshing credentials
-   * TODO: Complete
+   * @property {Sessions} sessions
    */
 
   /**
@@ -19,48 +19,36 @@ class Database
    * @property {string} refreshToken - The token used for refreshing credentials
    */
 
-  /**
-   * Delete all sessions in Sessions/ and User_Metadata/
-   */
-  DeleteSessionData()
-  {
-    // Delete stored sessions
-    firebase
-      .database()
-      .ref('Sessions/*')
-      .remove();
-
-    // TODO: Delete session references in User_Metadata/
-  }
 
   /**
-   * TODO: Comments
+   * Connects the sessionID to the given user, and breaks any 
+   *   existing connections with sessionID
    * @param {string} sessionID 
    * @param {string} userID 
    */
-
-  // session
-  // Break any links between 'sessionID' and other users
-  // If user with id: 'userID' does not exist, initialize a new user
-  // Link the user and the session ID
   SaveSession(sessionID, userID) 
   {
-    // Make a session
-    firebase
-      .database()
-      .ref(`Sessions/${sessionID}`)
-      .set({
-        UserID: userID
-      });
+    // Disconnect if the sessionID already exists, remove it in oldUserID
+    this
+      .GetUserID(sessionID)
+      .then(
+        oldUserID =>
+        {
+          // No need to update, already as it should be
+          if (oldUserID === userID) return;
 
-    var updates = {};
+          // Delete the old connection between sessionID and oldUserID
+          db
+            .ref(`/User_Metadata/${oldUserID}/Sessions/${sessionID}`)
+            .remove();
+        }
+      );
 
-    updates['/Sessions/'] = { [sessionID]: userID };
-    updates[`/User_Metadata/${userID}/Sessions/`] = { [sessionID]: true };
-
-    db
-      .ref()
-      .update(updates);
+    // Connect sessionID and userID
+    db.ref().update({
+      [`/Sessions/${sessionID}`]: userID,
+      [`/User_Metadata/${userID}/Sessions/${sessionID}`]: true
+    });
   }
 
   /**
@@ -77,11 +65,11 @@ class Database
   }
 
   /**
-   * TODO: Comments
-   * @param {string} sessionID 
-   * @returns {Promise<string>} spotify user id
+   * Fetches the spotify user ID associated with the given session
+   * @param {string} sessionID
+   * @returns {Promise<string>} resolves to the spotify user ID connected to the
+   *   session and rejects if no session with the given session ID exists
    */
-  //returns a promise, keeps listening. Can add logic inside function to deal with change. Change to ONCE to stop listening
   GetUserID(sessionID) 
   {
     return new Promise(
@@ -89,27 +77,21 @@ class Database
       {
         db
           .ref(`Sessions/${sessionID}`)
-          .on('value', (data) => 
-          {
-            if (data.exists) 
+          .once('value')
+          .then(
+            data => 
             {
-              resolve(data.val());
-              console.log('User exists:', data.val());
-            }
-            else 
-            {
-              reject(`Unable to get user id: no entry with session id '${sessionID}'`);
-              console.log('User not found');
-            }
-          },
-          err => { reject('Unable to get user id: ' + err); }
+              if (data.exists()) resolve(data.val());
+              else reject(`No session with id '${sessionID}'`);
+            },
+            reject
           );
       });
   }
 
   /**
-   * TODO: Comments
-   * @param {string} userID 
+   * Retrieves the User_Metadata object with the associated userID
+   * @param {string} userID the spotify user ID to look for
    * @returns {Promise<User>}
    */
   GetUser(userID) 
@@ -119,22 +101,66 @@ class Database
       {
         db
           .ref(`/User_Metadata/${userID}`)
-          .on('value', (data) => 
-          {
-            if (data.exists) 
+          .once('value')
+          .then(
+            data => 
             {
-              resolve(data.val());
-              console.log('User exists, metadata:', data.val());
-            }
-            else 
-            {
-              reject(`Unable to get user metadata: no user with entry '${userID}`);
-              console.log('User not found. UserID', userID);
-            }
-          },
-          err => { reject('Unable to get user id: ' + err); }
+              if (data.exists()) resolve(data.val());
+              else reject(`No user with entry '${userID}'`);
+            },
+            reject
           );
       });
+  }
+
+  /**
+   * Delete all sessions in Sessions/ and User_Metadata/
+   */
+  DeleteSessionData() 
+  {
+    // Delete stored sessions
+    db.ref('/Sessions/').remove();
+
+    // Delete session references in User_Metadata/
+    db.ref('/User_Metadata/')
+      .once('value')
+      .then(
+        users => 
+        {
+          users.forEach(user => 
+          {
+            db.ref(`/User_Metadata/${user.key}/Sessions/`)
+              .remove();
+          });
+        },
+        console.error
+      );
+  }
+
+  /**
+   * Delete all user sessions in Sessions/ and User_Metadata/
+   * @param {string} userID
+   */
+  DeleteUserSessions(userID) 
+  {
+    var sessionsNode = db.ref(`User_Metadata/${userID}/Sessions/`);
+
+    sessionsNode
+      .once('value')
+      .then(
+        sessions =>
+        {
+          sessions.forEach(session => 
+          {
+            db
+              .ref(`Sessions/${session.key}/`)
+              .remove();
+          });
+        },
+        err => console.error('Failed to delete user sessions', err)
+      );
+
+    sessionsNode.remove();
   }
 }
 
