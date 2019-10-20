@@ -21,11 +21,44 @@ const scopes = [
   'user-read-currently-playing',
   'user-read-recently-played',
   'user-modify-playback-state',
-  'user-read-private'
+  'user-read-private',
+  'playlist-modify-public',
+  'playlist-modify-private'
 ];
 
 // Helper functions
 const PLAYLIST_FETCH_LIMIT = 50;
+const TRACK_FETCH_LIMIT = 50;
+const ADD_TRACK_LIMIT = 100;
+
+const _getAllPlaylistTrackIDs = function(playlistID, offset)
+{
+  console.log(offset);
+  if (!offset) offset = 0;
+  return new Promise((resolve, reject) =>
+  {
+    spotifyAPI
+      .getPlaylistTracks(playlistID, {fields: 'items.track.id,limit,total,offset', offset, limit: TRACK_FETCH_LIMIT})
+      .then(
+        data =>
+        {
+          const trackIDs = data.body.items.map(item => item.track.id);
+
+          if (data.body.offset + data.body.limit >= data.body.total)
+          {
+            // Got the last of the trackIDs
+            resolve(trackIDs);
+          }
+          else
+          {
+            _getAllPlaylistTrackIDs(playlistID, offset + data.body.limit)
+              .then(data => resolve(trackIDs.concat(data)))
+              .catch(reject);
+          }
+        })
+      .catch(console.error);
+  });
+};
 
 const _getAllUserPlaylists = function(offset)
 {
@@ -49,10 +82,9 @@ const _getAllUserPlaylists = function(offset)
           }
           else
           {
-            _getAllUserPlaylists(offset+data.body.limit).then(
-              data => resolve(playlists.concat(data)),
-              err => reject(err)
-            );
+            _getAllUserPlaylists(offset + data.body.limit)
+              .then(data => resolve(playlists.concat(data)))
+              .catch(reject);
           }
         });
   });
@@ -165,6 +197,46 @@ class SpotifyWrapper
   GetPlaylists()
   {
     return _getAllUserPlaylists();
+  }
+
+  /**
+   * Add the given tracks to the given playlist
+   * @param {string} playlistID 
+   * @param {string[]} tracks 
+   * @returns {Promise} a promise that resolves when the tracks have been added
+   */
+  AddTracksToPlaylist(playlistID, tracks)
+  {
+    if (!tracks[0].startsWith('spotify:track:'))
+    {
+      tracks = tracks.map(trackid => 'spotify:track:' + trackid);
+    }
+
+    if (tracks.length <= ADD_TRACK_LIMIT)
+    {
+      return spotifyAPI.addTracksToPlaylist(playlistID, tracks);
+    }
+  
+    return this.AddTracksToPlaylist(playlistID, tracks.slice(0, ADD_TRACK_LIMIT))
+      .then(() => this.AddTracksToPlaylist(playlistID, tracks.slice(ADD_TRACK_LIMIT)))
+      .catch(console.error);
+  }
+
+  /**
+   * Add all the songs in one playlist to another (making one the subset of another)
+   * @param {string} source The id of the playlist that acts as a source of songs
+   * @param {string} destination The id of the playlist which will have the songs added to it
+   */
+  AddPlaylistToPlaylist(source, destination)
+  {
+    Promise.all([_getAllPlaylistTrackIDs(source), _getAllPlaylistTrackIDs(destination)])
+      .then(
+        ([sourceTracks, destTracks]) =>
+        {
+          const toAdd = sourceTracks.filter(e => !destTracks.includes(e));
+          this.AddTracksToPlaylist(destination, toAdd).catch(console.error);
+        })
+      .catch(console.err);
   }
 }
 
