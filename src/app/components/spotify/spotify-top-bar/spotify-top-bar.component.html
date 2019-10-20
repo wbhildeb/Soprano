@@ -1,7 +1,9 @@
-<nav class="navbar navbar-default navbar-fixed-top">
+<div id = "topbar" class="navbar navbar-dark bg-dark">
     <div class="container-fluid">
-        <button type="button" class="btn btn-default navbar-btn">Home</button>
-        <p class="navbar-text"></p>
-        <button type="button" class="btn btn-default navbar-btn">Sign in</button>
+        <button routerLink="/dashboard" type= "button" class="btn btn-outline-success">Home</button>
+        <img id="profilePicture" *ngIf="isLoggedIn" class="img-thumbnail">
+        <span id="username" *ngIf="isLoggedIn" class="navbar-text"></span>
+        <button type="button" class="btn btn-outline-success" *ngIf="!isLoggedIn" (click)="LogIn()">Log in</button>
+        <button type="button" class="btn btn-outline-success" *ngIf="isLoggedIn">Log out</button>
     </div>
-</nav>
+  </div>

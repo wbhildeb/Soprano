@@ -22,9 +22,7 @@ export class UserService
 
   public LogIn(): void
   {
-    throw new Error('UserService:LogIn() not implemented');
-    // HTTP request: GET /spotify/login
-    this.GetUserID();
+    location.href = 'http://localhost:3000/spotify/login';
   }
 
   public GetUser(): Observable<User>
