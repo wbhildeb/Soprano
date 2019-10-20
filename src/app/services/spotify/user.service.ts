@@ -35,14 +35,14 @@ export class UserService
         withCredentials: true,
         observe: 'response'
       });
-    
+
     return userObservable.pipe(
       map((res: HttpResponse<string>) =>
       {
         if (res.ok)
         {
-          var userDetails = res.body as any;
-          var user = new User(userDetails.id);
+          const userDetails = res.body as any;
+          const user = new User(userDetails.id);
 
           if (userDetails.display_name) { user.name = userDetails.display_name; }
           if (userDetails.images && userDetails.images[0].url)
