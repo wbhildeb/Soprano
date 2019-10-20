@@ -28,7 +28,7 @@ export class SpotifyTopBarComponent implements OnInit {
 
   private populateUser(): void
   {
-    if (!this.user) 
+    if (!this.user)
     {
       const userObservable: Observable<User> = this.userService.GetUser();
 
