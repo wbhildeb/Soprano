@@ -2,6 +2,7 @@ import { Injectable } from '@angular/core';
 import { Observable, of, throwError } from 'rxjs';
 import { HttpClient, HttpResponse } from '@angular/common/http';
 import { map } from 'rxjs/operators';
+import { BrowserDynamicTestingModule } from '@angular/platform-browser-dynamic/testing';
 
 @Injectable({
   providedIn: 'root'
@@ -26,9 +27,33 @@ export class UserService
     this.GetUserID();
   }
 
-  public GetUser(): User
+  public GetUser(): Observable<User>
   {
-    throw new Error('UserService:GetUser() not implemented');
+    const userObservable: Observable<HttpResponse<string>> = this
+      .http
+      .get<string>('http://localhost:3000/spotify/userDetails', {
+        withCredentials: true,
+        observe: 'response'
+      });
+    
+    return userObservable.pipe(
+      map((res: HttpResponse<string>) =>
+      {
+        if (res.ok)
+        {
+          var userDetails = res.body as any;
+          var user = new User(userDetails.id);
+
+          if (userDetails.display_name) { user.name = userDetails.display_name; }
+          if (userDetails.images && userDetails.images[0].url)
+          {
+            user.imageURL = userDetails.images[0].url;
+          }
+          return user;
+        }
+        else { throwError(res.body); }
+      })
+    );
   }
 
   public GetUserID(): Observable<string>
@@ -67,5 +92,10 @@ export class UserService
 
 export class User
 {
+  public imageURL: string;
+  public name: string;
 
+  constructor(
+    public id: string
+  ){}
 }

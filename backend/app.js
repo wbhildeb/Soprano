@@ -79,13 +79,13 @@ app.get('/spotify/callback', (req, res) =>
           credentials = creds;
 
           spotify.SetAuthCredentials(creds);
-          return spotify.GetUserID();
+          return spotify.GetUser();
         })
       .then(
-        id =>
+        user =>
         {
-          userID = id;
-          return db.SaveSession(req.sessionID, id);
+          userID = user.id;
+          return db.SaveSession(req.sessionID, user.id);
         })
       .then(
         () =>
@@ -107,6 +107,20 @@ app.get('/spotify/userID', (req, res) =>
     );
 });
 
+app.get('/spotify/userDetails', (req, res) =>
+{
+  db
+    .GetUserID(req.sessionID)
+    .then(userID => db.GetUser(userID))
+    .then(user =>
+    {
+      spotify.SetAuthCredentials(user.credentials);
+      return spotify.GetUser();
+    })
+    .then(user => res.status(200).json(user))
+    .catch(err => res.status(500).json(err));
+});
+
 app.get('/spotify/playlists', (req, res) =>
 {
   db
@@ -116,7 +130,7 @@ app.get('/spotify/playlists', (req, res) =>
     .then(
       user =>
       {
-        spotify.SetAuthCredentials({ authToken: user.authToken, refreshToken: user.refreshToken});
+        spotify.SetAuthCredentials(user.credentials);
         return spotify.GetPlaylists();
       })
     .then(
