@@ -1,6 +1,7 @@
 import { Injectable } from '@angular/core';
-import { Observable, of } from 'rxjs';
-import { HttpClient } from '@angular/common/http';
+import { Observable, of, throwError } from 'rxjs';
+import { HttpClient, HttpResponse } from '@angular/common/http';
+import { map } from 'rxjs/operators';
 
 @Injectable({
   providedIn: 'root'
@@ -28,23 +29,34 @@ export class UserService
   public GetUser(): User
   {
     throw new Error('UserService:GetUser() not implemented');
-
   }
 
   public GetUserID(): Observable<string>
   {
     if (this.userID === undefined)
     {
-      const idObservable: Observable<string> = this
+      const idObservable: Observable<HttpResponse<string>> = this
         .http
-        .get<string>('http://localhost:3000/spotify/userID');
+        .get<string>('http://localhost:3000/spotify/userID', {
+          withCredentials: true,
+          observe: 'response'
+        });
 
-      idObservable.subscribe((id: string) =>
+      idObservable.subscribe((res: HttpResponse<string>) =>
       {
-        this.userID = id;
+        if (res.ok)
+        {
+          this.userID = res.body;
+        }
       });
 
-      return idObservable;
+      return idObservable.pipe(
+        map((res: HttpResponse<string>) =>
+        {
+          if (res.ok) { return res.body; }
+          else { throwError(res.body); }
+        })
+      );
     }
     else
     {

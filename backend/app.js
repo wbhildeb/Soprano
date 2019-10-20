@@ -103,7 +103,7 @@ app.get('/spotify/userID', (req, res) =>
     .GetUserID(req.sessionID)
     .then(
       id => res.status(200).json(id),
-      err => res.status(201).json(err)
+      err => res.status(500).json(err)
     );
 });
 
@@ -125,7 +125,7 @@ app.get('/spotify/playlists', (req, res) =>
         console.log(playlists);
         res.status(200).json(playlists);
       })
-    .catch(err => res.status(201).json(err));
+    .catch(err => res.status(500).json(err));
 });
 
 app.listen(3000);
