@@ -112,23 +112,20 @@ app.get('/spotify/playlists', (req, res) =>
   db
     .GetUserID(req.sessionID)
     .then(
-      id => db.GetUser(id),
-      err => res.status(201).json(err))
+      id => db.GetUser(id))
     .then(
       user =>
       {
         spotify.SetAuthCredentials({ authToken: user.authToken, refreshToken: user.refreshToken});
         return spotify.GetPlaylists();
-      },
-      err => res.status(201).json(err))
+      })
     .then(
       playlists =>
       {
         console.log(playlists);
         res.status(200).json(playlists);
-      },
-      err => res.status(201).json(err)
-    );
+      })
+    .catch(err => res.status(201).json(err));
 });
 
 app.listen(3000);
