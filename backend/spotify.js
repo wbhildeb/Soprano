@@ -144,19 +144,18 @@ class SpotifyWrapper
   }
 
   /**
+   * Return user details
    * @returns {Promise}
    */
-  GetUserID() 
+  GetUser() 
   {
     return new Promise(
       (resolve, reject) =>
       {
         spotifyAPI
           .getMe()
-          .then(
-            data => resolve(data.body.id),
-            err => reject('Unable to retrieve user: ' + err)
-          );
+          .then(data => resolve(data.body))
+          .catch(err => reject('Unable to retrieve user: ' + err));
       });
   }
 
