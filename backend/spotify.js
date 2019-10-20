@@ -2,7 +2,7 @@
  * spotify.js
  * 
  * Walker Hildebrand
- * 2019-09-21
+ * 2019-10-20
  *
  */
 
@@ -54,9 +54,7 @@ const _getAllUserPlaylists = function(offset)
               err => reject(err)
             );
           }
-        },
-        err => reject('Failed to get user playlists from api')
-      );
+        });
   });
 };
 
@@ -121,7 +119,7 @@ class SpotifyWrapper
   /**
    * Refresh the given credentials (does not update the wrapper's credentials to given values)
    * @param {AuthCredentials} credentials 
-   * @returns {AuthCredentials|null} null if unable to refresh
+   * @returns {Promise<AuthCredentials>} null if unable to refresh
    */
   RefreshAuthCredentials(credentials)
   {
@@ -129,21 +127,18 @@ class SpotifyWrapper
       authToken: spotifyAPI.getAccessToken(),
       refreshToken: spotifyAPI.getRefreshToken()
     };
-        
+    
     this.SetAuthCredentials(credentials);
-    spotifyAPI.refreshAccessToken().then(
+    return spotifyAPI.refreshAccessToken().then(
       data =>
       {
+        // Reset credentials
         this.SetAuthCredentials(oldCredentials);
-                
+
         return {
           authToken: data.body['access_token'],
-          refreshToken: data.body['refresh_token']
+          refreshToken: credentials.refreshToken
         };
-      },
-      () => // error 
-      {
-        return null;
       }
     );
   }

@@ -2,7 +2,7 @@
  * app.js
  *
  * Walker Hildebrand
- * 2019-10-07
+ * 2019-10-20
  *
  */
 
@@ -11,6 +11,7 @@ const express = require('express');
 const session = require('express-session');
 const database = require('./database');
 const spotifyWrapper = require('./spotify');
+const helper = require('./helper');
 
 const app = express();
 const db = database();
@@ -132,15 +133,58 @@ app.get('/spotify/playlists', (req, res) =>
 
 app.listen(3000);
 
+/**
+ * Updates all the authentication credentials for each user in the database
+ *   If unable to authenticate, sets the authToken and refreshToken to null
+ */
 function UpdateAllAuthCredentials()
 {
-  var users = [];
-  users.foreach(
-    user =>
+  console.log('update');
+  db
+    .GetUsers()
+    .then(users =>
     {
-      const newCreds = spotify.SetAuthCredentials({authToken: user.authToken, refreshToken: user.refreshToken});
-      db.UpdateAuthCredentials(user.id, newCreds);
+      users.forEach(
+        user =>
+        {
+          if (!user.exists())
+          {
+            console.error('User does not exist');
+            return;
+          }
+
+          const data = user.val();
+          if (!data.credentials) return;
+
+          spotify
+            .RefreshAuthCredentials(data.credentials)
+            .then(
+              credentials =>
+              {
+                console.log(
+                  'Updated authToken:',
+                  data.credentials.authToken,
+                  '->',
+                  credentials.authToken
+                );
+                
+                user.getRef().child('credentials').update(credentials);
+              },
+              err =>
+              {
+                console.error(err);
+
+                user.getRef().child('credentials').update({
+                  authToken: null,
+                  refreshToken: null
+                });
+              }
+            );
+        });
     });
 }
 
-setInterval(UpdateAllAuthCredentials, 1200000);
+setInterval(
+  UpdateAllAuthCredentials,
+  helper.ToMilliseconds({ minutes: 20 })
+);
