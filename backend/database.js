@@ -55,13 +55,13 @@ class Database
    * Updates the authentication credentials for a user,
    *  and creates a new user if none exists with given userID
    * @param {string} userID
-   * @param {AuthCredentials} creds 
+   * @param {AuthCredentials} credentials 
    */
-  UpdateAuthCredentials(userID, creds) 
+  UpdateAuthCredentials(userID, credentials) 
   {
     db
       .ref(`/User_Metadata/${userID}/`)
-      .update(creds);
+      .update({credentials});
   }
 
   /**
@@ -111,6 +111,14 @@ class Database
             reject
           );
       });
+  }
+
+  /**
+   * 
+   */
+  GetUsers()
+  {
+    return db.ref('/User_Metadata/').once('value');
   }
 
   /**
