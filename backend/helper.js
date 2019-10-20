@@ -15,7 +15,6 @@ module.exports.ToMilliseconds = function(time)
   time.minutes += time.hours * 60;
   time.seconds += time.minutes * 60;
   time.milliseconds += time.seconds * 1000;
-
-  console.log(time.milliseconds);
+  
   return time.milliseconds;
 };
