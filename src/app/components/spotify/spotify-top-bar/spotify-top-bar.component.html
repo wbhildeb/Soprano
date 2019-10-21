@@ -1,8 +1,8 @@
 <div id = "topbar" class="navbar navbar-dark bg-dark">
     <div class="container-fluid">
         <button routerLink="/dashboard" type= "button" class="btn btn-outline-success">Home</button>
-        <img id="profilePicture" *ngIf="isLoggedIn" class="img-thumbnail">
-        <span id="username" *ngIf="isLoggedIn" class="navbar-text"></span>
+        <img id="profilePicture" *ngIf="isLoggedIn" class="img-thumbnail" src={{GetImageURL()}}>
+        <span id="username" *ngIf="isLoggedIn" class="navbar-text">{{ GetUsername() }}</span>
         <button type="button" class="btn btn-outline-success" *ngIf="!isLoggedIn" (click)="LogIn()">Log in</button>
         <button type="button" class="btn btn-outline-success" *ngIf="isLoggedIn">Log out</button>
     </div>

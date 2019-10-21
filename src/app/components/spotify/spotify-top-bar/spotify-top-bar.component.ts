@@ -10,10 +10,8 @@ import { Observable } from 'rxjs';
 
 export class SpotifyTopBarComponent implements OnInit {
 
-  private isLoggedIn = false;
+  public isLoggedIn = false;
   private user: User;
-  private username: string;
-  private imageUrl: string;
 
   constructor(private userService: UserService) {}
 
@@ -22,36 +20,28 @@ export class SpotifyTopBarComponent implements OnInit {
     if (!this.isLoggedIn)
     {
       this.userService.LogIn();
-      this.populateUser();
     }
   }
 
-  private populateUser(): void
+  public GetUsername(): string
   {
-    if (!this.user)
-    {
-      const userObservable: Observable<User> = this.userService.GetUser();
+    return (this.user && this.user.name) ? this.user.name : '';
+  }
 
-      userObservable.subscribe(
-        (res: User) =>
-        {
-          if (res)
-          {
-            this.user = res;
-            document.getElementById('username').innerHTML = res.name;
-            const image = document.getElementById('profilePicture') as HTMLImageElement;
-            image.src = res.imageURL;
-          }
-        },
-        console.error
-      );
-    }
+  public GetImageURL(): string
+  {
+    return (this.user && this.user.imageURL) ? this.user.imageURL : '';
   }
 
   ngOnInit()
   {
+    // Get UserID
     this.userService.GetUserID().subscribe(() => this.isLoggedIn = true);
-    this.populateUser();
-  }
 
+    // Get User
+    this.userService.GetUser().subscribe(
+      (user: User) => this.user = user,
+      console.error
+    );
+  }
 }
