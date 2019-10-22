@@ -1,19 +1,15 @@
 #topbar
 {
-    margin: 0;
-    background: darkblue;
+    margin: 0pt;
     display: inline-block;
-    padding: 5px;
+    padding: 5pt;
     width: 100%;
 }
 
-#topbar-name
+#profilePicture
 {
-    background: lightblue;
-    float: left;
-}
-
-#topbar-action
-{
-    float: right;
+  height: 45pt;
+  width: 45pt;
+  border-radius: 100%;
+  border: 0;
 }
