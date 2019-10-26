@@ -3,6 +3,7 @@ import { AngularFireDatabase } from 'angularfire2/database';
 import { map, switchMap } from 'rxjs/operators';
 import { Observable } from 'rxjs';
 import { UserService } from './user.service';
+import { HttpClient } from '@angular/common/http';
 
 @Injectable({
   providedIn: 'root'
@@ -12,7 +13,8 @@ export class PlaylistService
 {
   constructor(
     private db: AngularFireDatabase,
-    private userService: UserService)
+    private userService: UserService,
+    private http: HttpClient)
   { }
 
   /**
@@ -92,10 +94,24 @@ export class PlaylistService
       });
   }
 
-  public GetUserPlaylistsFromSpotify()
+  public GetUserPlaylistsFromSpotify(): Observable<Playlist[]>
   {
-    throw new Error('PlaylistService:GetUserPlaylists() not implemented');
-    // GetPlaylists from spotify: HttpRequest
+    console.log('playlist');
+    return this
+      .http
+      .get<{id: string, name: string}[]>('http://localhost:3000/spotify/playlists', {
+        withCredentials: true
+      })
+      .pipe(
+        map(
+          playlists => playlists.map(
+            playlist =>
+            {
+              const p = new Playlist(playlist.id);
+              p.name = playlist.name;
+              return p;
+            }))
+      );
   }
 
   private DeleteDeadPlaylistsInDB() {}
