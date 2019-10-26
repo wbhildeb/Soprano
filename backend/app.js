@@ -2,7 +2,7 @@
  * app.js
  *
  * Walker Hildebrand
- * 2019-10-07
+ * 2019-10-20
  *
  */
 
@@ -11,10 +11,14 @@ const express = require('express');
 const session = require('express-session');
 const database = require('./database');
 const spotifyWrapper = require('./spotify');
+const helper = require('./helper');
 
 const app = express();
 const db = database();
 const spotify = spotifyWrapper();
+
+// Refresh since none of the cookies are going to be the same
+//db.DeleteSessionData(); TODO: Uncomment at some point
 
 app
   .use(session({
@@ -66,29 +70,27 @@ app.get('/spotify/callback', (req, res) =>
   }
   else
   {
-    var authToken;
-    var refreshToken;
+    var credentials;
     var userID;
     spotify.GetAuthCredentials(code)
       .then(
         creds =>
         {
-          authToken = creds.authToken;
-          refreshToken = creds.refreshToken;
+          credentials = creds;
 
           spotify.SetAuthCredentials(creds);
-          return spotify.GetUserID();
+          return spotify.GetUser();
         })
       .then(
-        id =>
+        user =>
         {
-          userID = id;
-          return db.SaveSession(req.sessionID, id);
+          userID = user.id;
+          return db.SaveSession(req.sessionID, user.id);
         })
       .then(
         () =>
         {
-          db.UpdateAuthenticationInfo(userID, authToken, refreshToken);
+          db.UpdateAuthCredentials(userID, credentials);
         });
     
     res.redirect('http://localhost:4200/sub-playlists/');
@@ -101,8 +103,22 @@ app.get('/spotify/userID', (req, res) =>
     .GetUserID(req.sessionID)
     .then(
       id => res.status(200).json(id),
-      err => res.status(201).json(err)
+      err => res.status(500).json(err)
     );
+});
+
+app.get('/spotify/userDetails', (req, res) =>
+{
+  db
+    .GetUserID(req.sessionID)
+    .then(userID => db.GetUser(userID))
+    .then(user =>
+    {
+      spotify.SetAuthCredentials(user.credentials);
+      return spotify.GetUser();
+    })
+    .then(user => res.status(200).json(user))
+    .catch(err => res.status(500).json(err));
 });
 
 app.get('/spotify/playlists', (req, res) =>
@@ -110,16 +126,76 @@ app.get('/spotify/playlists', (req, res) =>
   db
     .GetUserID(req.sessionID)
     .then(
-      id => db.GetUser(id),
-      err => { res.status(201).json(err); })
+      id => db.GetUser(id))
     .then(
       user =>
       {
-        spotify.SetAuthCredentials({ authToken: user.authToken, refreshToken: user.refreshToken});
-        spotify.GetPlaylists();
-      },
-      err => res.status(201).json(err)
-    );
+        spotify.SetAuthCredentials(user.credentials);
+        return spotify.GetPlaylists();
+      })
+    .then(
+      playlists =>
+      {
+        console.log(playlists);
+        res.status(200).json(playlists);
+      })
+    .catch(err => res.status(500).json(err));
 });
 
 app.listen(3000);
+
+/**
+ * Updates all the authentication credentials for each user in the database
+ *   If unable to authenticate, sets the authToken and refreshToken to null
+ */
+function UpdateAllAuthCredentials()
+{
+  console.log('update');
+  db
+    .GetUsers()
+    .then(users =>
+    {
+      users.forEach(
+        user =>
+        {
+          if (!user.exists())
+          {
+            console.error('User does not exist');
+            return;
+          }
+
+          const data = user.val();
+          if (!data.credentials) return;
+
+          spotify
+            .RefreshAuthCredentials(data.credentials)
+            .then(
+              credentials =>
+              {
+                console.log(
+                  'Updated authToken:',
+                  data.credentials.authToken,
+                  '->',
+                  credentials.authToken
+                );
+                
+                user.getRef().child('credentials').update(credentials);
+              },
+              err =>
+              {
+                console.error(err);
+
+                user.getRef().child('credentials').update({
+                  authToken: null,
+                  refreshToken: null
+                });
+              }
+            );
+        });
+    });
+}
+
+setInterval(
+  UpdateAllAuthCredentials,
+  helper.ToMilliseconds({ minutes: 20 })
+);

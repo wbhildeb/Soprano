@@ -1,25 +1,14 @@
 <app-spotify-top-bar></app-spotify-top-bar>
-<p>
-sub-playlists works!
-</p>
 
-<p>
-  Create new playlist: <input type="text" name="input" [(ngModel)]="selectedPlaylist"> 
-  {{selectedPlaylist}}
-  </p>
-
-<!-- <p>
-Select a parnet playlist to see it's sub-playlists!
-<select [(ngModel)]="selectedPlaylist"> 
-    <option *ngFor="let playlist of playlists" [value]="playlist.title" >{{playlist.title}}</option>
+<h3>Parent Playlist (songs get added to it)</h3>
+<select [(ngModel)]="selectedParent">
+  <option *ngFor="let playlist of playlists" [ngValue]="playlist">{{playlist.name}}</option>
 </select>
 
-</p> -->
-
-<p>Selected Playlist is {{selectedPlaylist}}</p>
-<p> Add a sub-playlist: <input type="text" name="input" [(ngModel)]="newSubPlaylist"> 
-  <button (click)="AddSubPlaylist(newSubPlaylist)">Save</button>
-  {{newSubPlaylist}}
-  </p>
-
-  <button (click)="GetSubPlaylistsByKey('id')">Test</button>
+<h3>Child Playlist (all songs get added to parent)</h3>
+<select [(ngModel)]="selectedChild">
+  <option *ngFor="let playlist of playlists" [ngValue]="playlist">{{playlist.name}}</option>
+</select>
+<br>
+<br>
+<button (click)="CreateSubPlaylist()" [disabled]="!PlaylistsSelected()">Pair Playlists</button>

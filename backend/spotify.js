@@ -2,7 +2,7 @@
  * spotify.js
  * 
  * Walker Hildebrand
- * 2019-09-21
+ * 2019-10-20
  *
  */
 
@@ -21,8 +21,75 @@ const scopes = [
   'user-read-currently-playing',
   'user-read-recently-played',
   'user-modify-playback-state',
-  'user-read-private'
+  'user-read-private',
+  'playlist-modify-public',
+  'playlist-modify-private'
 ];
+
+// Helper functions
+const PLAYLIST_FETCH_LIMIT = 50;
+const TRACK_FETCH_LIMIT = 50;
+const ADD_TRACK_LIMIT = 100;
+
+const _getAllPlaylistTrackIDs = function(playlistID, offset)
+{
+  console.log(offset);
+  if (!offset) offset = 0;
+  return new Promise((resolve, reject) =>
+  {
+    spotifyAPI
+      .getPlaylistTracks(playlistID, {fields: 'items.track.id,limit,total,offset', offset, limit: TRACK_FETCH_LIMIT})
+      .then(
+        data =>
+        {
+          const trackIDs = data.body.items.map(item => item.track.id);
+
+          if (data.body.offset + data.body.limit >= data.body.total)
+          {
+            // Got the last of the trackIDs
+            resolve(trackIDs);
+          }
+          else
+          {
+            _getAllPlaylistTrackIDs(playlistID, offset + data.body.limit)
+              .then(data => resolve(trackIDs.concat(data)))
+              .catch(reject);
+          }
+        })
+      .catch(console.error);
+  });
+};
+
+const _getAllUserPlaylists = function(offset)
+{
+  if (!offset) offset = 0;
+  return new Promise((resolve, reject) =>
+  {
+    spotifyAPI
+      .getUserPlaylists({limit: PLAYLIST_FETCH_LIMIT, offset})
+      .then(
+        data =>
+        {
+          const playlists = data.body.items.map(playlist => ({
+            id: playlist.id,
+            name: playlist.name
+          }));
+
+          if (data.body.offset + data.body.limit >= data.body.total)
+          {
+            // Got the last of the playlists
+            resolve(playlists);
+          }
+          else
+          {
+            _getAllUserPlaylists(offset + data.body.limit)
+              .then(data => resolve(playlists.concat(data)))
+              .catch(reject);
+          }
+        });
+  });
+};
+
 
 class SpotifyWrapper
 {
@@ -84,7 +151,7 @@ class SpotifyWrapper
   /**
    * Refresh the given credentials (does not update the wrapper's credentials to given values)
    * @param {AuthCredentials} credentials 
-   * @returns {AuthCredentials|null} null if unable to refresh
+   * @returns {Promise<AuthCredentials>} null if unable to refresh
    */
   RefreshAuthCredentials(credentials)
   {
@@ -92,59 +159,84 @@ class SpotifyWrapper
       authToken: spotifyAPI.getAccessToken(),
       refreshToken: spotifyAPI.getRefreshToken()
     };
-        
+    
     this.SetAuthCredentials(credentials);
-    spotifyAPI.refreshAccessToken().then(
+    return spotifyAPI.refreshAccessToken().then(
       data =>
       {
+        // Reset credentials
         this.SetAuthCredentials(oldCredentials);
-                
+
         return {
           authToken: data.body['access_token'],
-          refreshToken: data.body['refresh_token']
+          refreshToken: credentials.refreshToken
         };
-      },
-      () => // error 
-      {
-        return null;
       }
     );
   }
 
   /**
+   * Return user details
    * @returns {Promise}
    */
-  GetUserID() 
+  GetUser() 
   {
     return new Promise(
       (resolve, reject) =>
       {
         spotifyAPI
           .getMe()
-          .then(
-            data => resolve(data.body.id),
-            err => reject('Unable to retrieve user: ' + err)
-          );
+          .then(data => resolve(data.body))
+          .catch(err => reject('Unable to retrieve user: ' + err));
       });
   }
 
   /**
-   * 
+   * @returns {Promise<Object[]>}
    */
   GetPlaylists()
   {
-    return new Promise(
-      (resolve, reject) =>
-      {
-        spotifyAPI
-          .getUserPlaylists()
-          .then(
-            data => console.log(data.body), // TODO: Parse data.body
-            err => reject('Unable to retrieve playlists: ' + err)
-          );
-        resolve();
-      }
-    );
+    return _getAllUserPlaylists();
+  }
+
+  /**
+   * Add the given tracks to the given playlist
+   * @param {string} playlistID 
+   * @param {string[]} tracks 
+   * @returns {Promise} a promise that resolves when the tracks have been added
+   */
+  AddTracksToPlaylist(playlistID, tracks)
+  {
+    if (!tracks[0].startsWith('spotify:track:'))
+    {
+      tracks = tracks.map(trackid => 'spotify:track:' + trackid);
+    }
+
+    if (tracks.length <= ADD_TRACK_LIMIT)
+    {
+      return spotifyAPI.addTracksToPlaylist(playlistID, tracks);
+    }
+  
+    return this.AddTracksToPlaylist(playlistID, tracks.slice(0, ADD_TRACK_LIMIT))
+      .then(() => this.AddTracksToPlaylist(playlistID, tracks.slice(ADD_TRACK_LIMIT)))
+      .catch(console.error);
+  }
+
+  /**
+   * Add all the songs in one playlist to another (making one the subset of another)
+   * @param {string} source The id of the playlist that acts as a source of songs
+   * @param {string} destination The id of the playlist which will have the songs added to it
+   */
+  AddPlaylistToPlaylist(source, destination)
+  {
+    Promise.all([_getAllPlaylistTrackIDs(source), _getAllPlaylistTrackIDs(destination)])
+      .then(
+        ([sourceTracks, destTracks]) =>
+        {
+          const toAdd = sourceTracks.filter(e => !destTracks.includes(e));
+          this.AddTracksToPlaylist(destination, toAdd).catch(console.error);
+        })
+      .catch(console.err);
   }
 }
 
