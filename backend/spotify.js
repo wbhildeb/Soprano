@@ -33,7 +33,6 @@ const ADD_TRACK_LIMIT = 100;
 
 const _getAllPlaylistTrackIDs = function(playlistID, offset)
 {
-  console.log(offset);
   if (!offset) offset = 0;
   return new Promise((resolve, reject) =>
   {
@@ -101,8 +100,7 @@ class SpotifyWrapper
 
   /**
    * @param {string} sessionID The sessionID of the user
-   * @param {boolean} [showDialog] = false by default 
-   * 
+   * @param {boolean} [showDialog=false]
    * @returns {string} The URL to get authorization
    */
   GetAuthorizationURL(sessionID, showDialog)
@@ -229,11 +227,15 @@ class SpotifyWrapper
    */
   AddPlaylistToPlaylist(source, destination)
   {
-    Promise.all([_getAllPlaylistTrackIDs(source), _getAllPlaylistTrackIDs(destination)])
+    Promise
+      .all([_getAllPlaylistTrackIDs(source), _getAllPlaylistTrackIDs(destination)])
       .then(
         ([sourceTracks, destTracks]) =>
         {
           const toAdd = sourceTracks.filter(e => !destTracks.includes(e));
+          if (toAdd.length === 0) return;
+
+          console.log(`Adding ${toAdd.length} tracks from ${source} to ${destination}`);
           this.AddTracksToPlaylist(destination, toAdd).catch(console.error);
         })
       .catch(console.err);
