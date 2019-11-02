@@ -144,6 +144,41 @@ app.get('/spotify/playlists', (req, res) =>
 
 app.listen(3000);
 
+db.GetParentPlaylists();
+
+/**
+ * 
+ */
+function UpdateSubPlaylists()
+{
+  db.GetParentPlaylists()
+    .then(
+      playlistobj =>
+      {
+        Object.keys(playlistobj).forEach(
+          userID =>
+          {
+            db.GetUser(userID)
+              .then(
+                user =>
+                {
+                  spotify.SetAuthCredentials(user.credentials);
+                  helper
+                    .PostOrder(helper.Treeify(playlistobj[userID].playlists))
+                    .forEach(
+                      pair =>
+                      {
+                        spotify.AddPlaylistToPlaylist(pair.child, pair.parent);
+                      });
+                });
+            
+          });
+      },
+      console.log
+    )
+    .catch(console.log);
+}
+
 /**
  * Updates all the authentication credentials for each user in the database
  *   If unable to authenticate, sets the authToken and refreshToken to null
@@ -198,4 +233,9 @@ function UpdateAllAuthCredentials()
 setInterval(
   UpdateAllAuthCredentials,
   helper.ToMilliseconds({ minutes: 20 })
+);
+
+setInterval(
+  UpdateSubPlaylists,
+  helper.ToMilliseconds({ hours: 1 })
 );

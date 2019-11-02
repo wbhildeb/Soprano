@@ -170,6 +170,30 @@ class Database
 
     sessionsNode.remove();
   }
+
+  /**
+   * 
+   */
+  GetParentPlaylists()
+  {
+    return db
+      .ref('/User_Playlists/')
+      .once('value')
+      .then(
+        userSnapshot =>
+        {
+          const users = userSnapshot.val();
+          Object.keys(users).forEach(
+            user =>
+            {
+              delete users[user].sub_playlists;
+            }
+          );
+
+          return users;
+        }
+      );
+  }
 }
 
 /**
