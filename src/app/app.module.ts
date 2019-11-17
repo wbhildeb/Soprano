@@ -13,13 +13,17 @@ import { AngularFireDatabaseModule } from 'angularfire2/database';
 import * as environment from '../../environments/environment';
 import { FormsModule } from '@angular/forms';
 import { HttpClientModule } from '@angular/common/http';
+import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
+import { MatTreeModule, MatIconModule, MatProgressBarModule } from '@angular/material';
+import { TestTreeComponent } from './components/test/test-tree/test-tree.component';
 
 @NgModule({
   declarations: [
     AppComponent,
     DashboardComponent,
     SubPlaylistsComponent,
-    SpotifyTopBarComponent
+    SpotifyTopBarComponent,
+    TestTreeComponent
   ],
   imports: [
     BrowserModule,
@@ -27,7 +31,11 @@ import { HttpClientModule } from '@angular/common/http';
     AngularFireModule.initializeApp(environment.firebaseConfig, 'spotify'),
     AngularFireDatabaseModule,
     FormsModule,
-    HttpClientModule
+    HttpClientModule,
+    BrowserAnimationsModule,
+    MatTreeModule,
+    MatIconModule,
+    MatProgressBarModule
   ],
   providers: [],
   bootstrap: [AppComponent]
