@@ -9,6 +9,7 @@
 // /////// Imports /////////////////////////////////////////
 const express = require('express');
 const session = require('express-session');
+const foosboard = require('foosboard');
 const database = require('./database');
 const spotifyWrapper = require('./spotify');
 const helper = require('./helper');
@@ -26,6 +27,7 @@ app
     resave: false,
     saveUninitialized: true,
   }))
+  .use('/api/foosboard', foosboard)
   .use(
     (req, res, next) =>
     {

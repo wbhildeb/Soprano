@@ -34,6 +34,7 @@
     "braces": "^2.3.2",
     "core-js": "^2.6.10",
     "firebase": "^7.2.3",
+    "foosboard": "git://github.com/wbhildeb/FoosBoard.git#master",
     "hammerjs": "^2.0.8",
     "jquery": "^3.4.1",
     "mongoose": "^5.7.7",
