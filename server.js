@@ -154,7 +154,7 @@ app.get('/*', function(req, res)
   res.sendFile(path.join(__dirname+'/dist/Site/index.html'));
 });
 
-app.listen(3000);
+app.listen(process.env.PORT || 80);
 
 db.GetParentPlaylists();
 
