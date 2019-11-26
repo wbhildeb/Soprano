@@ -9,10 +9,11 @@
 // /////// Imports /////////////////////////////////////////
 const express = require('express');
 const session = require('express-session');
+const path = require('path');
 const foosboard = require('foosboard');
-const database = require('./database');
-const spotifyWrapper = require('./spotify');
-const helper = require('./helper');
+const database = require('./backend/database');
+const spotifyWrapper = require('./backend/spotify');
+const helper = require('./backend/helper');
 
 const app = express();
 const db = database();
@@ -31,7 +32,7 @@ app
   .use(
     (req, res, next) =>
     {
-      res.setHeader('Access-Control-Allow-Origin', 'http://localhost:4200');
+      res.setHeader('Access-Control-Allow-Origin', 'http://localhost:3000');
       res.setHeader('Access-Control-Allow-Credentials', 'true');
       res.setHeader(
         'Access-Control-Allow-Headers',
@@ -95,7 +96,7 @@ app.get('/spotify/callback', (req, res) =>
           db.UpdateAuthCredentials(userID, credentials);
         });
     
-    res.redirect('http://localhost:4200/sub-playlists/');
+    res.redirect('http://localhost:3000/sub-playlists/');
   }
 });
 
@@ -142,6 +143,13 @@ app.get('/spotify/playlists', (req, res) =>
         res.status(200).json(playlists);
       })
     .catch(err => res.status(500).json(err));
+});
+
+app.use(express.static(__dirname + '/dist/Site'));
+
+app.get('/*', function(req, res)
+{  
+  res.sendFile(path.join(__dirname+'/dist/Site/index.html'));
 });
 
 app.listen(3000);
