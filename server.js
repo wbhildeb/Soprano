@@ -9,6 +9,7 @@
 // /////// Imports /////////////////////////////////////////
 const express = require('express');
 const session = require('express-session');
+const FileStore = require('session-file-store')(session);
 const path = require('path');
 const foosboard = require('foosboard');
 const database = require('./backend/database');
@@ -25,6 +26,7 @@ const spotify = spotifyWrapper();
 app
   .use(session({
     secret: 'gotta go home',
+    store: new FileStore({}),
     resave: false,
     saveUninitialized: true,
   }))
