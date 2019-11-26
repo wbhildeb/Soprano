@@ -2,7 +2,7 @@
   "name": "site",
   "version": "0.0.0",
   "scripts": {
-    "start": "node backend/app.js && node server.js",
+    "start": "node server.js",
     "build": "ng build",
     "test": "ng test",
     "lint": "eslint backend/ && ng lint",
