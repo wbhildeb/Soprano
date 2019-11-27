@@ -53,7 +53,7 @@ app.use('*', (req, res, next) =>
   console.log(`request type:  ${req.method}`);
   console.log(`url:           ${req.url}`);
   console.log(`session:       ${req.sessionID}`);
-  console.log(`body:          ${req.body}`);
+  console.log('query:', query);
   console.log('-----------------------------------------------');
   next();
 });
