@@ -54,6 +54,7 @@ app.use('*', (req, res, next) =>
   console.log(`url:           ${req.url}`);
   console.log(`session:       ${req.sessionID}`);
   console.log('query:', req.query);
+  console.log('body:', req.body);
   console.log('-----------------------------------------------');
   next();
 });
