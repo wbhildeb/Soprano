@@ -48,7 +48,7 @@ app
     });
 
 // Debugging
-app.get('*', (req, res, next) => 
+app.use('*', (req, res, next) => 
 {
   console.log(`request type:  ${req.method}`);
   console.log(`url:           ${req.url}`);
