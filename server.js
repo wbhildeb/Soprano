@@ -8,6 +8,7 @@
 
 // /////// Imports /////////////////////////////////////////
 const express = require('express');
+const bodyParser = require('body-parser');
 const session = require('express-session');
 const FileStore = require('session-file-store')(session);
 const path = require('path');
@@ -21,10 +22,10 @@ const db = database();
 const spotify = spotifyWrapper();
 
 // Refresh since none of the cookies are going to be the same
-//db.DeleteSessionData(); TODO: Uncomment at some point
+db.DeleteSessionData();
 
 app
-  .use(express.bodyParser())
+  .use(bodyParser.urlencoded({ extended: true }))
   .use(session({
     secret: 'gotta go home',
     store: new FileStore({}),
