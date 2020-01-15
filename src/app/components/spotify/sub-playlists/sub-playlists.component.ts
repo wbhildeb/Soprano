@@ -1,5 +1,6 @@
 import { Component, OnInit } from '@angular/core';
-import { Playlist, PlaylistService } from 'src/app/services/spotify/playlist.service';
+import { Playlist, PlaylistService, DynamicPlaylistNode, DynamicSubPlaylistDataSource } from 'src/app/services/spotify/playlist.service';
+import { FlatTreeControl } from '@angular/cdk/tree';
 
 @Component({
   selector: 'app-sub-playlists',
@@ -12,22 +13,37 @@ export class SubPlaylistsComponent implements OnInit {
   public selectedParent: Playlist;
   public selectedChild: Playlist;
 
+  public treeControl: FlatTreeControl<DynamicPlaylistNode>;
+  public dataSource: DynamicSubPlaylistDataSource;
+
   constructor(private playlistService: PlaylistService) { }
 
   ngOnInit()
   {
-    this.GetPlaylists();
+    this.InitPlaylistTree();
+    this.LoadPlaylistDB();
   }
 
-  private GetPlaylists()
+  NodeHasChild = (_: number, _nodeData: DynamicPlaylistNode) => _nodeData.expandable;
+
+  private InitPlaylistTree()
   {
-    this
-    .playlistService
-    .GetUserPlaylistsFromSpotify()
-    .subscribe(
-      (playlists: Playlist[]) => { this.playlists  = playlists; },
-      console.error
-    );
+    const getLevel = (node: DynamicPlaylistNode) => node.level;
+    const isExpandable = (node: DynamicPlaylistNode) => node.expandable;
+
+    this.treeControl = new FlatTreeControl<DynamicPlaylistNode>(getLevel, isExpandable);
+  }
+
+  private LoadPlaylistDB()
+  {
+    this.playlistService
+      .GetSubPlaylistDatabase()
+      .subscribe(
+        db =>
+        {
+          this.dataSource = new DynamicSubPlaylistDataSource(this.treeControl, db);
+          this.dataSource.data = db.TopLevelNodes();
+        });
   }
 
   public PlaylistsSelected()
