@@ -3,7 +3,6 @@ const express = require('express');
 const helper = require('./helper');
 const db = require('./database')();
 const spotify = require('./spotify')();
-const env = require('./environment');
 
 const router = express.Router();
 
