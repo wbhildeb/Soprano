@@ -52,7 +52,7 @@ app
   .use('/api/soprano', soprano);
 
 // Debugging
-app.use('*', (req, res, next) => 
+app.use('*', (req, res, next) =>
 {
   console.log(`request type:  ${req.method}`);
   console.log(`url:           ${req.url}`);
@@ -66,7 +66,7 @@ app.use('*', (req, res, next) =>
 app.use(express.static(__dirname + '/dist/Site'));
 
 app.get('/*', function(req, res)
-{  
+{
   res.sendFile(path.join(__dirname + '/dist/Site/index.html'));
 });
 

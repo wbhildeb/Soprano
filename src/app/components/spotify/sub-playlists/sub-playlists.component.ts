@@ -5,7 +5,7 @@ import { FlatTreeControl } from '@angular/cdk/tree';
 @Component({
   selector: 'app-sub-playlists',
   templateUrl: './sub-playlists.component.html',
-  styleUrls: ['./sub-playlists.component.css'],
+  styleUrls: ['./sub-playlists.component.scss'],
 })
 
 export class SubPlaylistsComponent implements OnInit {

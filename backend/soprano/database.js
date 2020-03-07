@@ -4,7 +4,7 @@ const env = require('./environment');
 firebase.initializeApp(env.firebase);
 const db = firebase.database();
 
-class Database 
+class Database
 {
   /**
    * @typedef {Object} User
@@ -21,12 +21,12 @@ class Database
 
 
   /**
-   * Connects the sessionID to the given user, and breaks any 
+   * Connects the sessionID to the given user, and breaks any
    *   existing connections with sessionID
-   * @param {string} sessionID 
-   * @param {string} userID 
+   * @param {string} sessionID
+   * @param {string} userID
    */
-  SaveSession(sessionID, userID) 
+  SaveSession(sessionID, userID)
   {
     // Disconnect if the sessionID already exists, remove it in oldUserID
     this
@@ -55,9 +55,9 @@ class Database
    * Updates the authentication credentials for a user,
    *  and creates a new user if none exists with given userID
    * @param {string} userID
-   * @param {AuthCredentials} credentials 
+   * @param {AuthCredentials} credentials
    */
-  UpdateAuthCredentials(userID, credentials) 
+  UpdateAuthCredentials(userID, credentials)
   {
     db
       .ref(`/User_Metadata/${userID}/`)
@@ -70,16 +70,16 @@ class Database
    * @returns {Promise<string>} resolves to the spotify user ID connected to the
    *   session and rejects if no session with the given session ID exists
    */
-  GetUserID(sessionID) 
+  GetUserID(sessionID)
   {
     return new Promise(
-      (resolve, reject) => 
+      (resolve, reject) =>
       {
         db
           .ref(`Sessions/${sessionID}`)
           .once('value')
           .then(
-            data => 
+            data =>
             {
               if (data.exists()) resolve(data.val());
               else reject(`No session with id '${sessionID}'`);
@@ -94,16 +94,16 @@ class Database
    * @param {string} userID the spotify user ID to look for
    * @returns {Promise<User>}
    */
-  GetUser(userID) 
+  GetUser(userID)
   {
     return new Promise(
-      (resolve, reject) => 
+      (resolve, reject) =>
       {
         db
           .ref(`/User_Metadata/${userID}`)
           .once('value')
           .then(
-            data => 
+            data =>
             {
               if (data.exists()) resolve(data.val());
               else reject(`No user with entry '${userID}'`);
@@ -114,7 +114,7 @@ class Database
   }
 
   /**
-   * 
+   *
    */
   GetUsers()
   {
@@ -124,7 +124,7 @@ class Database
   /**
    * Delete all sessions in Sessions/ and User_Metadata/
    */
-  DeleteSessionData() 
+  DeleteSessionData()
   {
     // Delete stored sessions
     db.ref('/Sessions/').remove();
@@ -133,9 +133,9 @@ class Database
     db.ref('/User_Metadata/')
       .once('value')
       .then(
-        users => 
+        users =>
         {
-          users.forEach(user => 
+          users.forEach(user =>
           {
             db.ref(`/User_Metadata/${user.key}/Sessions/`)
               .remove();
@@ -149,7 +149,7 @@ class Database
    * Delete all user sessions in Sessions/ and User_Metadata/
    * @param {string} userID
    */
-  DeleteUserSessions(userID) 
+  DeleteUserSessions(userID)
   {
     var sessionsNode = db.ref(`User_Metadata/${userID}/Sessions/`);
 
@@ -158,7 +158,7 @@ class Database
       .then(
         sessions =>
         {
-          sessions.forEach(session => 
+          sessions.forEach(session =>
           {
             db
               .ref(`Sessions/${session.key}/`)
@@ -172,7 +172,7 @@ class Database
   }
 
   /**
-   * 
+   *
    */
   GetParentPlaylists()
   {

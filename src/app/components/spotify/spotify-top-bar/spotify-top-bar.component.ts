@@ -5,7 +5,7 @@ import { Observable } from 'rxjs';
 @Component({
   selector: 'app-spotify-top-bar',
   templateUrl: './spotify-top-bar.component.html',
-  styleUrls: ['./spotify-top-bar.component.css']
+  styleUrls: ['./spotify-top-bar.component.scss']
 })
 
 export class SpotifyTopBarComponent implements OnInit {
