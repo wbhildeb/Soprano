@@ -62,7 +62,7 @@ import {
   imports: [
     BrowserModule,
     AppRoutingModule,
-    AngularFireModule.initializeApp(environment.firebaseConfig, 'spotify'),
+    AngularFireModule.initializeApp(environment.firebase, 'soprano'),
     AngularFireDatabaseModule,
     FormsModule,
     HttpClientModule,
