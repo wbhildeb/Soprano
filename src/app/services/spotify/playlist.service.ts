@@ -100,7 +100,7 @@ export class PlaylistService
   {
     return this
       .http
-      .get<{id: string, name: string}[]>('http://localhost:3000/spotify/playlists', {
+      .get<{id: string, name: string}[]>('/api/soprano/playlists', {
         withCredentials: true
       })
       .pipe(

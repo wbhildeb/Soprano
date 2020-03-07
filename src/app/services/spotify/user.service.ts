@@ -15,20 +15,20 @@ export class UserService
   public LogOut(): void
   {
     throw new Error('UserService:LogOut() not implemented');
-    // HTTP request: Get /spotify/logout
+    // HTTP request: Get /api/soprano/logout
     this.userID = undefined;
   }
 
   public LogIn(): void
   {
-    location.href = 'http://localhost:3000/spotify/login';
+    location.href = '/api/soprano/login';
   }
 
   public GetUser(): Observable<User>
   {
     const userObservable: Observable<HttpResponse<string>> = this
       .http
-      .get<string>('http://localhost:3000/spotify/userDetails', {
+      .get<string>('/api/soprano/userDetails', {
         withCredentials: true,
         observe: 'response'
       });
@@ -59,7 +59,7 @@ export class UserService
     {
       const idObservable: Observable<HttpResponse<string>> = this
         .http
-        .get<string>('http://localhost:3000/spotify/userID', {
+        .get<string>('/api/soprano/userID', {
           withCredentials: true,
           observe: 'response'
         });

@@ -1,30 +1,8 @@
-/**
- * spotify.js
- *
- * Walker Hildebrand
- * 2019-10-20
- *
- */
 
-const SpotifyWebAPI = require('spotify-web-api-node');
+const env = require('./environment');
+const SpotifyAPI = require('spotify-web-api-node');
 
-const spotifyAPI = new SpotifyWebAPI({
-  clientId: '391e2916ad4a4709908a2d71ffaeb0c5',
-  clientSecret: '8bfdab0cdbd841bfb127f58545b90402',
-  redirectUri: 'http://localhost:3000/spotify/callback'
-});
-
-const scopes = [
-  'user-library-modify',
-  'user-read-private',
-  'user-modify-playback-state',
-  'user-read-currently-playing',
-  'user-read-recently-played',
-  'user-modify-playback-state',
-  'user-read-private',
-  'playlist-modify-public',
-  'playlist-modify-private'
-];
+const spotifyAPI = new SpotifyAPI(env.spotify.clientInfo);
 
 // Helper functions
 const PLAYLIST_FETCH_LIMIT = 50;
@@ -106,7 +84,7 @@ class SpotifyWrapper
   GetAuthorizationURL(sessionID, showDialog)
   {
     if (showDialog === undefined) showDialog = false;
-    return spotifyAPI.createAuthorizeURL(scopes, sessionID, showDialog);
+    return spotifyAPI.createAuthorizeURL(env.spotify.scopes, sessionID, showDialog);
   }
 
   /**

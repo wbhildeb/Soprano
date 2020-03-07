@@ -1,7 +1,7 @@
 const firebase = require('firebase');
-const environment = require('../environments/environment');
+const env = require('./environment');
 
-firebase.initializeApp(environment.firebaseConfig);
+firebase.initializeApp(env.firebase);
 const db = firebase.database();
 
 class Database
