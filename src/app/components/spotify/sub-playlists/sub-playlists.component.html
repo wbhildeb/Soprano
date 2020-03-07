@@ -12,3 +12,24 @@
 <br>
 <br>
 <button (click)="CreateSubPlaylist()" [disabled]="!PlaylistsSelected()">Pair Playlists</button>
+
+
+
+
+<mat-tree [dataSource]="dataSource" [treeControl]="treeControl">
+  <mat-tree-node *matTreeNodeDef="let node" matTreeNodePadding>
+    <button mat-icon-button disabled></button>
+    {{node.item.name}}
+  </mat-tree-node>
+  <mat-tree-node *matTreeNodeDef="let node; when: NodeHasChild" matTreeNodePadding>
+    <button mat-icon-button matTreeNodeToggle color="secondary">
+      <mat-icon >
+        {{ treeControl.isExpanded(node) ? 'expand_more' : 'chevron_right' }}
+      </mat-icon>
+    </button>
+    {{node.item.name}}
+    <mat-progress-bar *ngIf="node.isLoading"
+                      mode="indeterminate"
+                      class="example-tree-progress-bar"></mat-progress-bar>
+  </mat-tree-node>
+</mat-tree>

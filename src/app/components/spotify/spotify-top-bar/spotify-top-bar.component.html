@@ -1,9 +1,11 @@
-<div id = "topbar" class="navbar navbar-dark bg-dark">
-    <div class="container-fluid">
-        <button routerLink="/dashboard" type= "button" class="btn btn-outline-success">Home</button>
-        <img id="profilePicture" *ngIf="isLoggedIn" class="img-thumbnail" src={{GetImageURL()}}>
-        <span id="username" *ngIf="isLoggedIn" class="navbar-text">{{ GetUsername() }}</span>
-        <button type="button" class="btn btn-outline-success" *ngIf="!isLoggedIn" (click)="LogIn()">Log in</button>
-        <button type="button" class="btn btn-outline-success" *ngIf="isLoggedIn">Log out</button>
-    </div>
-  </div>
+<mat-toolbar color="secondary">
+  <mat-toolbar-row>
+    <button mat-button color="primary" routerLink="/dashboard">Home</button>
+    <img id="profilePicture" *ngIf="isLoggedIn" class="img-thumbnail" src={{GetImageURL()}}>
+    <span id="username" *ngIf="isLoggedIn" class="navbar-text">{{ GetUsername() }}</span>
+    
+    <button mat-button color="primary" *ngIf="isLoggedIn">Log out</button>
+    <button mat-button color="primary" *ngIf="!isLoggedIn" (click)="LogIn()">Log in</button>
+
+  </mat-toolbar-row>
+</mat-toolbar>
