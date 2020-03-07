@@ -1,5 +1,5 @@
 /**
- * Converts an object with different measures of time into 
+ * Converts an object with different measures of time into
  */
 module.exports.ToMilliseconds = function(time)
 {
@@ -15,7 +15,7 @@ module.exports.ToMilliseconds = function(time)
   time.minutes += time.hours * 60;
   time.seconds += time.minutes * 60;
   time.milliseconds += time.seconds * 1000;
-  
+
   return time.milliseconds;
 };
 
@@ -36,7 +36,7 @@ module.exports.PostOrder = function(obj, rootname)
     key =>
     {
       arr = arr.concat(module.exports.PostOrder(obj[key], key));
-      
+
       if (rootname)
       {
         arr.push({parent: rootname, child: key});

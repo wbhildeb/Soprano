@@ -1,6 +1,6 @@
 /**
  * spotify.js
- * 
+ *
  * Walker Hildebrand
  * 2019-10-20
  *
@@ -120,15 +120,15 @@ class SpotifyWrapper
       (resolve, reject) =>
       {
         spotifyAPI.authorizationCodeGrant(code).then(
-          data => 
+          data =>
           {
             const authToken = data.body['access_token'];
             const refreshToken = data.body['refresh_token'];
             console.log(data.body);
-    
+
             resolve({ authToken, refreshToken });
           },
-          err => 
+          err =>
           {
             reject('Failed to get authentication credentials', err);
           });
@@ -138,7 +138,7 @@ class SpotifyWrapper
 
   /**
    * Set the authentication token and refresh token for future calls
-   * @param {AuthCredentials} credentials 
+   * @param {AuthCredentials} credentials
    */
   SetAuthCredentials(credentials)
   {
@@ -148,7 +148,7 @@ class SpotifyWrapper
 
   /**
    * Refresh the given credentials (does not update the wrapper's credentials to given values)
-   * @param {AuthCredentials} credentials 
+   * @param {AuthCredentials} credentials
    * @returns {Promise<AuthCredentials>} null if unable to refresh
    */
   RefreshAuthCredentials(credentials)
@@ -157,7 +157,7 @@ class SpotifyWrapper
       authToken: spotifyAPI.getAccessToken(),
       refreshToken: spotifyAPI.getRefreshToken()
     };
-    
+
     this.SetAuthCredentials(credentials);
     return spotifyAPI.refreshAccessToken().then(
       data =>
@@ -177,7 +177,7 @@ class SpotifyWrapper
    * Return user details
    * @returns {Promise}
    */
-  GetUser() 
+  GetUser()
   {
     return new Promise(
       (resolve, reject) =>
@@ -199,8 +199,8 @@ class SpotifyWrapper
 
   /**
    * Add the given tracks to the given playlist
-   * @param {string} playlistID 
-   * @param {string[]} tracks 
+   * @param {string} playlistID
+   * @param {string[]} tracks
    * @returns {Promise} a promise that resolves when the tracks have been added
    */
   AddTracksToPlaylist(playlistID, tracks)
@@ -214,7 +214,7 @@ class SpotifyWrapper
     {
       return spotifyAPI.addTracksToPlaylist(playlistID, tracks);
     }
-  
+
     return this.AddTracksToPlaylist(playlistID, tracks.slice(0, ADD_TRACK_LIMIT))
       .then(() => this.AddTracksToPlaylist(playlistID, tracks.slice(ADD_TRACK_LIMIT)))
       .catch(console.error);
