@@ -93,7 +93,6 @@ router.get('/playlists', (req, res) =>
     .then(
       playlists =>
       {
-        console.log(playlists);
         res.status(200).json(playlists);
       })
     .catch(err => res.status(500).json(err));
