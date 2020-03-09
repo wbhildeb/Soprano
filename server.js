@@ -14,15 +14,8 @@ const FileStore = require('session-file-store')(session);
 const path = require('path');
 const foosboard = require('foosboard');
 const soprano = require('./backend/soprano/soprano');
-const database = require('./backend/soprano/database');
-const spotifyWrapper = require('./backend/soprano/spotify');
-const helper = require('./backend/soprano/helper');
 
 const app = express();
-const db = database();
-const spotify = spotifyWrapper();
-
-const PORT = process.env.PORT || 80;
 
 app
   .use(bodyParser.urlencoded({ extended: true }))

@@ -1,23 +1,23 @@
 import { async, ComponentFixture, TestBed } from '@angular/core/testing';
 
-import { SpotifyTopBarComponent } from './spotify-top-bar.component';
+import { SopranoTopBarComponent } from './soprano-top-bar.component';
 
 describe('SpotifyTopBarComponent', () =>
 {
-  let component: SpotifyTopBarComponent;
-  let fixture: ComponentFixture<SpotifyTopBarComponent>;
+  let component: SopranoTopBarComponent;
+  let fixture: ComponentFixture<SopranoTopBarComponent>;
 
   beforeEach(async(() =>
   {
     TestBed.configureTestingModule({
-      declarations: [ SpotifyTopBarComponent ]
+      declarations: [ SopranoTopBarComponent ]
     })
     .compileComponents();
   }));
 
   beforeEach(() =>
   {
-    fixture = TestBed.createComponent(SpotifyTopBarComponent);
+    fixture = TestBed.createComponent(SopranoTopBarComponent);
     component = fixture.componentInstance;
     fixture.detectChanges();
   });

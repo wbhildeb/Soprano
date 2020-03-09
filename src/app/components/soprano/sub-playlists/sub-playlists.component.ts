@@ -1,6 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import { PlaylistModel } from 'src/app/models/soprano/playlist.model';
-import { PlaylistService, DynamicPlaylistNode, DynamicSubPlaylistDataSource } from 'src/app/services/spotify/playlist.service';
+import { PlaylistService, DynamicPlaylistNode, DynamicSubPlaylistDataSource } from 'src/app/services/soprano/playlist.service';
 import { FlatTreeControl } from '@angular/cdk/tree';
 
 @Component({
