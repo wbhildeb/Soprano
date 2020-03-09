@@ -6,6 +6,7 @@ import { UserService } from './user.service';
 import { HttpClient } from '@angular/common/http';
 import { CollectionViewer, SelectionChange } from '@angular/cdk/collections';
 import { FlatTreeControl } from '@angular/cdk/tree';
+import { PlaylistModel } from 'src/app/models/soprano/playlist.model';
 
 @Injectable({
   providedIn: 'root'
@@ -23,13 +24,13 @@ export class PlaylistService
    * TODO: Comments
    * @returns TODO
    */
-  public GetUserPlaylists(userID: string): Observable<Playlist[]>
+  public GetUserPlaylists(userID: string): Observable<PlaylistModel[]>
   {
     return this.db
       .list(`/User_Playlists/${userID}/`)
       .snapshotChanges()
       .pipe(
-        map(changes => changes.map(c => new Playlist(c.payload.key)))
+        map(changes => changes.map(c => new PlaylistModel(c.payload.key)))
       );
   }
 
@@ -38,7 +39,7 @@ export class PlaylistService
    * @param key TODO: Make a description
    * @returns TODO: Make a description
    */
-  public GetSubPlaylists(key: string): Observable<Playlist[]>
+  public GetSubPlaylists(key: string): Observable<PlaylistModel[]>
   {
     return this.userService
       .GetUserID()
@@ -48,7 +49,7 @@ export class PlaylistService
             .list(`/User_Playlists/${userID}/playlists/${key}`)
             .snapshotChanges()
             .pipe(
-              map(changes => changes.map(c => new Playlist(c.payload.key)))
+              map(changes => changes.map(c => new PlaylistModel({id: c.payload.key})))
             ))
       );
   }
@@ -58,7 +59,7 @@ export class PlaylistService
    * @param key TODO
    * @returns TODO
    */
-  public GetParentPlaylists(key: string): Observable<Playlist[]>
+  public GetParentPlaylists(key: string): Observable<PlaylistModel[]>
   {
     return this.userService.GetUserID().pipe(
       switchMap(userID =>
@@ -66,7 +67,7 @@ export class PlaylistService
           .list(`/User_Playlists/${userID}/sub_playlists/${key}`)
           .snapshotChanges()
           .pipe(
-            map(changes => changes.map(c => new Playlist(c.payload.key)))
+            map(changes => changes.map(c => new PlaylistModel({ id: c.payload.key })))
           ))
     );
   }
@@ -78,7 +79,7 @@ export class PlaylistService
    * @param parent The playlist which will have songs added to it
    * @param child The playlist that will act as a source of songs for the parent
    */
-  public CreateSubPlaylist(parent: Playlist, child: Playlist)
+  public CreateSubPlaylist(parent: PlaylistModel, child: PlaylistModel)
   {
     this.userService
       .GetUserID()
@@ -88,15 +89,15 @@ export class PlaylistService
 
         this.db
             .list(`/User_Playlists/${id}/playlists/`)
-            .update(parent.spotifyID, { [child.spotifyID]: true });
+            .update(parent.id, { [child.id]: true });
 
         this.db
             .list(`/User_Playlists/${id}/sub_playlists/`)
-            .update(child.spotifyID, { [parent.spotifyID]: true });
+            .update(child.id, { [parent.id]: true });
       });
   }
 
-  public GetUserPlaylistsFromSpotify(): Observable<Playlist[]>
+  public GetUserPlaylistsFromSpotify(): Observable<PlaylistModel[]>
   {
     return this
       .http
@@ -106,12 +107,8 @@ export class PlaylistService
       .pipe(
         map(
           playlists => playlists.map(
-            playlist =>
-            {
-              const p = new Playlist(playlist.id);
-              p.name = playlist.name;
-              return p;
-            }))
+            playlist => (new PlaylistModel(playlist))
+          ))
       );
   }
 
@@ -152,12 +149,12 @@ export class PlaylistService
 
   public GetSubPlaylistDatabase() // : Observable<SubPlaylistDatabase>
   {
-    const getPlaylists: Observable<Map<string, Playlist>> =
+    const getPlaylists: Observable<Map<string, PlaylistModel>> =
       this.GetUserPlaylistsFromSpotify().pipe(map(
-        (playlists: Playlist[]) =>
+        (playlists: PlaylistModel[]) =>
         {
-          const IDtoPlaylist = new Map<string, Playlist>();
-          playlists.forEach(playlist => IDtoPlaylist.set(playlist.spotifyID, playlist));
+          const IDtoPlaylist = new Map<string, PlaylistModel>();
+          playlists.forEach(playlist => IDtoPlaylist.set(playlist.id, playlist));
           return IDtoPlaylist;
         }
     ));
@@ -169,8 +166,8 @@ export class PlaylistService
       .pipe(
         map(([IDtoPlaylist, {parentsOf, childrenOf}]) =>
         {
-          const parentsOfPL = new Map<Playlist, Playlist[]>();
-          const childrenOfPL = new Map<Playlist, Playlist[]>();
+          const parentsOfPL = new Map<PlaylistModel, PlaylistModel[]>();
+          const childrenOfPL = new Map<PlaylistModel, PlaylistModel[]>();
 
           parentsOf.forEach((parentIDs, childID) =>
           {
@@ -188,16 +185,9 @@ export class PlaylistService
   }
 }
 
-export class Playlist {
-  public name: string;
-  public image;
-  constructor(public spotifyID: string) { }
-}
-
-
 export class DynamicPlaylistNode {
   constructor(
-    public item: Playlist,
+    public item: PlaylistModel,
     public level: number,
     public expandable = false,
     public isLoading = false
@@ -212,8 +202,8 @@ export class SubPlaylistDatabase
    * @param parentsOf key: child playlist,   value: the keys' parents
    */
   constructor(
-    /*private*/ public childrenOf: Map<Playlist, Playlist[]>,
-    private parentsOf: Map<Playlist, Playlist[]>
+    /*private*/ public childrenOf: Map<PlaylistModel, PlaylistModel[]>,
+    private parentsOf: Map<PlaylistModel, PlaylistModel[]>
   )
   {}
 
@@ -240,7 +230,7 @@ export class SubPlaylistDatabase
   /**
    * @returns Whether or not any playlists give songs to the provided playlist
    */
-  public HasChild(playlist: Playlist): boolean
+  public HasChild(playlist: PlaylistModel): boolean
   {
     return this.childrenOf.has(playlist);
   }
@@ -248,7 +238,7 @@ export class SubPlaylistDatabase
   /**
    * @returns the playlist which will provide songs for the given playlist
    */
-  public GetChildren(playlist: Playlist): Playlist[]
+  public GetChildren(playlist: PlaylistModel): PlaylistModel[]
   {
     return this.childrenOf.get(playlist) || [];
   }
@@ -256,7 +246,7 @@ export class SubPlaylistDatabase
   /**
    * @returns true if the provided playlists is a source of songs for another playlist
    */
-  public HasParent(playlist: Playlist): boolean
+  public HasParent(playlist: PlaylistModel): boolean
   {
     return this.parentsOf.has(playlist);
   }

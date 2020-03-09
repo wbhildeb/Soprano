@@ -47,10 +47,7 @@ const _getAllUserPlaylists = function(offset)
       .then(
         data =>
         {
-          const playlists = data.body.items.map(playlist => ({
-            id: playlist.id,
-            name: playlist.name
-          }));
+          const playlists = data.body.items;
 
           if (data.body.offset + data.body.limit >= data.body.total)
           {

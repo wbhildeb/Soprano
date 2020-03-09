@@ -1,5 +1,6 @@
 import { Component, OnInit } from '@angular/core';
-import { Playlist, PlaylistService, DynamicPlaylistNode, DynamicSubPlaylistDataSource } from 'src/app/services/spotify/playlist.service';
+import { PlaylistModel } from 'src/app/models/soprano/playlist.model';
+import { PlaylistService, DynamicPlaylistNode, DynamicSubPlaylistDataSource } from 'src/app/services/spotify/playlist.service';
 import { FlatTreeControl } from '@angular/cdk/tree';
 
 @Component({
@@ -9,9 +10,9 @@ import { FlatTreeControl } from '@angular/cdk/tree';
 })
 
 export class SubPlaylistsComponent implements OnInit {
-  public playlists: Playlist[];
-  public selectedParent: Playlist;
-  public selectedChild: Playlist;
+  public playlists: PlaylistModel[];
+  public selectedParent: PlaylistModel;
+  public selectedChild: PlaylistModel;
 
   public treeControl: FlatTreeControl<DynamicPlaylistNode>;
   public dataSource: DynamicSubPlaylistDataSource;
