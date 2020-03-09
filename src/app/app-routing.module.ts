@@ -1,7 +1,7 @@
 import { NgModule } from '@angular/core';
 import { Routes, RouterModule } from '@angular/router';
 import { DashboardComponent } from './components/dashboard/dashboard.component';
-import { SubPlaylistsComponent } from './components/spotify/sub-playlists/sub-playlists.component';
+import { SubPlaylistsComponent } from './components/soprano/sub-playlists/sub-playlists.component';
 
 const routes: Routes = [
     { path: '', redirectTo: 'dashboard', pathMatch: 'full'},

@@ -4,8 +4,8 @@ import { AppRoutingModule } from './app-routing.module';
 
 import { AppComponent } from './app.component';
 import { DashboardComponent } from './components/dashboard/dashboard.component';
-import { SubPlaylistsComponent } from './components/spotify/sub-playlists/sub-playlists.component';
-import { SpotifyTopBarComponent } from './components/spotify/spotify-top-bar/spotify-top-bar.component';
+import { SubPlaylistsComponent } from './components/soprano/sub-playlists/sub-playlists.component';
+import { SopranoTopBarComponent } from './components/soprano/soprano-top-bar/soprano-top-bar.component';
 
 import { AngularFireModule } from 'angularfire2';
 import { AngularFireDatabaseModule } from 'angularfire2/database';
@@ -57,7 +57,7 @@ import {
     AppComponent,
     DashboardComponent,
     SubPlaylistsComponent,
-    SpotifyTopBarComponent,
+    SopranoTopBarComponent,
   ],
   imports: [
     BrowserModule,
