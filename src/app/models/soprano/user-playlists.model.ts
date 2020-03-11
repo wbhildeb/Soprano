@@ -25,13 +25,13 @@ export class UserPlaylists {
     Object.keys(relations).forEach(parentID =>
     {
       // Parent playlist has been removed from spotify
-      if (!this.playlists.has(parentID)) return;
+      if (!this.playlists.has(parentID)) { return; }
       const parentPL = this.playlists.get(parentID);
 
       Object.keys(relations[parentID]).forEach(childID =>
       {
         // Child playlist has been removed from spotify
-        if (!this.playlists.has(childID)) return;
+        if (!this.playlists.has(childID)) { return; }
 
         const childPL = this.playlists.get(childID);
 
