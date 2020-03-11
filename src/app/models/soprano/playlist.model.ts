@@ -1,3 +1,6 @@
+import { UserModel } from './user.model';
+import { ImagesModel } from './images.model';
+import { ExternalURLsModel } from './external-urls.model';
 export class PlaylistModel
 {
   public id: string;
@@ -8,21 +11,44 @@ export class PlaylistModel
   public collaborative: boolean;
   public numTracks: number;
 
-  constructor (data: any)
+  constructor ({
+    collaborative,
+    description = null,
+    external_urls,
+    href,
+    id,
+    images,
+    name,
+    owner,
+    // public = false,
+    snapshot_id,
+    tracks,
+    type,
+    uri
+  }:
   {
-    this.name = data.name;
-    this.description = data.description;
-    this.collaborative = data.collaborative;
-    this.numTracks = data.tracks.total;
-    this.id = data.id;
-    this.url = data.url;
-
-    // Get the largest sized image
-    this.image = !data.images.length ?
-      undefined :
-      data.images.reduce(function(prev, current)
-      {
-        return (prev.height > current.height) ? prev : current;
-      }).url;
+    collaborative: boolean,
+    description: string,
+    external_urls: ExternalURLsModel,
+    href: string,
+    id: string,
+    // images sorted in descending size
+    images: [ImagesModel],
+    name: string,
+    owner: UserModel,
+    // public: boolean,
+    snapshot_id: string,
+    tracks: {total: number}, // tracks: PagingModel,
+    type: string,
+    uri: string
+  })
+  {
+    this.name = name;
+    this.description = description;
+    this.collaborative = collaborative;
+    this.numTracks = tracks.total;
+    this.id = id;
+    this.url = external_urls.spotify;
+    this.image = images[0].url;
   }
 }
