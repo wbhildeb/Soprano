@@ -9,14 +9,14 @@ const router = express.Router();
 // Refresh since none of the cookies are going to be the same
 db.DeleteSessionData();
 
-router.get('/login', (req, res) =>
+router.get('/auth/login', (req, res) =>
 {
   const authURL = spotify.GetAuthorizationURL(req.sessionID);
   db.SignIn();
   res.redirect(authURL);
 });
 
-router.get('/callback', (req, res) =>
+router.get('/auth/callback', (req, res) =>
 {
   const state = req.query.state;
   const code = req.query.code;

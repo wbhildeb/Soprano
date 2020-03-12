@@ -22,7 +22,7 @@ export class UserService
 
   public LogIn(): void
   {
-    location.href = '/api/soprano/login';
+    location.href = '/api/soprano/auth/login';
   }
 
   public GetUser(): Observable<UserModel>
