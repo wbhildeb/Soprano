@@ -19,20 +19,8 @@ export class SubPlaylistsComponent implements OnInit {
 
   ngOnInit()
   {
-    // const apicall = this.playlistService.GetSpotifyPlaylists();
-    // const dbcall = this.playlistService.GetSubPlaylistRelations();
-
-    // forkJoin(
-    //     apicall,
-    //     // from([1,2,3]),
-    //     dbcall
-    //     // from([1,2,3])
-    // ).subscribe(
-    //     x => console.log('GOT:', x),
-    //     err => console.log('Error:', err),
-    //     () => console.log('Completed')
-    // )
-
-    this.playlistService.GetSubPlaylistDatabase().subscribe(pls => this.playlistDB = pls);
+    this.playlistService
+      .GetSubPlaylistDatabase()
+      .subscribe(db => this.playlistDB = db);
   }
 }
