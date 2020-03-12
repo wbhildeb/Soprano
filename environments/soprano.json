@@ -5,7 +5,7 @@
     {
       "clientId": "391e2916ad4a4709908a2d71ffaeb0c5",
       "clientSecret": "8bfdab0cdbd841bfb127f58545b90402",
-      "redirectUri": "http://localhost/api/soprano/callback"
+      "redirectUri": "http://localhost/api/soprano/auth/callback"
     },
     "scopes": [
         "user-read-private",
