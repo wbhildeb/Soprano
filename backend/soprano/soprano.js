@@ -12,6 +12,7 @@ db.DeleteSessionData();
 router.get('/login', (req, res) => 
 {
   const authURL = spotify.GetAuthorizationURL(req.sessionID);
+  db.SignIn();
   res.redirect(authURL);
 });
 
