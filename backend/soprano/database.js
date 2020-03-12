@@ -19,6 +19,15 @@ class Database
    * @property {string} refreshToken - The token used for refreshing credentials
    */
 
+  /** 
+   * Signs in users as anonymous to grant read/write access to the database
+   * TODO later: allow users to only access their data
+  */
+  SignIn() 
+  {
+    firebase.auth().signInAnonymously()
+      .catch(console.error);
+  }
 
   /**
    * Connects the sessionID to the given user, and breaks any
