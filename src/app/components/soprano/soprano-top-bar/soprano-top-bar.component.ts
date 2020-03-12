@@ -1,6 +1,6 @@
+import { UserModel } from './../../../models/soprano/user.model';
 import { Component, OnInit } from '@angular/core';
-import { UserService, User } from 'src/app/services/soprano/user.service';
-import { Observable } from 'rxjs';
+import { UserService } from 'src/app/services/soprano/user.service';
 
 @Component({
   selector: 'app-soprano-top-bar',
@@ -11,7 +11,7 @@ import { Observable } from 'rxjs';
 export class SopranoTopBarComponent implements OnInit {
 
   public isLoggedIn = false;
-  private user: User;
+  private user: UserModel;
 
   constructor(private userService: UserService) {}
 
@@ -30,7 +30,7 @@ export class SopranoTopBarComponent implements OnInit {
 
   public GetImageURL(): string
   {
-    return (this.user && this.user.imageURL) ? this.user.imageURL : '';
+    return (this.user && this.user.image) ? this.user.image : '';
   }
 
   ngOnInit()
@@ -40,7 +40,7 @@ export class SopranoTopBarComponent implements OnInit {
 
     // Get User
     this.userService.GetUser().subscribe(
-      (user: User) => this.user = user,
+      (user: UserModel) => this.user = user,
       console.error
     );
   }

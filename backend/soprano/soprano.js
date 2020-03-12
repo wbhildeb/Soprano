@@ -9,13 +9,13 @@ const router = express.Router();
 // Refresh since none of the cookies are going to be the same
 db.DeleteSessionData();
 
-router.get('/login', (req, res) => 
+router.get('/login', (req, res) =>
 {
   const authURL = spotify.GetAuthorizationURL(req.sessionID);
   res.redirect(authURL);
 });
 
-router.get('/callback', (req, res) => 
+router.get('/callback', (req, res) =>
 {
   const state = req.query.state;
   const code = req.query.code;
@@ -49,13 +49,14 @@ router.get('/callback', (req, res) =>
         {
           db.UpdateAuthCredentials(userID, credentials);
         });
-    
+
     res.redirect('/sub-playlists');
   }
 });
 
-router.get('/userID', (req, res) =>
+router.get('/user/id', (req, res) =>
 {
+  console.log('/user/id');
   db
     .GetUserID(req.sessionID)
     .then(
@@ -64,7 +65,7 @@ router.get('/userID', (req, res) =>
     );
 });
 
-router.get('/userDetails', (req, res) =>
+router.get('/user/details', (req, res) =>
 {
   db
     .GetUserID(req.sessionID)
@@ -101,7 +102,7 @@ router.get('/playlists', (req, res) =>
 db.GetParentPlaylists();
 
 /**
- * 
+ *
  */
 function UpdateSubPlaylists()
 {
@@ -125,7 +126,7 @@ function UpdateSubPlaylists()
                         spotify.AddPlaylistToPlaylist(pair.child, pair.parent);
                       });
                 });
-            
+
           });
       },
       console.log
@@ -167,7 +168,7 @@ function UpdateAllAuthCredentials()
                   '->',
                   credentials.authToken
                 );
-                
+
                 user.getRef().child('credentials').update(credentials);
               },
               err =>

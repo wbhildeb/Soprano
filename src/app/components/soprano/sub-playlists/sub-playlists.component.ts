@@ -1,7 +1,10 @@
+import { UserPlaylists } from 'src/app/models/soprano/user-playlists.model';
 import { Component, OnInit } from '@angular/core';
 import { PlaylistModel } from 'src/app/models/soprano/playlist.model';
-import { PlaylistService, DynamicPlaylistNode, DynamicSubPlaylistDataSource } from 'src/app/services/soprano/playlist.service';
+import { PlaylistService } from 'src/app/services/soprano/playlist.service';
 import { FlatTreeControl } from '@angular/cdk/tree';
+import { forkJoin, Observable, from } from 'rxjs';
+import { map } from 'rxjs/operators';
 
 @Component({
   selector: 'app-sub-playlists',
@@ -10,52 +13,14 @@ import { FlatTreeControl } from '@angular/cdk/tree';
 })
 
 export class SubPlaylistsComponent implements OnInit {
-  public playlists: PlaylistModel[];
-  public selectedParent: PlaylistModel;
-  public selectedChild: PlaylistModel;
-
-  public treeControl: FlatTreeControl<DynamicPlaylistNode>;
-  public dataSource: DynamicSubPlaylistDataSource;
+  public playlistDB: UserPlaylists = null;
 
   constructor(private playlistService: PlaylistService) { }
 
   ngOnInit()
   {
-    this.InitPlaylistTree();
-    this.LoadPlaylistDB();
-  }
-
-  NodeHasChild = (_: number, _nodeData: DynamicPlaylistNode) => _nodeData.expandable;
-
-  private InitPlaylistTree()
-  {
-    const getLevel = (node: DynamicPlaylistNode) => node.level;
-    const isExpandable = (node: DynamicPlaylistNode) => node.expandable;
-
-    this.treeControl = new FlatTreeControl<DynamicPlaylistNode>(getLevel, isExpandable);
-  }
-
-  private LoadPlaylistDB()
-  {
     this.playlistService
       .GetSubPlaylistDatabase()
-      .subscribe(
-        db =>
-        {
-          this.dataSource = new DynamicSubPlaylistDataSource(this.treeControl, db);
-          this.dataSource.data = db.TopLevelNodes();
-        });
-  }
-
-  public PlaylistsSelected()
-  {
-    return this.selectedParent && this.selectedChild && this.selectedParent !== this.selectedChild;
-  }
-
-  public CreateSubPlaylist()
-  {
-    this
-      .playlistService
-      .CreateSubPlaylist(this.selectedParent, this.selectedChild);
+      .subscribe(db => this.playlistDB = db);
   }
 }

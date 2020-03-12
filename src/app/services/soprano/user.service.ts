@@ -1,3 +1,4 @@
+import { UserModel } from './../../models/soprano/user.model';
 import { Injectable } from '@angular/core';
 import { Observable, of, throwError } from 'rxjs';
 import { HttpClient, HttpResponse } from '@angular/common/http';
@@ -24,11 +25,11 @@ export class UserService
     location.href = '/api/soprano/login';
   }
 
-  public GetUser(): Observable<User>
+  public GetUser(): Observable<UserModel>
   {
     const userObservable: Observable<HttpResponse<string>> = this
       .http
-      .get<string>('/api/soprano/userDetails', {
+      .get<string>('/api/soprano/user/details', {
         withCredentials: true,
         observe: 'response'
       });
@@ -38,15 +39,7 @@ export class UserService
       {
         if (res.ok)
         {
-          const userDetails = res.body as any;
-          const user = new User(userDetails.id);
-
-          if (userDetails.display_name) { user.name = userDetails.display_name; }
-          if (userDetails.images && userDetails.images[0].url)
-          {
-            user.imageURL = userDetails.images[0].url;
-          }
-          return user;
+          return new UserModel(res.body as any);
         }
         else { throwError(res.body); }
       })
@@ -59,7 +52,7 @@ export class UserService
     {
       const idObservable: Observable<HttpResponse<string>> = this
         .http
-        .get<string>('/api/soprano/userID', {
+        .get<string>('/api/soprano/user/id', {
           withCredentials: true,
           observe: 'response'
         });
@@ -85,14 +78,4 @@ export class UserService
       return of(this.userID);
     }
   }
-}
-
-export class User
-{
-  public imageURL: string;
-  public name: string;
-
-  constructor(
-    public id: string
-  ){}
 }

@@ -6,6 +6,7 @@ import { UserService } from './user.service';
 import { HttpClient } from '@angular/common/http';
 import { CollectionViewer, SelectionChange } from '@angular/cdk/collections';
 import { FlatTreeControl } from '@angular/cdk/tree';
+import { UserPlaylists } from 'src/app/models/soprano/user-playlists.model';
 import { PlaylistModel } from 'src/app/models/soprano/playlist.model';
 
 @Injectable({
@@ -22,24 +23,10 @@ export class PlaylistService
 
   /**
    * TODO: Comments
-   * @returns TODO
-   */
-  public GetUserPlaylists(userID: string): Observable<PlaylistModel[]>
-  {
-    return this.db
-      .list(`/User_Playlists/${userID}/`)
-      .snapshotChanges()
-      .pipe(
-        map(changes => changes.map(c => new PlaylistModel(c.payload.key)))
-      );
-  }
-
-  /**
-   * TODO: Comments
    * @param key TODO: Make a description
    * @returns TODO: Make a description
    */
-  public GetSubPlaylists(key: string): Observable<PlaylistModel[]>
+  public GetSubPlaylists(key: string): Observable<string[]>
   {
     return this.userService
       .GetUserID()
@@ -49,7 +36,7 @@ export class PlaylistService
             .list(`/User_Playlists/${userID}/playlists/${key}`)
             .snapshotChanges()
             .pipe(
-              map(changes => changes.map(c => new PlaylistModel({id: c.payload.key})))
+              map(changes => changes.map(c => c.payload.key))
             ))
       );
   }
@@ -59,7 +46,7 @@ export class PlaylistService
    * @param key TODO
    * @returns TODO
    */
-  public GetParentPlaylists(key: string): Observable<PlaylistModel[]>
+  public GetParentPlaylists(key: string): Observable<string[]>
   {
     return this.userService.GetUserID().pipe(
       switchMap(userID =>
@@ -67,7 +54,7 @@ export class PlaylistService
           .list(`/User_Playlists/${userID}/sub_playlists/${key}`)
           .snapshotChanges()
           .pipe(
-            map(changes => changes.map(c => new PlaylistModel({ id: c.payload.key })))
+            map(changes => changes.map(c => c.payload.key))
           ))
     );
   }
@@ -97,11 +84,11 @@ export class PlaylistService
       });
   }
 
-  public GetUserPlaylistsFromSpotify(): Observable<PlaylistModel[]>
+  public GetSpotifyPlaylists(): Observable<PlaylistModel[]>
   {
     return this
       .http
-      .get<{id: string, name: string}[]>('/api/soprano/playlists', {
+      .get<any[]>('/api/soprano/playlists', {
         withCredentials: true
       })
       .pipe(
@@ -112,76 +99,28 @@ export class PlaylistService
       );
   }
 
-  public GetSubPlaylistRelations(): Observable<{parentsOf: Map<string, string[]>, childrenOf: Map<string, string[]>}>
+  public GetSubPlaylistRelations(): Observable<{playlists, sub_playlists}>
   {
     return this.userService
       .GetUserID()
       .pipe(
         switchMap((userID: string) =>
-        {
-          return this.db.database.ref(`/User_Playlists/${userID}/`).once('value');
-        }),
-        map((value) =>
-        {
-          const parentsOf  = new Map<string, string[]>();
-          const childrenOf = new Map<string, string[]>();
-
-          const { playlists, sub_playlists } = value.val();
-
-          Object
-            .keys(sub_playlists)
-            .forEach(key =>
-            {
-              parentsOf.set(key, Object.keys(sub_playlists[key]));
-            });
-
-          Object
-            .keys(playlists)
-            .forEach(key =>
-            {
-              childrenOf.set(key, Object.keys(playlists[key]));
-            });
-
-          return { parentsOf, childrenOf };
-        })
+          this.db.database.ref(`/User_Playlists/${userID}/`).once('value')
+        ),
+        map(value => value.val())
+            // .object<{playlists, sub_playlists}>(`/User_Playlists/${userID}/`)
+            // .valueChanges()
       );
   }
 
-  public GetSubPlaylistDatabase() // : Observable<SubPlaylistDatabase>
+  public GetSubPlaylistDatabase(): Observable<UserPlaylists>
   {
-    const getPlaylists: Observable<Map<string, PlaylistModel>> =
-      this.GetUserPlaylistsFromSpotify().pipe(map(
-        (playlists: PlaylistModel[]) =>
-        {
-          const IDtoPlaylist = new Map<string, PlaylistModel>();
-          playlists.forEach(playlist => IDtoPlaylist.set(playlist.id, playlist));
-          return IDtoPlaylist;
-        }
-    ));
-
-    const getRelations = this.GetSubPlaylistRelations();
-
-
-    return forkJoin(getPlaylists, getRelations)
-      .pipe(
-        map(([IDtoPlaylist, {parentsOf, childrenOf}]) =>
-        {
-          const parentsOfPL = new Map<PlaylistModel, PlaylistModel[]>();
-          const childrenOfPL = new Map<PlaylistModel, PlaylistModel[]>();
-
-          parentsOf.forEach((parentIDs, childID) =>
-          {
-            parentsOfPL.set(IDtoPlaylist.get(childID), parentIDs.map(id => IDtoPlaylist.get(id)));
-          });
-
-          childrenOf.forEach((childIDs, parentID) =>
-          {
-            childrenOfPL.set(IDtoPlaylist.get(parentID), childIDs.map(id => IDtoPlaylist.get(id)));
-          });
-
-          return new SubPlaylistDatabase(childrenOfPL, parentsOfPL);
-        })
-      );
+    return forkJoin(this.GetSpotifyPlaylists(), this.GetSubPlaylistRelations())
+      .pipe<UserPlaylists>(
+        map(
+            ([spotify_playlists, {playlists}]) =>
+          new UserPlaylists(spotify_playlists, playlists)
+      ));
   }
 }
 
