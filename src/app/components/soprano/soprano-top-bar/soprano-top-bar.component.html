@@ -4,7 +4,7 @@
         <span #username *ngIf="isLoggedIn" class="toolbar-text">
             {{ GetUsername() }}
         </span>
-        <button class="toolbar-button">Log out</button>
+        <button class="toolbar-button" (click)="NotMe()">Log out</button>
     </div>
     <ng-template #login>
         <button class="toolbar-button" (click)="LogIn()">Log in</button>

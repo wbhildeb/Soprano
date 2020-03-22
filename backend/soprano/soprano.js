@@ -16,6 +16,19 @@ router.get('/auth/login', (req, res) =>
   res.redirect(authURL);
 });
 
+router.get('/auth/logout', (req, res) =>
+{
+  db.DeleteSession(req.sessionID);
+  res.redirect('/');
+});
+
+router.get('/auth/notme', (req, res) =>
+{
+  db.DeleteSession(req.sessionID);
+  const authURL = spotify.GetAuthorizationURL(req.sessionID, true);
+  res.redirect(authURL);
+});
+
 router.get('/auth/callback', (req, res) =>
 {
   const state = req.query.state;
@@ -57,7 +70,6 @@ router.get('/auth/callback', (req, res) =>
 
 router.get('/user/id', (req, res) =>
 {
-  console.log('/user/id');
   db
     .GetUserID(req.sessionID)
     .then(

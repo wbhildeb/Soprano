@@ -4,6 +4,8 @@ const env = require('./environment');
 firebase.initializeApp(env.firebase);
 const db = firebase.database();
 
+// const ref = require('./db-ref')(db);
+
 class Database
 {
   /**
@@ -19,11 +21,11 @@ class Database
    * @property {string} refreshToken - The token used for refreshing credentials
    */
 
-  /** 
+  /**
    * Signs in users as anonymous to grant read/write access to the database
    * TODO later: allow users to only access their data
   */
-  SignIn() 
+  SignIn()
   {
     firebase.auth().signInAnonymously()
       .catch(console.error);
@@ -81,21 +83,12 @@ class Database
    */
   GetUserID(sessionID)
   {
-    return new Promise(
-      (resolve, reject) =>
-      {
-        db
-          .ref(`Sessions/${sessionID}`)
-          .once('value')
-          .then(
-            data =>
-            {
-              if (data.exists()) resolve(data.val());
-              else reject(`No session with id '${sessionID}'`);
-            },
-            reject
-          );
-      });
+    return db
+      .ref(`Sessions/${sessionID}`)
+      .once('value')
+      .then(data =>
+        data.exists() ? data.val() : null
+      );
   }
 
   /**
@@ -178,6 +171,23 @@ class Database
       );
 
     sessionsNode.remove();
+  }
+
+  /**
+   * Delete the session id under sessions and user metadata
+   * @param {string} sessionID
+   */
+  DeleteSession(sessionID)
+  {
+    this.GetUserID(sessionID)
+      .then(userID =>
+      {
+        if (userID)
+        {
+          db.ref(`User_Metadata/${userID}/Sessions/${sessionID}`).remove();
+          db.ref(`Sessions/${sessionID}`).remove();
+        }
+      });
   }
 
   /**

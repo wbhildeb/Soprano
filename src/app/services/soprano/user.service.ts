@@ -15,9 +15,12 @@ export class UserService
 
   public LogOut(): void
   {
-    throw new Error('UserService:LogOut() not implemented');
-    // HTTP request: Get /api/soprano/logout
-    this.userID = undefined;
+    location.href = '/api/soprano/auth/logout';
+  }
+
+  public NotMe(): void
+  {
+    location.href = '/api/soprano/auth/notme';
   }
 
   public LogIn(): void

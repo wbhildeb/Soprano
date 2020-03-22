@@ -1,3 +1,4 @@
+import { ExternalURLsModel } from 'src/app/models/soprano/external-urls.model';
 import { UserPlaylists } from 'src/app/models/soprano/user-playlists.model';
 import { PlaylistModel } from 'src/app/models/soprano/playlist.model';
 import { ImagesModel } from 'src/app/models/soprano/images.model';
@@ -16,8 +17,8 @@ const images_kirby = [new ImagesModel({height: 256, width: 256, url: 'https://pb
 const default_playlist = {
   collaborative: false,
   description: 'this is a description',
-  external_urls: null,
-  href: 'www.meatspin.com',
+  external_urls: new ExternalURLsModel({spotify: 'www.spotify.com'}),
+  href: 'www.dddd.com',
   id: 'id0',
   images: [],
   name: 'Lil\' Mac',

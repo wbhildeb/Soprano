@@ -23,6 +23,16 @@ export class SopranoTopBarComponent implements OnInit {
     }
   }
 
+  public LogOut(): void
+  {
+    this.userService.LogOut();
+  }
+
+  public NotMe(): void
+  {
+    this.userService.NotMe();
+  }
+
   public GetUsername(): string
   {
     return (this.user && this.user.name) ? this.user.name : '';
@@ -36,7 +46,12 @@ export class SopranoTopBarComponent implements OnInit {
   ngOnInit()
   {
     // Get UserID
-    this.userService.GetUserID().subscribe(() => this.isLoggedIn = true);
+    this.userService
+      .GetUserID()
+      .subscribe(id =>
+      {
+        this.isLoggedIn = id != null;
+      });
 
     // Get User
     this.userService.GetUser().subscribe(
