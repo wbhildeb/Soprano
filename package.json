@@ -36,6 +36,7 @@
     "bootstrap": "^4.3.1",
     "braces": "^2.3.2",
     "core-js": "^2.6.10",
+    "data-store": "^4.0.3",
     "firebase": "^7.2.3",
     "foosboard": "git://github.com/wbhildeb/FoosBoard.git#master",
     "hammerjs": "^2.0.8",

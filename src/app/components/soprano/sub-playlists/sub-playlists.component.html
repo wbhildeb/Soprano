@@ -1,9 +1,26 @@
-<app-soprano-top-bar></app-soprano-top-bar>
-
-<div *ngIf="playlistDB != null">
-  <div *ngFor="let playlist of playlistDB.GetAllPlaylists()">
-    <img [src]="playlist.image" width="40" height="40"/>
-    {{playlist.name}}
-    {{playlist.numTracks}} Tracks
+<div class="main-wrapper">
+    <div class="toolbar-wrapper">
+        <app-soprano-top-bar></app-soprano-top-bar>
+    </div>
+    <div class="tabs-wrapper">
+        <!-- <tab-component></tab-component> -->
+    </div>
+    <div class="content-wrapper" *ngIf="playlistDB !== null">
+        <div class="grid-wrapper">
+            <app-grid-group
+                [title]="'Parent Playlists'"
+                [subtext]="'Click a playlist below to start managing its details.'"
+                [playlists]="playlistDB.GetAllParents()">
+            </app-grid-group>
+        </div>
+        <div class="grid-wrapper">
+            <app-grid-group
+                [title]="'Your Other Playlists'"
+                [playlists]="playlistDB.GetAllNonParents()">
+            </app-grid-group>
+        </div>
+    </div>
+    <div>
+        How does it work
     </div>
 </div>

@@ -1,7 +1,10 @@
 /* You can add global styles to this file, and also import other style files */
 
-html, body { height: 100%; }
-body { margin: 0; font-family: Roboto, "Helvetica Neue", sans-serif; }
+html, body {
+    height: 100%;
+    background-color: var(--web-mid-grey);
+}
+body { margin: 0; font-family: "Helvetica", sans-serif; }
 
 
 :root {
@@ -10,4 +13,21 @@ body { margin: 0; font-family: Roboto, "Helvetica Neue", sans-serif; }
     --black: #191414;
     --dark-grey: #535353;
     --light-grey: #b3b3b3;
+
+    --web-dark-grey: #121212;
+    --web-mid-grey: #181818;
+    --web-light-grey: #282828;
+}
+
+// Fonts
+.title {
+    font-size: 28px;
+    color: var(--white);
+    font-weight: bold;
+}
+
+.subtext {
+    font-size: 14px;
+    color: var(--light-grey);
+    letter-spacing: .015em;
 }

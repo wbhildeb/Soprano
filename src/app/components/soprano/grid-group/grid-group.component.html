@@ -1,0 +1,22 @@
+<div class="label-wrapper">
+    <div class="title">
+        {{ title }}
+    </div>
+    <div class="subtext">
+        {{ subtext }}
+    </div>
+</div>
+<hr>
+<div class="cells-wrapper">
+    <div class="cell" *ngFor="let playlist of playlists">
+        <div>
+            <img class="playlist-image" [src]="playlist.image">
+        </div>
+        <div class="cell-info-wrapper">
+            <div class="cell-title">{{ playlist.name }}</div>
+            <div class="cell-details">{{ playlist.numTracks }} Songs</div>
+        </div>
+    </div>
+</div>
+
+
