@@ -1,5 +1,5 @@
 
-class User
+class UserDbInterface
 {
   constructor(database)
   {
@@ -82,6 +82,6 @@ class User
 }
 
 /**
- * @returns {User}
+ * @returns {UserDbInterface}
  */
-module.exports = (database) => new User(database);
+module.exports = (database) => new UserDbInterface(database);

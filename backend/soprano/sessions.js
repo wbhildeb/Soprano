@@ -1,4 +1,4 @@
-class Session
+class SessionDbInterface
 {
   constructor(database) 
   {
@@ -119,6 +119,6 @@ class Session
 }
 
 /**
- * @returns {Session}
+ * @returns {SessionDbInterface}
  */
-module.exports = (database) => new Session(database);
+module.exports = (database) => new SessionDbInterface(database);
