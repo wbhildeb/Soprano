@@ -7,24 +7,23 @@ const spotify = require('./spotify')();
 const router = express.Router();
 
 // Refresh since none of the cookies are going to be the same
-db.DeleteSessionData();
+db.session.DeleteSessionData();
 
 router.get('/auth/login', (req, res) =>
 {
   const authURL = spotify.GetAuthorizationURL(req.sessionID);
-  db.SignIn();
   res.redirect(authURL);
 });
 
 router.get('/auth/logout', (req, res) =>
 {
-  db.DeleteSession(req.sessionID);
+  db.session.DeleteSession(req.sessionID);
   res.redirect('/');
 });
 
 router.get('/auth/notme', (req, res) =>
 {
-  db.DeleteSession(req.sessionID);
+  db.session.DeleteSession(req.sessionID);
   const authURL = spotify.GetAuthorizationURL(req.sessionID, true);
   res.redirect(authURL);
 });
@@ -56,12 +55,12 @@ router.get('/auth/callback', (req, res) =>
         user =>
         {
           userID = user.id;
-          return db.SaveSession(req.sessionID, user.id);
+          return db.session.SaveSession(req.sessionID, user.id);
         })
       .then(
         () =>
         {
-          db.UpdateAuthCredentials(userID, credentials);
+          db.user.UpdateAuthCredentials(userID, credentials);
         });
 
     res.redirect('/sub-playlists');
@@ -71,6 +70,7 @@ router.get('/auth/callback', (req, res) =>
 router.get('/user/id', (req, res) =>
 {
   db
+    .session
     .GetUserID(req.sessionID)
     .then(
       id => res.status(200).json(id),
@@ -81,8 +81,9 @@ router.get('/user/id', (req, res) =>
 router.get('/user/details', (req, res) =>
 {
   db
+    .session
     .GetUserID(req.sessionID)
-    .then(userID => db.GetUser(userID))
+    .then(userID => db.user.GetUser(userID))
     .then(user =>
     {
       spotify.SetAuthCredentials(user.credentials);
@@ -95,9 +96,10 @@ router.get('/user/details', (req, res) =>
 router.get('/playlists', (req, res) =>
 {
   db
+    .session
     .GetUserID(req.sessionID)
     .then(
-      id => db.GetUser(id))
+      id => db.user.GetUser(id))
     .then(
       user =>
       {
@@ -112,21 +114,21 @@ router.get('/playlists', (req, res) =>
     .catch(err => res.status(500).json(err));
 });
 
-db.GetParentPlaylists();
+db.user.GetParentPlaylists();
 
 /**
  *
  */
 function UpdateSubPlaylists()
 {
-  db.GetParentPlaylists()
+  db.user.GetParentPlaylists()
     .then(
       playlistobj =>
       {
         Object.keys(playlistobj).forEach(
           userID =>
           {
-            db.GetUser(userID)
+            db.user.GetUser(userID)
               .then(
                 user =>
                 {
@@ -155,6 +157,7 @@ function UpdateAllAuthCredentials()
 {
   console.log('update');
   db
+    .user
     .GetUsers()
     .then(users =>
     {
