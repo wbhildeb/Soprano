@@ -1,4 +1,4 @@
-import { PlaylistModel } from 'src/app/models/soprano/playlist.model';
+import { PlaylistModel } from './playlist.model';
 
 export class UserPlaylists {
   private playlists: Map<string, PlaylistModel>;

@@ -33,7 +33,7 @@ export class PlaylistModel
     href: string,
     id: string,
     // images sorted in descending size
-    images: [ImagesModel],
+    images: ImagesModel[],
     name: string,
     owner: UserModel,
     // public: boolean,
