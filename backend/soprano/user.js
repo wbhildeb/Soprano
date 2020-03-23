@@ -3,8 +3,7 @@ class UserDbInterface
 {
   constructor(database)
   {
-    this.metadataRef = database.ref('User_Metadata');
-    this.playlistRef = database.ref('User_Playlists');
+    this.dbRef = require('./dbRef')(database);
     this.encryption = require('./encryption')();
   }
 
@@ -27,8 +26,8 @@ class UserDbInterface
       .then(
         credentials =>
         {
-          this.metadataRef
-            .child(`${userID}`)
+          this.dbRef
+            .user(userID)
             .update({credentials});
         }
       ); 
@@ -44,8 +43,8 @@ class UserDbInterface
     return new Promise(
       (resolve, reject) =>
       {
-        this.metadataRef
-          .child(`${userID}/credentials`)
+        this.dbRef
+          .userCredentials(userID)
           .once('value')
           .then(
             data =>
@@ -55,14 +54,14 @@ class UserDbInterface
               {
                 return data.val();
               }
-            })
+            }
+          )
           .then(
             credentials => this.encryption.DecryptCredentials(credentials)
           )
           .then(
             decryptedCreds =>
             {
-              console.log('decryptedCreds:',decryptedCreds);
               resolve(decryptedCreds);
             },
             reject
@@ -83,7 +82,8 @@ class UserDbInterface
    */
   GetParentPlaylists()
   {
-    return this.playlistRef
+    return this.dbRef
+      .playlistsRef()
       .once('value')
       .then(
         userSnapshot =>

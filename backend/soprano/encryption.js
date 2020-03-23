@@ -35,16 +35,9 @@ class EncryptionInterface
 
     //Transform the string into a buffer and encrypt it
     const plaintext = Buffer.from(original);
-    return new Promise(
-      (resolve) =>
-      {
-        client.encrypt({ name, plaintext })
-          .then(
-            ([result]) => 
-            {
-              resolve(result.ciphertext.toString('base64'));
-            });
-      });
+    return client.encrypt({ name, plaintext })
+      .then(([result]) => 
+        result.ciphertext.toString('base64'));
   }
 
   /**
@@ -65,16 +58,10 @@ class EncryptionInterface
     //Transform the string into a buffer and encrypt it
     const ciphertext = Buffer.from(encoded, 'base64');
 
-    return new Promise(
-      (resolve) =>
-      {
-        client.decrypt({ name, ciphertext})
-          .then(
-            ([result]) => 
-            {
-              resolve(result.plaintext.toString());
-            });
-      });
+    return client.decrypt({ name, ciphertext})
+      .then(
+        ([result]) => 
+          result.plaintext.toString());  
   }
 
   /**
@@ -83,28 +70,10 @@ class EncryptionInterface
    */
   EncryptCredentials(credentials)
   {
-    var _encryptedAuth, _encryptedRefresh; 
-
-    return new Promise(
-      (resolve) =>
-      {
-        this.Encrypt(credentials.authToken)
-          .then(
-            (encryptedAuth ) => 
-            {
-              _encryptedAuth = encryptedAuth;
-            }).then(
-            () => this.Encrypt(credentials.refreshToken)
-          ).then(
-            (encryptedRefresh) =>
-            {
-              _encryptedRefresh = encryptedRefresh;
-            }).then(
-            ()=>
-            {
-              resolve({authToken: _encryptedAuth, refreshToken: _encryptedRefresh});
-            });
-      });
+    const encryptAuth = this.Encrypt(credentials.authToken);
+    const encryptRefresh = this.Encrypt(credentials.refreshToken);
+    return Promise.all([encryptAuth, encryptRefresh]).then(([authToken, refreshToken]) =>
+      ({authToken, refreshToken}));
   }
 
   /**
@@ -113,28 +82,10 @@ class EncryptionInterface
    */
   DecryptCredentials(credentials)
   {
-    var _decryptedAuth, _decryptedRefresh; 
-
-    return new Promise(
-      (resolve) =>
-      {
-        this.Decrypt(credentials.authToken)
-          .then(
-            (decryptedAuth ) => 
-            {
-              _decryptedAuth = decryptedAuth;
-            }).then(
-            () => this.Decrypt(credentials.refreshToken)
-          ).then(
-            (decryptedRefresh) =>
-            {
-              _decryptedRefresh = decryptedRefresh;
-            }).then(
-            ()=>
-            {
-              resolve({authToken: _decryptedAuth, refreshToken: _decryptedRefresh});
-            });
-      });
+    const decryptAuth = this.Decrypt(credentials.authToken);
+    const decryptRefresh = this.Decrypt(credentials.refreshToken);
+    return Promise.all([decryptAuth, decryptRefresh]).then(([authToken, refreshToken]) =>
+      ({authToken, refreshToken}));
   }
 }
 /**

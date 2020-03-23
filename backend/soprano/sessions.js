@@ -2,8 +2,7 @@ class SessionDbInterface
 {
   constructor(database) 
   {
-    this.metadataRef = database.ref('User_Metadata');
-    this.sessionsRef = database.ref('Sessions');
+    this.dbRef = require('./dbRef')(database);
   }
 
   /**
@@ -24,20 +23,18 @@ class SessionDbInterface
           if (oldUserID === userID) return;
 
           // Delete the old connection between sessionID and oldUserID
-          this.metadataRef
-            .child(`${oldUserID}/Sessions/${sessionID}`)
+          this.dbRef
+            .userSession(oldUserID, sessionID)
             .remove();
         }
       );
 
     // Connect sessionID and userID
-    this.sessionsRef.update({
-      [`${sessionID}`]: userID
-    });
+    this.dbRef.sessionsRef()
+      .update({[`${sessionID}`]: userID});
 
-    this.metadataRef.update({
-      [`${userID}/Sessions/${sessionID}`]: true
-    });
+    this.dbRef.userSessions(userID)
+      .update({[`${sessionID}`]: true});
   }
 
   /**
@@ -51,8 +48,8 @@ class SessionDbInterface
     return new Promise(
       (resolve, reject) =>
       {
-        this.sessionsRef
-          .child(`${sessionID}`)
+        this.dbRef
+          .session(sessionID)
           .once('value')
           .then(
             data =>
@@ -71,19 +68,19 @@ class SessionDbInterface
   DeleteSessionData()
   {
     // Delete stored sessions
-    this.sessionsRef.remove();
+    this.dbRef.sessionsRef().remove();
 
     // Delete session references in User_Metadata/
-    this
-      .metadataRef
+    this.dbRef
+      .metadataRef()
       .once('value')
       .then(
         users =>
         {
           users.forEach(user =>
           {
-            this.metadataRef
-              .child(`${user.key}/Sessions/`)
+            this.dbRef
+              .userSessions(user.key)
               .remove();
           });
         },
@@ -97,7 +94,7 @@ class SessionDbInterface
    */
   DeleteUserSessions(userID)
   {
-    var sessionsNode = this.metadataRef.child(`${userID}/Sessions/`);
+    var sessionsNode = this.dbRef.userSessions(userID);
 
     sessionsNode
       .once('value')
@@ -106,8 +103,8 @@ class SessionDbInterface
         {
           sessions.forEach(session =>
           {
-            this.sessionsRef
-              .child(`${session.key}/`)
+            this.dbRef
+              .session(session.key)
               .remove();
           });
         },
@@ -127,8 +124,8 @@ class SessionDbInterface
       {
         if (userID)
         {
-          this.metadataRef.child(`${userID}/Sessions/${sessionID}`).remove();
-          this.sessionsRef.child(`${sessionID}`).remove();
+          this.dbRef.userSession(userID, sessionID).remove();
+          this.dbRef.session(sessionID).remove();
         }
       });
   }
