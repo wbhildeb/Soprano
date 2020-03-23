@@ -83,10 +83,10 @@ router.get('/user/details', (req, res) =>
   db
     .session
     .GetUserID(req.sessionID)
-    .then(userID => db.user.GetUser(userID))
-    .then(user =>
+    .then(userID => db.user.GetUserCredentials(userID))
+    .then(creds =>
     {
-      spotify.SetAuthCredentials(user.credentials);
+      spotify.SetAuthCredentials(creds);
       return spotify.GetUser();
     })
     .then(user => res.status(200).json(user))
@@ -99,11 +99,11 @@ router.get('/playlists', (req, res) =>
     .session
     .GetUserID(req.sessionID)
     .then(
-      id => db.user.GetUser(id))
+      id => db.user.GetUserCredentials(id))
     .then(
-      user =>
+      creds =>
       {
-        spotify.SetAuthCredentials(user.credentials);
+        spotify.SetAuthCredentials(creds);
         return spotify.GetPlaylists();
       })
     .then(
@@ -128,11 +128,11 @@ function UpdateSubPlaylists()
         Object.keys(playlistobj).forEach(
           userID =>
           {
-            db.user.GetUser(userID)
+            db.user.GetUserCredentials(userID)
               .then(
-                user =>
+                creds =>
                 {
-                  spotify.SetAuthCredentials(user.credentials);
+                  spotify.SetAuthCredentials(creds);
                   helper
                     .PostOrder(helper.Treeify(playlistobj[userID].playlists))
                     .forEach(

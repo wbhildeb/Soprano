@@ -38,7 +38,6 @@ class SessionDbInterface
     this.metadataRef.update({
       [`${userID}/Sessions/${sessionID}`]: true
     });
-    
   }
 
   /**
@@ -115,6 +114,23 @@ class SessionDbInterface
         err => console.error('Failed to delete user sessions', err)
       );
     sessionsNode.remove();
+  }
+
+  /**
+   * Delete the session id under sessions and user metadata
+   * @param {string} sessionID
+   */
+  DeleteSession(sessionID)
+  {
+    this.GetUserID(sessionID)
+      .then(userID =>
+      {
+        if (userID)
+        {
+          this.metadataRef.child(`${userID}/Sessions/${sessionID}`).remove();
+          this.sessionsRef.child(`${sessionID}`).remove();
+        }
+      });
   }
 }
 
