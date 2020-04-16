@@ -3,8 +3,8 @@ class UserDbInterface
 {
   constructor(database)
   {
-    this.metadataRef = database.ref('User_Metadata');
-    this.playlistRef = database.ref('User_Playlists');
+    this.dbRef = require('./dbRef')(database);
+    this.encryption = require('./encryption')();
   }
 
   /**
@@ -14,36 +14,55 @@ class UserDbInterface
    */
 
   /**
-   * Updates the authentication credentials for a user,
+   * Encrypts and updates the authentication credentials for a user,
    *  and creates a new user if none exists with given userID
    * @param {string} userID
    * @param {AuthCredentials} credentials
    */
   UpdateAuthCredentials(userID, credentials)
   {
-    this.metadataRef
-      .child(`${userID}`)
-      .update({credentials});
+    this.encryption
+      .EncryptCredentials(credentials)
+      .then(
+        credentials =>
+        {
+          this.dbRef
+            .user(userID)
+            .update({credentials});
+        }
+      ); 
   }
 
   /**
-   * Retrieves the User_Metadata object with the associated userID
+   * Gets and decrypts user credentials
    * @param {string} userID the spotify user ID to look for
-   * @returns {Promise<User>}
+   * @returns {Promise<AuthCredentials>}
    */
-  GetUser(userID)
+  GetUserCredentials(userID)
   {
     return new Promise(
       (resolve, reject) =>
       {
-        this.metadataRef
-          .child(`${userID}`)
+        this.dbRef
+          .userCredentials(userID)
           .once('value')
           .then(
             data =>
             {
-              if (data.exists()) resolve(data.val());
-              else reject(`No user with entry '${userID}'`);
+              if (!data.exists()) reject(`No user with entry '${userID}'`);
+              else 
+              {
+                return data.val();
+              }
+            }
+          )
+          .then(
+            credentials => this.encryption.DecryptCredentials(credentials)
+          )
+          .then(
+            decryptedCreds =>
+            {
+              resolve(decryptedCreds);
             },
             reject
           );
@@ -63,7 +82,8 @@ class UserDbInterface
    */
   GetParentPlaylists()
   {
-    return this.playlistRef
+    return this.dbRef
+      .playlistsRef()
       .once('value')
       .then(
         userSnapshot =>
