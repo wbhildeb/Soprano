@@ -67,6 +67,7 @@ class EncryptionService
 
   /**
    * Encrypts all of the strings in an object (shallow)
+   * Modifies the object
    * @param {Object} obj
    */
   static async EncryptObject(obj)
@@ -79,11 +80,11 @@ class EncryptionService
     const encrypted = await EncryptionService.EncryptMany(list);
 
     encrypted.forEach((enc, i) => obj[KVPs[i][0]] = enc);
-    return obj;
   }
 
   /**
-   * Encrypts all of the strings in an object (shallow)
+   * Decrypts all of the strings in an object (shallow)
+   * Modifies the object
    * @param {Object} obj
    */
   static async DecryptObject(obj)
@@ -96,7 +97,6 @@ class EncryptionService
     const decrypted = await EncryptionService.DecryptMany(toDecrypt);
 
     decrypted.forEach((dec, i) => obj[KVPs[i][0]] = dec);
-    return obj;
   }
 }
 
