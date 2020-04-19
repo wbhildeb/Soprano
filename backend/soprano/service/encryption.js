@@ -10,7 +10,7 @@ const OPTIONS = {
   projectId: CRYPT_PROJECT,
 };
 
-module.exports = class EncryptionService
+class EncryptionService
 {
   /**
    * Encrypts original string using the KMS key
@@ -41,6 +41,23 @@ module.exports = class EncryptionService
   static async EncryptMany(items)
   {
     return Promise.all(items.map(this.Encrypt));
+  }
+
+  /**
+   * Encrypts all of the strings in an object (shallow)
+   * @param {Object} obj
+   */
+  static async EncryptObject(obj)
+  {
+    const KVPs = Object
+      .entries(obj)
+      .filter(([key, val]) => typeof(val) === 'string');
+
+    const list = KVPs.map(([key, val]) => val);
+    const encrypted = await EncryptionService.EncryptMany(list);
+
+    encrypted.forEach((enc, i) => obj[KVPs[i][0]] = enc);
+    return obj;
   }
 
   /**
@@ -75,4 +92,22 @@ module.exports = class EncryptionService
   {
     return Promise.all(items.map(this.Decrypt));
   }
-};
+
+  /**
+   * Encrypts all of the strings in an object (shallow)
+   * @param {Object} obj
+   */
+  static async DecryptObject(obj)
+  {
+    const KVPs = Object
+      .entries(obj)
+      .filter(([key, val]) => typeof(val) === 'string');
+
+    const list = KVPs.map(([key, val]) => val);
+    const decrypted = await EncryptionService.DecryptMany(list);
+
+    decrypted.forEach((dec, i) => obj[KVPs[i][0]] = dec);
+    return obj;
+  }
+}
+module.exports = EncryptionService;
