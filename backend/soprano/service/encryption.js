@@ -10,27 +10,39 @@ const OPTIONS = {
   projectId: CRYPT_PROJECT,
 };
 
+const client = new kms.KeyManagementServiceClient(OPTIONS);
+const name = client.cryptoKeyPath(
+  CRYPT_PROJECT,
+  CRYPTO_LOCATION,
+  CRYPT_KEYRING,
+  CRYPTO_KEY
+);
+
 class EncryptionService
 {
   /**
    * Encrypts original string using the KMS key
    * @param {string} original
    */
-  static async Encrypt(original)
+  static async Encrypt(text)
   {
-    const client = new kms.KeyManagementServiceClient(OPTIONS);
-
-    const name = client.cryptoKeyPath(
-      CRYPT_PROJECT,
-      CRYPTO_LOCATION,
-      CRYPT_KEYRING,
-      CRYPTO_KEY
-    );
-
-    //Transform the string into a buffer and encrypt it
-    const plaintext = Buffer.from(original);
+    // Transform the string into a buffer and encrypt it
+    const plaintext = Buffer.from(text);
     const [result] = await client.encrypt({ name, plaintext });
     return result.ciphertext.toString('base64');
+  }
+
+  /**
+   * Decrypts encoded string using the KMS key
+   * @param {string} encoded
+   * @returns {string} the decrypted string
+   */
+  static async Decrypt(encoded)
+  {
+    // Transform the string into a buffer and encrypt it
+    const ciphertext = Buffer.from(encoded, 'base64');
+    const [result] = await client.decrypt({ name, ciphertext });
+    return result.plaintext.toString();
   }
 
   /**
@@ -41,46 +53,6 @@ class EncryptionService
   static async EncryptMany(items)
   {
     return Promise.all(items.map(this.Encrypt));
-  }
-
-  /**
-   * Encrypts all of the strings in an object (shallow)
-   * @param {Object} obj
-   */
-  static async EncryptObject(obj)
-  {
-    const KVPs = Object
-      .entries(obj)
-      .filter(([key, val]) => typeof(val) === 'string');
-
-    const list = KVPs.map(([key, val]) => val);
-    const encrypted = await EncryptionService.EncryptMany(list);
-
-    encrypted.forEach((enc, i) => obj[KVPs[i][0]] = enc);
-    return obj;
-  }
-
-  /**
-   * Decrypts encoded string using the KMS key
-   * @param {string} encoded
-   * @returns {string} the decrypted string
-   */
-  static async Decrypt(encoded)
-  {
-    const client = new kms.KeyManagementServiceClient(OPTIONS);
-
-    const name = client.cryptoKeyPath(
-      CRYPT_PROJECT,
-      CRYPTO_LOCATION,
-      CRYPT_KEYRING,
-      CRYPTO_KEY
-    );
-
-    //Transform the string into a buffer and encrypt it
-    const ciphertext = Buffer.from(encoded, 'base64');
-
-    const [result] = await client.decrypt({ name, ciphertext });
-    return result.plaintext.toString();
   }
 
   /**
@@ -97,17 +69,35 @@ class EncryptionService
    * Encrypts all of the strings in an object (shallow)
    * @param {Object} obj
    */
+  static async EncryptObject(obj)
+  {
+    const KVPs = Object
+      .entries(obj)
+      .filter(kvp => typeof(kvp[1]) === 'string');
+
+    const list = KVPs.map(kvp => kvp[1]);
+    const encrypted = await EncryptionService.EncryptMany(list);
+
+    encrypted.forEach((enc, i) => obj[KVPs[i][0]] = enc);
+    return obj;
+  }
+
+  /**
+   * Encrypts all of the strings in an object (shallow)
+   * @param {Object} obj
+   */
   static async DecryptObject(obj)
   {
     const KVPs = Object
       .entries(obj)
-      .filter(([key, val]) => typeof(val) === 'string');
+      .filter(kvp => typeof(kvp[1]) === 'string');
 
-    const list = KVPs.map(([key, val]) => val);
-    const decrypted = await EncryptionService.DecryptMany(list);
+    const toDecrypt = KVPs.map(kvp => kvp[1]);
+    const decrypted = await EncryptionService.DecryptMany(toDecrypt);
 
     decrypted.forEach((dec, i) => obj[KVPs[i][0]] = dec);
     return obj;
   }
 }
+
 module.exports = EncryptionService;
