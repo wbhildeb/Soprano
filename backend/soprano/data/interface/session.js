@@ -79,7 +79,7 @@ class SessionDataInterface
    * Delete the session id under sessions and user metadata
    * @param {string} sessionID
    */
-  DeleteSession(sessionID)
+  async DeleteSession(sessionID)
   {
     const userID = await this.GetUserID(sessionID);
     if (userID)
