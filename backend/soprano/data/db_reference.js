@@ -23,7 +23,7 @@ class DatabaseReference
 
   User(userID)
   {
-    return this.Metadata().child(userID);
+    return this.UserMetadata().child(userID);
   }
 
   Session(sessionID)
