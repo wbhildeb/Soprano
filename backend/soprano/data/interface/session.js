@@ -14,22 +14,22 @@ class SessionDataInterface
   async Save(sessionID, userID)
   {
     const oldUserID = await this.GetUserID(sessionID);
-    if (oldUserID === userID)
+    if (oldUserID === userID) return;
+    
+    var removeOld = null;
+    if (oldUserID) 
     {
-      // Already set
-      return;
-    }
-    else if (oldUserID)
-    {
-      this.db.UserSession(oldUserID, sessionID).remove();
+      removeOld = this.db.UserSession(oldUserID, sessionID).remove();
     }
 
-    // Connect sessionID and userID
-    this.db.Sessions()
-      .update({[`${sessionID}`]: userID});
+    const updateSessions = this.db.Sessions().update({[`${sessionID}`]: userID});
+    const updateUserMetadata = this.db.UserSessions(userID).update({[`${sessionID}`]: true});
 
-    this.db.UserSessions(userID)
-      .update({[`${sessionID}`]: true});
+    await Promise.all([
+      removeOld,
+      updateSessions,
+      updateUserMetadata
+    ]);
   }
 
   /**
@@ -40,8 +40,7 @@ class SessionDataInterface
    */
   async GetUserID(sessionID)
   {
-    const data = await this.db.Session(sessionID).once('value');
-    return data.exists() ? data.val() : null;
+    return (await this.db.Session(sessionID).once('value')).val();
   }
 
   /**
