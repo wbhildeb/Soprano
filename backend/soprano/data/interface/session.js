@@ -11,7 +11,7 @@ class SessionDataInterface
    * @param {string} sessionID
    * @param {string} userID
    */
-  async SaveSession(sessionID, userID)
+  async Save(sessionID, userID)
   {
     const oldUserID = await this.GetUserID(sessionID);
     if (oldUserID === userID)
@@ -19,8 +19,10 @@ class SessionDataInterface
       // Already set
       return;
     }
-
-    this.db.UserSession(oldUserID, sessionID).remove();
+    else if (oldUserID)
+    {
+      this.db.UserSession(oldUserID, sessionID).remove();
+    }
 
     // Connect sessionID and userID
     this.db.Sessions()
@@ -45,48 +47,51 @@ class SessionDataInterface
   /**
    * Delete all sessions in under Sessions and UserMetadata
    */
-  async DeleteSessionData()
+  async DeleteAll()
   {
-    // Delete stored sessions
-    this.db.Sessions().remove();
+    // Delete under UserMetadata/
+    const userMetadata = (await this.db.UserMetadata().once('value')).val();
+    const deletes = Object
+      .keys(userMetadata)
+      .map(id => this.db.UserSessions(id).remove());
+      
+    // Delete under Sessions/
+    deletes.push(this.db.Sessions().remove());
 
-    // Delete session references in UserMetadata
-    const userMetadata = await this.db.UserMetadata().once('value');
-    userMetadata.forEach(user =>
-    {
-      this.db.UserSession(user.key).remove();
-    });
+    await Promise.all(deletes);
   }
 
   /**
    * Delete all user sessions under Sessions and UserMetadata
    * @param {string} userID
    */
-  async DeleteUserSessions(userID)
+  async DeleteForUser(userID)
   {
     var sessionsNode = this.db.UserSessions(userID);
-    const sessions = await sessionsNode.once('value');
+    const sessions = (await sessionsNode.once('value')).val();
 
-    sessions.forEach(session =>
-    {
-      this.db.Session(session.key).remove();
-    });
+    if (sessions === null) return;
 
-    sessionsNode.remove();
+    const deletes = Object.keys(sessions).map(sessionID =>
+      this.db.Session(sessionID).remove()
+    );
+
+    deletes.push(sessionsNode.remove());
+
+    await Promise.all(deletes);
   }
 
   /**
-   * Delete the session id under sessions and user metadata
+   * Delete the session id under sessions and UserMetadata
    * @param {string} sessionID
    */
-  async DeleteSession(sessionID)
+  async Delete(sessionID)
   {
     const userID = await this.GetUserID(sessionID);
-    if (userID)
-    {
-      this.dbRef.userSession(userID, sessionID).remove();
-      this.dbRef.session(sessionID).remove();
-    }
+    await Promise.all([
+      this.db.Session(sessionID).remove(),
+      userID ? this.db.UserSession(userID, sessionID).remove() : null
+    ]);
   }
 }
 

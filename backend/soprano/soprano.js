@@ -7,7 +7,7 @@ const spotify = require('./spotify')();
 const router = express.Router();
 
 // Refresh since none of the cookies are going to be the same
-db.session.DeleteSessionData();
+db.session.DeleteAll();
 
 router.get('/auth/login', (req, res) =>
 {
@@ -17,13 +17,13 @@ router.get('/auth/login', (req, res) =>
 
 router.get('/auth/logout', (req, res) =>
 {
-  db.session.DeleteSession(req.sessionID);
+  db.session.Delete(req.sessionID);
   res.redirect('/');
 });
 
 router.get('/auth/notme', (req, res) =>
 {
-  db.session.DeleteSession(req.sessionID);
+  db.session.Delete(req.sessionID);
   const authURL = spotify.GetAuthorizationURL(req.sessionID, true);
   res.redirect(authURL);
 });
@@ -55,7 +55,7 @@ router.get('/auth/callback', (req, res) =>
         user =>
         {
           userID = user.id;
-          return db.session.SaveSession(req.sessionID, user.id);
+          return db.session.Save(req.sessionID, user.id);
         })
       .then(
         () =>
