@@ -3,21 +3,20 @@ const database = require('../firebase_emulator/database');
 const db = require('../../data/db_reference')(database);
 const SessionInterface = require('../../data/interface/session')(database);
 
-
-const users = {
-  new: {
-    id: 'JJameson', session: 'kjasgd34'
-  },
-  single_session: {
-    id: 'SRobins', session: 'jjjjklj'
-  },
-  multi_session: {
-    id: 'CCombs', session: 'asssddd'
-  }
-};
-
 describe('Save()', () =>
 {
+  const users = {
+    new: {
+      id: 'JJameson', session: 'kjasgd34'
+    },
+    single_session: {
+      id: 'SRobins', session: 'jjjjklj'
+    },
+    multi_session: {
+      id: 'CCombs', session: 'asssddd'
+    }
+  };
+
   before(async () =>
   {
     await database.load(require('../firebase_emulator/mock_data/session_data.json'));
@@ -54,14 +53,53 @@ describe('Save()', () =>
     expect(sessionIDs).to.contain(users.multi_session.session);
   });
 
-  it('should disconnect other users from session id', async() =>
+  it('should disconnect other users from session id', async () =>
   {
+    const sessionID = 'YVKTjQlB';
+    const oldUserID = 'AMorris';
+    const newUserID = 'LHolmes';
+
+    const userID_pre = await SessionInterface.GetUserID(sessionID);
+    const oldUserSessions_pre = (await db.UserSessions(oldUserID).once('value')).val();
+    const newUserSessions_pre = (await db.UserSessions(newUserID).once('value')).val();
     
+    await SessionInterface.Save(sessionID, newUserID);
+
+    const userID_post = await SessionInterface.GetUserID(sessionID);
+    const oldUserSessions_post = (await db.UserSessions(oldUserID).once('value')).val();
+    const newUserSessions_post = (await db.UserSessions(newUserID).once('value')).val();
+
+    // Updates Sessions
+    expect(userID_pre).to.equal(oldUserID);
+    expect(userID_post).to.equal(newUserID);
+
+    // Updates UserMetadata
+    expect(oldUserSessions_pre).to.haveOwnProperty(sessionID);
+    expect(newUserSessions_pre).to.not.haveOwnProperty(sessionID);
+
+    expect(oldUserSessions_post).to.be.null;
+    expect(newUserSessions_post).to.haveOwnProperty(sessionID);
+
+    const numSessions_pre = Object.keys(newUserSessions_pre).length;
+    const numSessions_post = Object.keys(newUserSessions_post).length;
+    expect(numSessions_post).to.equal(numSessions_pre + 1);
   });
 
   it('should change nothing if the session already exists', async() =>
   {
+    const sessionID = 'iJtzkSyH';
+    const userID = 'VCosta';
 
+    const sessionData_pre = (await db.Session(sessionID).once('value')).val();
+    const userSessions_pre = (await db.UserSessions(userID).once('value')).val();
+
+    SessionInterface.Save(sessionID, userID);
+
+    const sessionData_post = (await db.Session(sessionID).once('value')).val();
+    const userSessions_post = (await db.UserSessions(userID).once('value')).val();
+
+    expect(sessionData_post).to.deep.equal(sessionData_pre);
+    expect(userSessions_post).to.deep.equal(userSessions_pre);
   });
 });
 
@@ -237,6 +275,6 @@ describe('Delete()', () =>
   it('should not throw error if session does not exist', async () =>
   {
     const sessionID = 'I do not exist';
-    expect(SessionInterface.Delete(sessionID)).to.not.throw();
+    SessionInterface.Delete(sessionID);
   });
 });
