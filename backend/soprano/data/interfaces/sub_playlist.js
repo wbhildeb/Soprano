@@ -6,38 +6,49 @@ class SubPlaylistDataInterface
   }
 
   /**
-   * @param {string} userId
-   * @param {string} playlistId
+   * @param {string} userID
+   * @param {string} playlistID
    * reterives parents of playlist with id playlistId for userId
    */
-  async GetParentPlaylists(userId, playlistId)
+  async GetParentPlaylists(userID, playlistID)
   {
-    return (await this.db.UserSubPlaylists(userId).child(playlistId).once('value')).val();
+    return (await this.ref
+      .UserSubPlaylists(userID)
+      .child(playlistID)
+      .once('value')).val();
   }
 
   /**
-   * @param {string} userId
-   * @param {string} playlistId
+   * @param {string} userID
+   * @param {string} playlistID
    * reterives subplaylists of playlist with id playlistId for userId
    */
-  async GetSubPlaylists(userId, playlistId)
+  async GetSubPlaylists(userID, playlistID)
   {
-    return (await this.db.UserPlaylists(userId).child(playlistId).once('value')).val();
+    return (await this.ref
+      .UserParentPlaylists(userID)
+      .child(playlistID)
+      .once('value')).val();
   }
   
   /**
-   * @param {string} userId
-   * @param {string} pPlaylistId
-   * @param {string} playlistId
+   * @param {string} userID
+   * @param {string} parentPlaylistID
+   * @param {string} childPlaylistID
    * pairs two playlists so that all songs in the child playlist 
    * will be added to the parent playlist   
    */
-  async PairPlaylists(userId, pPlaylistId, playlistId)
+  async PairPlaylists(userID, parentPlaylistID, childPlaylistID)
   {
     // TODO: Circular dependency check
 
-    const updatePlaylists = this.ref.UserPlaylists(userId).update(pPlaylistId,{[playlistId]:true});
-    const updateSubPlaylists = this.ref.UserSubPlaylists(userId).update(playlistId,{[pPlaylistId]:true});
+    const updatePlaylists = this.ref
+      .UserParentPlaylists(userID)
+      .update(parentPlaylistID,{[childPlaylistID]:true});
+
+    const updateSubPlaylists = this.ref
+      .UserSubPlaylists(userID)
+      .update(childPlaylistID,{[parentPlaylistID]:true});
 
     await Promise.all([
       updatePlaylists,
@@ -46,15 +57,24 @@ class SubPlaylistDataInterface
   }
 
   /**
-   * @param {string} userId
-   * @param {string} pPlaylistId
-   * @param {string} playlistId
+   * @param {string} userID
+   * @param {string} parentPlaylistID
+   * @param {string} childPlaylistID
    * unpairs two playlists 
    */
-  async UnpairPlaylists(userId, pPlaylistId, playlistId)
+  async UnpairPlaylists(userID, parentPlaylistID, childPlaylistID)
   {
-    const removeInPlaylists = this.ref.UserPlaylists(userId).child(pPlaylistId).child(playlistId).remove();
-    const removeInSubPlaylists = this.ref.UserSubPlaylists(userId).child(playlistId).child(pPlaylistId).remove();
+    const removeInPlaylists = this.ref
+      .UserParentPlaylists(userID)
+      .child(parentPlaylistID)
+      .child(childPlaylistID)
+      .remove();
+
+    const removeInSubPlaylists = this.ref
+      .UserSubPlaylists(userID)
+      .child(childPlaylistID)
+      .child(parentPlaylistID)
+      .remove();
 
     await Promise.all([
       removeInPlaylists,
@@ -63,12 +83,15 @@ class SubPlaylistDataInterface
   }
 
   /**
-   * @param {string} userId 
+   * @param {string} userID 
    * returns the playlists, subplaylists denormalized structure for a given userId
    */
-  async GetSubPlaylistRelations(userId) 
+  async GetSubPlaylistRelations(userID) 
   {
-    return (await this.db.SubPlaylists().child(userId).once('value')).val();
+    return (await this.ref
+      .SubPlaylists()
+      .child(userID)
+      .once('value')).val();
   }
 
   /**
