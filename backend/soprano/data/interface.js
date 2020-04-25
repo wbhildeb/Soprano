@@ -1,8 +1,7 @@
 const firebase = require('firebase');
 const env = require('../environment');
 
-firebase.initializeApp(env.firebase);
-const database = firebase.database();
+const database = firebase.initializeApp(env.firebase, 'soprano_prod').database();
 
 const SessionDataInterface = require('./interfaces/session')(database);
 const UserDataInterface = require('./interfaces/user')(database);
