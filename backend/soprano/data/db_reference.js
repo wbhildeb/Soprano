@@ -21,6 +21,16 @@ class DatabaseReference
     return this.database.ref('SubPlaylists');
   }
 
+  UserSubPlaylists(userID)
+  {
+    return this.SubPlaylists.child(userID).ref('subPlaylists');
+  }
+
+  UserPlaylists(userID)
+  {
+    return this.SubPlaylists.child(userID).ref('playlists');
+  }
+
   User(userID)
   {
     return this.UserMetadata().child(userID);
