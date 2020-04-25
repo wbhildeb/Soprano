@@ -13,13 +13,12 @@ class SpotifyAuthService
     this.spotifyAPI = spotifyAPI;
   }
 
-
   /**
    * @param {string} sessionID The sessionID of the user
    * @param {boolean} [showDialog=false]
    * @returns {string} The URL to get authorization
    */
-  async CreateURL(sessionID, showDialog)
+  CreateURL(sessionID, showDialog)
   {
     showDialog = !!showDialog;
     return this.spotifyAPI.createAuthorizeURL(env.spotify.scopes, sessionID, showDialog);
@@ -28,12 +27,15 @@ class SpotifyAuthService
   /**
    * Get the current authorization and refresh tokens
    * @param {string} code The code returned by a request to the authorization URL
-   * @returns {AuthCredentials}
+   * @returns {Promise<AuthCredentials>}
    */
   async CreateCredentials(code)
   {
     const authData = (await this.spotifyAPI.authorizationCodeGrant(code)).body;
-    return {authToken: authData.access_token, refreshToken: authData.refresh_token};
+    return {
+      authToken: authData.access_token,
+      refreshToken: authData.refresh_token
+    };
   }
 
   /**
@@ -61,13 +63,13 @@ class SpotifyAuthService
   /**
    * Refresh the given credentials (does not update the wrapper's credentials to given values)
    * @param {AuthCredentials} credentials
-   * @returns {AuthCredentials} null if unable to refresh
+   * @returns {Promise<AuthCredentials>} null if unable to refresh
    */
   async RefreshCredentials(credentials)
   {
     const oldCredentials = this.GetCredentials();
 
-    this.SetAuthCredentials(credentials);
+    this.SetCredentials(credentials);
     const refreshedData = (await this.spotifyAPI.refreshAccessToken()).body;
     this.SetCredentials(oldCredentials);
 

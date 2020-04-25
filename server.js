@@ -1,19 +1,10 @@
-/**
- * app.js
- *
- * Walker Hildebrand
- * 2019-10-20
- *
- */
-
-// /////// Imports /////////////////////////////////////////
 const express = require('express');
 const bodyParser = require('body-parser');
 const session = require('express-session');
 const FileStore = require('session-file-store')(session);
 const path = require('path');
 const foosboard = require('foosboard');
-const soprano = require('./backend/soprano/soprano');
+const soprano = require('./backend/soprano/app');
 
 const app = express();
 
@@ -41,20 +32,23 @@ app
           );
           next();
     })
-  .use('/api/foosboard', foosboard)
-  .use('/api/soprano', soprano);
 
-// Debugging
-app.use('*', (req, res, next) =>
-{
-  console.log(`request type:  ${req.method}`);
-  console.log(`url:           ${req.url}`);
-  console.log(`session:       ${req.sessionID}`);
-  console.log('query:', req.query);
-  console.log('body:', req.body);
-  console.log('-----------------------------------------------');
-  next();
-});
+  .use('/api/foosboard', foosboard)
+  .use('/api/soprano', soprano)
+  .use('*', (err, req, res, next) =>
+  {
+    console.error(req.method, req.baseUrl);
+    console.error('query ', req.query);
+    console.error('session ', req.sessionID);
+    console.error('body ', req.body);
+    console.error('-----------------------------------------------');
+    console.error(err);
+    console.error('-----------------------------------------------');
+    
+    res.status(500);
+    res.redirect('/error');
+  });
+
 
 app.use(express.static(__dirname + '/dist/Site'));
 

@@ -18,54 +18,37 @@ class UserDataInterface
    *  and creates a new user if none exists with given userID
    * @param {string} userID
    * @param {AuthCredentials} credentials
+   * @returns {Promise} resolves when the credentials have been updated
    */
   async UpdateAuthCredentials(userID, credentials)
   {
     const encryptedCreds = Object.assign({}, credentials);
     await EncryptionService.EncryptObject(encryptedCreds);
-    this.db.User(userID).update({credentials: encryptedCreds});
+    await this.db.User(userID).update({credentials: encryptedCreds});
   }
 
   /**
    * Gets and decrypts user credentials
    * @param {string} userID the spotify user ID to look for
-   * @returns {AuthCredentials}
+   * @returns {Promise<AuthCredentials>}
    */
   async GetUserCredentials(userID)
   {
-    const data = await this.db.UserCredentials(userID).once('value');
-    const credentials = data.val();
+    const credentials = (await this.db.UserCredentials(userID).once('value')).val();
     await EncryptionService.DecryptObject(credentials);
     return credentials;
   }
 
   /**
-   * Retrives all User_Metadata objects
+   * Retrives all UserMetadata objects
    */
   async GetUsers()
   {
-    return this.db.UserMetadata().once('value');
-  }
-
-  /**
-   * Gets all parent playlists for all users
-   */
-  async GetParentPlaylists()
-  {
-    const data = await this.db.SubPlaylists().once('value');
-    const users = data.val();
-    Object.keys(users).forEach(
-      user =>
-      {
-        delete users[user].sub_playlists;
-      }
-    );
-
-    return users;
+    return (await this.db.UserMetadata().once('value')).val();
   }
 }
 
 /**
- * @returns {UserDI}
+ * @returns {UserDataInterface}
  */
 module.exports = (database) => new UserDataInterface(database);
