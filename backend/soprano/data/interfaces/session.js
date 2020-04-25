@@ -22,8 +22,8 @@ class SessionDataInterface
       removeOld = this.db.UserSession(oldUserID, sessionID).remove();
     }
 
-    const updateSessions = this.db.Sessions().update({[`${sessionID}`]: userID});
-    const updateUserMetadata = this.db.UserSessions(userID).update({[`${sessionID}`]: true});
+    const updateSessions = this.db.Sessions().update({[sessionID]: userID});
+    const updateUserMetadata = this.db.UserSessions(userID).update({[sessionID]: true});
 
     await Promise.all([
       removeOld,
@@ -35,7 +35,7 @@ class SessionDataInterface
   /**
    * Fetches the spotify user ID associated with the given session
    * @param {string} sessionID
-   * @returns {string} resolves to the spotify user ID connected to the
+   * @returns {Promise<string>} resolves to the spotify user ID connected to the
    *   session and rejects if no session with the given session ID exists
    */
   async GetUserID(sessionID)
@@ -45,11 +45,13 @@ class SessionDataInterface
 
   /**
    * Delete all sessions in under Sessions and UserMetadata
+   * @returns {Promise}
    */
   async DeleteAll()
   {
     // Delete under UserMetadata/
-    const userMetadata = (await this.db.UserMetadata().once('value')).val();
+    const userMetadata = (await this.db.UserMetadata().once('value')).val() || {};
+
     const deletes = Object
       .keys(userMetadata)
       .map(id => this.db.UserSessions(id).remove());
@@ -63,6 +65,7 @@ class SessionDataInterface
   /**
    * Delete all user sessions under Sessions and UserMetadata
    * @param {string} userID
+   * @returns {Promise}
    */
   async DeleteForUser(userID)
   {
@@ -83,6 +86,7 @@ class SessionDataInterface
   /**
    * Delete the session id under sessions and UserMetadata
    * @param {string} sessionID
+   * @returns {Promise} resolves once the session has been deleted
    */
   async Delete(sessionID)
   {
