@@ -10,6 +10,7 @@ const app = express();
 
 app
   .use(bodyParser.urlencoded({ extended: true }))
+  .use(express.json())
   .use(session({
     secret: 'gotta go home',
     store: new FileStore({}),

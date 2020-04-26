@@ -23,12 +23,12 @@ class DatabaseReference
 
   UserSubPlaylists(userID)
   {
-    return this.SubPlaylists.child(userID).ref('subPlaylists');
+    return this.SubPlaylists().child(userID).child('subPlaylists');
   }
 
   UserParentPlaylists(userID)
   {
-    return this.SubPlaylists.child(userID).ref('playlists');
+    return this.SubPlaylists().child(userID).child('playlists');
   }
 
   User(userID)

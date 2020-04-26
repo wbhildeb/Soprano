@@ -8,7 +8,9 @@ class SubPlaylistDataInterface
   /**
    * @param {string} userID
    * @param {string} playlistID
-   * reterives parents of playlist with id playlistId for userId
+   * @return {Promise<JSON>} resolves to an object containing the parents of subplaylist in the 
+   * form {{'parentid1': true}, {'parentid2': true}} if the user has playlistID as a subplaylist 
+   * and rejects otherwise
    */
   async GetParentPlaylists(userID, playlistID)
   {
@@ -21,7 +23,9 @@ class SubPlaylistDataInterface
   /**
    * @param {string} userID
    * @param {string} playlistID
-   * reterives subplaylists of playlist with id playlistId for userId
+   * @return {Promise<JSON>} resolves to an object containing the children of a playlist in the
+   * form {{'childid1': true}, {'childid2': true}} if the user has playlistID as a parent playlist 
+   * and rejects otherwise
    */
   async GetSubPlaylists(userID, playlistID)
   {
@@ -35,20 +39,22 @@ class SubPlaylistDataInterface
    * @param {string} userID
    * @param {string} parentPlaylistID
    * @param {string} childPlaylistID
-   * pairs two playlists so that all songs in the child playlist 
-   * will be added to the parent playlist   
+   * @returns {Promise} resolves once the database has been updated with the new pairing
    */
   async PairPlaylists(userID, parentPlaylistID, childPlaylistID)
   {
+    console.log(userID, parentPlaylistID, childPlaylistID);
     // TODO: Circular dependency check
 
     const updatePlaylists = this.ref
       .UserParentPlaylists(userID)
-      .update(parentPlaylistID,{[childPlaylistID]:true});
+      .child(parentPlaylistID)
+      .update({[childPlaylistID]:true});
 
     const updateSubPlaylists = this.ref
       .UserSubPlaylists(userID)
-      .update(childPlaylistID,{[parentPlaylistID]:true});
+      .child(childPlaylistID)
+      .update({[parentPlaylistID]:true});
 
     await Promise.all([
       updatePlaylists,
@@ -60,7 +66,7 @@ class SubPlaylistDataInterface
    * @param {string} userID
    * @param {string} parentPlaylistID
    * @param {string} childPlaylistID
-   * unpairs two playlists 
+   * @returns {Promise} resolves once the pairing has been removed from the database
    */
   async UnpairPlaylists(userID, parentPlaylistID, childPlaylistID)
   {
@@ -84,7 +90,7 @@ class SubPlaylistDataInterface
 
   /**
    * @param {string} userID 
-   * returns the playlists, subplaylists denormalized structure for a given userId
+   * @returns {Promise<JSON>} returns the Subplaylist structure for a user
    */
   async GetSubPlaylistRelations(userID) 
   {
@@ -96,6 +102,7 @@ class SubPlaylistDataInterface
 
   /**
    * Gets all parent playlists for all users
+   * @returns {JSON} of all parent playlists for all users 
    */
   async GetAllParentPlaylists()
   {
@@ -104,14 +111,13 @@ class SubPlaylistDataInterface
     Object.keys(users).forEach(
       user =>
       {
-        delete users[user].sub_playlists;
+        delete users[user].subPlaylists;
       }
     );
 
     return users;
   }
 }
-
 
 /**
  * @returns {SubPlaylistDataInterface}
