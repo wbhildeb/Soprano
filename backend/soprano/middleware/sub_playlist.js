@@ -1,6 +1,6 @@
 const express = require('express');
 const ash = require('express-async-handler');
-const SubPlaylistService = require('../service/subplaylist');
+const SubPlaylistService = require('../service/sub_playlist');
 
 const router = express.Router();
 

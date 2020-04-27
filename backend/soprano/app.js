@@ -2,7 +2,7 @@ const router = require('./router');
 
 const { SessionDataInterface } = require('./data/interface');
 const AuthService = require('./service/auth');
-const SubPlaylistService = require('./service/subplaylist');
+const SubPlaylistService = require('./service/sub_playlist');
 
 
 SessionDataInterface.DeleteAll();
