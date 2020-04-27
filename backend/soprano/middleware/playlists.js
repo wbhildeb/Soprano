@@ -6,7 +6,7 @@ const router = express.Router();
 
 router.get('/all', ash(async (req, res) =>
 {
-  const playlists = await PlaylistService.GetAll();
+  const playlists = await PlaylistService.GetAll(req.userID);
   res.status(200).json(playlists);
 }));
 

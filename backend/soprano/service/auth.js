@@ -31,22 +31,10 @@ module.exports = class AuthService
     ]);
   }
 
-  static async SetUserByID(userID)
+  static async SetUser(userID)
   {
     const credentials = await UserDataInterface.GetUserCredentials(userID);
     SpotifyAuthService.SetCredentials(credentials);
-  }
-
-  static async SetUserBySessionID(sessionID)
-  {
-    const userID = await SessionDataInterface.GetUserID(sessionID);
-    
-    if (!userID)
-    {
-      throw Error('No user with sessionID: ' + sessionID);
-    }
-
-    await this.SetUserByID(userID);
   }
 
   static async UpdateAllCredentials()

@@ -14,7 +14,7 @@ module.exports = class SubPlaylistService
       .keys(userPlaylists)
       .forEach(async userID =>
       {
-        await AuthService.SetUserByID(userID);
+        await AuthService.SetUser(userID);
         TreeService
           .PostOrder(TreeService.Treeify(userPlaylists[userID].playlists))
           .forEach(async pair =>
