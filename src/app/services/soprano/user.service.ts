@@ -16,24 +16,24 @@ export class UserService
 
   public LogOut(): void
   {
-    this.sopranoAPIService.Href('/auth/logout');
+    this.sopranoAPIService.Redirect('/auth/logout');
   }
 
   public NotMe(): void
   {
-    this.sopranoAPIService.Href('/auth/notme');
+    this.sopranoAPIService.Redirect('/auth/notme');
   }
 
   public LogIn(): void
   {
-    this.sopranoAPIService.Href('/auth/login');
+    this.sopranoAPIService.Redirect('/auth/login');
   }
 
   public GetUser(): Observable<UserModel>
   {
     const userObservable: Observable<HttpResponse<string>> = this
       .sopranoAPIService
-      .Get('/user/details');
+      .Get<string>('/user/details');
 
     return userObservable.pipe(
       map((res: HttpResponse<string>) =>
@@ -53,7 +53,7 @@ export class UserService
     {
       const idObservable: Observable<HttpResponse<string>> = this
         .sopranoAPIService
-        .Get('/user/id');
+        .Get<string>('/user/id');
 
       idObservable.subscribe((res: HttpResponse<string>) =>
       {

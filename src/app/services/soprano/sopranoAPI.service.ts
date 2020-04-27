@@ -1,8 +1,6 @@
-import { UserModel } from './../../models/soprano/user.model';
 import { Injectable } from '@angular/core';
-import { Observable, of, throwError, observable } from 'rxjs';
+import { Observable } from 'rxjs';
 import { HttpClient, HttpResponse, HttpHeaders } from '@angular/common/http';
-import { map } from 'rxjs/operators';
 
 @Injectable({
   providedIn: 'root'
@@ -14,11 +12,11 @@ export class SopranoAPIService
   /**
    * @param path of the get request
    */
-  Get(path: string): Observable<HttpResponse<any>>
+  Get<T>(path: string): Observable<HttpResponse<T>>
   {
     return this
       .http
-      .get<any>(`/api/soprano${path}`, {
+      .get<T>(`/api/soprano${path}`, {
         withCredentials: true,
         observe: 'response'
       });
@@ -28,7 +26,7 @@ export class SopranoAPIService
    * @param path of the post request
    * @param body of the post request
    */
-  Post(path: string, body: JSON): Observable<HttpResponse<any>>
+  Post<T>(path: string, body: T): Observable<T>
   {
     const httpOptions = {
       withCredentials: true,
@@ -38,13 +36,13 @@ export class SopranoAPIService
     };
     return this
         .http
-        .post<any>(`/api/soprano${path}`, body, httpOptions);
+        .post<T>(`/api/soprano${path}`, body, httpOptions);
   }
 
   /**
    * @param path the url to jump to
    */
-  Href(path: string)
+  Redirect(path: string)
   {
     location.href = `/api/soprano${path}`;
   }
