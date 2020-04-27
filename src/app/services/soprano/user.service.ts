@@ -1,8 +1,9 @@
 import { UserModel } from './../../models/soprano/user.model';
 import { Injectable } from '@angular/core';
 import { Observable, of, throwError } from 'rxjs';
-import { HttpClient, HttpResponse } from '@angular/common/http';
+import { HttpResponse } from '@angular/common/http';
 import { map } from 'rxjs/operators';
+import {SopranoAPIService} from './sopranoAPI.service';
 
 @Injectable({
   providedIn: 'root'
@@ -11,31 +12,28 @@ export class UserService
 {
   private userID: string;
 
-  constructor(private http: HttpClient) { }
+  constructor(private sopranoAPIService: SopranoAPIService) {}
 
   public LogOut(): void
   {
-    location.href = '/api/soprano/auth/logout';
+    this.sopranoAPIService.Href('/auth/logout');
   }
 
   public NotMe(): void
   {
-    location.href = '/api/soprano/auth/notme';
+    this.sopranoAPIService.Href('/auth/notme');
   }
 
   public LogIn(): void
   {
-    location.href = '/api/soprano/auth/login';
+    this.sopranoAPIService.Href('/auth/login');
   }
 
   public GetUser(): Observable<UserModel>
   {
     const userObservable: Observable<HttpResponse<string>> = this
-      .http
-      .get<string>('/api/soprano/user/details', {
-        withCredentials: true,
-        observe: 'response'
-      });
+      .sopranoAPIService
+      .Get('user/details');
 
     return userObservable.pipe(
       map((res: HttpResponse<string>) =>
@@ -54,11 +52,8 @@ export class UserService
     if (this.userID === undefined)
     {
       const idObservable: Observable<HttpResponse<string>> = this
-        .http
-        .get<string>('/api/soprano/user/id', {
-          withCredentials: true,
-          observe: 'response'
-        });
+        .sopranoAPIService
+        .Get('/user/id');
 
       idObservable.subscribe((res: HttpResponse<string>) =>
       {
