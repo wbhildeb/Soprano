@@ -3,9 +3,9 @@ const { SpotifyPlaylistService } = require('./spotify');
 
 module.exports = class PlaylistService
 {
-  static async GetAll(sessionID)
+  static async GetAll(userID)
   {
-    await AuthService.SetUserBySessionID(sessionID);
+    await AuthService.SetUser(userID);
     return SpotifyPlaylistService.GetPlaylists();
   }
 };

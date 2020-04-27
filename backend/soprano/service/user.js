@@ -6,7 +6,7 @@ const { SessionDataInterface } = require('../data/interface');
 module.exports = class UserService
 {
   /**
-   * 
+   * Get the user ID associated with the given session
    * @param {string} sessionID 
    * @returns {Promise<string>}
    */
@@ -16,13 +16,13 @@ module.exports = class UserService
   }
 
   /**
-   * 
+   * Return details of the user's Spotify account
    * @param {string} sessionID 
    * @returns {Promise<Object>}
    */
-  static async GetDetails(sessionID)
+  static async GetDetails(userID)
   {
-    await AuthService.SetUserBySessionID(sessionID);
+    await AuthService.SetUser(userID);
     return SpotifyUserService.GetInfo();
   }
 };

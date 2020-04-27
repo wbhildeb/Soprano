@@ -6,13 +6,12 @@ const router = express.Router();
 
 router.get('/id', ash(async (req, res) =>
 {
-  const id = await UserService.GetID(req.sessionID);
-  res.status(200).json(id);
+  res.status(200).json(req.userID);
 }));
 
 router.get('/details', ash(async (req, res) =>
 {
-  const userDetails = await UserService.GetDetails(req.sessionID);
+  const userDetails = await UserService.GetDetails(req.userID);
   res.status(200).json(userDetails);
 }));
 
