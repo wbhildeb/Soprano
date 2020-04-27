@@ -6,7 +6,7 @@ const database = firebase.database();
 
 const SessionDataInterface = require('./interfaces/session')(database);
 const UserDataInterface = require('./interfaces/user')(database);
-const SubPlaylistDataInterface = require('./interfaces/subplaylist')(database);
+const SubPlaylistDataInterface = require('./interfaces/sub_playlist')(database);
 
 module.exports = {
   SessionDataInterface,
