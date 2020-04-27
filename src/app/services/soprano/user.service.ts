@@ -33,7 +33,7 @@ export class UserService
   {
     const userObservable: Observable<HttpResponse<string>> = this
       .sopranoAPIService
-      .Get('user/details');
+      .Get('/user/details');
 
     return userObservable.pipe(
       map((res: HttpResponse<string>) =>
