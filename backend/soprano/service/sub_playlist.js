@@ -1,14 +1,14 @@
 const { SubPlaylistDataInterface } = require('../data/interface');
-const { SpotifyPlaylistService } = require('../service/tree');
-const AuthService = require('../service/auth');
-const TreeService = require('../service/tree');
+const { SpotifyPlaylistService } = require('./tree');
+const AuthService = require('./auth');
+const TreeService = require('./tree');
 
 
 module.exports = class SubPlaylistService
 {
   static async UpdateAll()
   {
-    const userPlaylists = await SubPlaylistDataInterface.GetParentPlaylists();
+    const userPlaylists = SubPlaylistDataInterface.GetAllParentPlaylists();
     
     Object
       .keys(userPlaylists)
@@ -22,5 +22,35 @@ module.exports = class SubPlaylistService
             await SpotifyPlaylistService.CopyTracks(pair.child, pair.parent);
           });
       });
+  }
+
+  static async GetParentPlaylists(userID, playlistID)
+  {
+    return (await SubPlaylistDataInterface.GetParentPlaylists(userID, playlistID));
+  }
+
+  static async GetSubPlaylists(userID, playlistID)
+  {
+    return (await SubPlaylistDataInterface.GetSubPlaylists(userID, playlistID));
+  }
+
+  static async PairPlaylists(userID, parentPlaylistID, childPlaylistID)
+  {
+    await SubPlaylistDataInterface.PairPlaylists(userID, parentPlaylistID, childPlaylistID);
+  }
+
+  static async UnpairPlaylists(userID, parentPlaylistID, childPlaylistID) 
+  {
+    await SubPlaylistDataInterface.UnpairPlaylists(userID, parentPlaylistID, childPlaylistID);
+  }
+
+  static async GetSubPlaylistRelations(userID)
+  {
+    return (await SubPlaylistDataInterface.GetSubPlaylistRelations(userID));
+  }
+
+  static async GetAllParentPlaylists()
+  {
+    return SubPlaylistDataInterface.GetAllParentPlaylists();
   }
 };
