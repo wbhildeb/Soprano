@@ -26,12 +26,12 @@ module.exports = class SubPlaylistService
 
   static async GetParentPlaylists(userID, playlistID)
   {
-    return (await SubPlaylistDataInterface.GetParentPlaylists(userID, playlistID));
+    return SubPlaylistDataInterface.GetParentPlaylists(userID, playlistID);
   }
 
   static async GetSubPlaylists(userID, playlistID)
   {
-    return (await SubPlaylistDataInterface.GetSubPlaylists(userID, playlistID));
+    return SubPlaylistDataInterface.GetSubPlaylists(userID, playlistID);
   }
 
   static async PairPlaylists(userID, parentPlaylistID, childPlaylistID)

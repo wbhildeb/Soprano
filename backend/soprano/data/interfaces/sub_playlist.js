@@ -23,7 +23,7 @@ class SubPlaylistDataInterface
   /**
    * @param {string} userID
    * @param {string} playlistID
-   * @return {Promise<JSON>} resolves to an object containing the children of a playlist in the
+   * @return {Promise<Object>} resolves to an object containing the children of a playlist in the
    * form {{'childid1': true}, {'childid2': true}} if the user has playlistID as a parent playlist 
    * and rejects otherwise
    */
@@ -43,7 +43,6 @@ class SubPlaylistDataInterface
    */
   async PairPlaylists(userID, parentPlaylistID, childPlaylistID)
   {
-    console.log(userID, parentPlaylistID, childPlaylistID);
     // TODO: Circular dependency check
 
     const updatePlaylists = this.ref
