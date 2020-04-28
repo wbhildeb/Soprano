@@ -11,31 +11,17 @@ export class SopranoAPIService
 
   /**
    * @param path of the get request
-   */
-  Get<T>(path: string): Observable<HttpResponse<T>>
-  {
-    return this
-      .http
-      .get<T>(`/api/soprano${path}`, {
-        withCredentials: true,
-        observe: 'response'
-      });
-  }
-
-  /**
-   * @param path of the get request
    * @param parameters the string or string[] query parameters of the get request
    */
-  GetWithParams<T>(path: string, parameters: {[param: string]: string | string[]}): Observable<T>
+  Get<T>(path: string, parameters?: {[param: string]: string | string[]}): Observable<HttpResponse<T>>
   {
+    parameters = parameters || {};
     return this
       .http
       .get<T>(`/api/soprano${path}`, {
         withCredentials: true,
-        params: parameters,
-        headers: new HttpHeaders({
-          ContentType:  'application/json',
-        })
+        observe: 'response',
+        params: parameters
       });
   }
 
@@ -43,7 +29,7 @@ export class SopranoAPIService
    * @param path of the post request
    * @param body of the post request
    */
-  Post<T>(path: string, body: T)
+  Post<T>(path: string, body: T): Observable<T>
   {
     const httpOptions = {
       withCredentials: true,
@@ -51,9 +37,8 @@ export class SopranoAPIService
         ContentType:  'application/json',
       })
     };
-    this.http
-        .post<T>(`/api/soprano${path}`, body, httpOptions)
-        .subscribe();
+    return this.http
+        .post<T>(`/api/soprano${path}`, body, httpOptions);
   }
 
   /**

@@ -21,8 +21,8 @@ export class PlaylistService
   {
     return this
       .sopranoAPIService
-      .GetWithParams<Object>('/subplaylists/sub', {playlistID: parentPlaylistID})
-      .pipe(map(data => Object.keys(data)));
+      .Get<Object>('/subplaylists/sub', {playlistID: parentPlaylistID})
+      .pipe(map(data => Object.keys(data.body)));
   }
 
   /**
@@ -33,8 +33,8 @@ export class PlaylistService
   {
     return this
       .sopranoAPIService
-      .GetWithParams<Object>('/subplaylists/parent', {playlistID: childPlaylistID})
-      .pipe(map(data => Object.keys(data)));
+      .Get<Object>('/subplaylists/parent', {playlistID: childPlaylistID})
+      .pipe(map(data => Object.keys(data.body)));
   }
 
   /**
@@ -47,7 +47,8 @@ export class PlaylistService
   public PairPlaylists(parent: PlaylistModel, child: PlaylistModel)
   {
     this.sopranoAPIService
-        .Post<Object>('/subplaylists/pair', {parentPlaylistID: parent.id, childPlaylistID: child.id});
+        .Post<Object>('/subplaylists/pair', {parentPlaylistID: parent.id, childPlaylistID: child.id})
+        .subscribe();
   }
 
   /**
@@ -60,7 +61,8 @@ export class PlaylistService
   public UnpairPlaylists(parent: PlaylistModel, child: PlaylistModel)
   {
     this.sopranoAPIService
-        .Post<Object>('/subplaylists/unpair', {parentPlaylistID: parent.id, childPlaylistID: child.id});
+        .Post<Object>('/subplaylists/unpair', {parentPlaylistID: parent.id, childPlaylistID: child.id})
+        .subscribe();
   }
 
   /**
