@@ -1,11 +1,9 @@
 import { Injectable } from '@angular/core';
-import { AngularFireDatabase } from 'angularfire2/database';
-import { map, switchMap } from 'rxjs/operators';
+import { map } from 'rxjs/operators';
 import { Observable, forkJoin } from 'rxjs';
-import { UserService } from './user.service';
-import { HttpClient } from '@angular/common/http';
 import { UserPlaylists } from 'src/app/models/soprano/user-playlists.model';
 import { PlaylistModel } from 'src/app/models/soprano/playlist.model';
+import { SopranoAPIService } from './sopranoAPI.service';
 
 @Injectable({
   providedIn: 'root'
@@ -13,48 +11,30 @@ import { PlaylistModel } from 'src/app/models/soprano/playlist.model';
 
 export class PlaylistService
 {
-  constructor(
-    private db: AngularFireDatabase,
-    private userService: UserService,
-    private http: HttpClient)
-  { }
+  constructor(private sopranoAPIService: SopranoAPIService) {}
 
   /**
-   * TODO: Comments
-   * @param key TODO: Make a description
-   * @returns TODO: Make a description
+   * @param parentPlaylistID id to get the children of
+   * @returns an observable of an array of children of the parent playlist
    */
-  public GetSubPlaylists(key: string): Observable<string[]>
+  public GetSubPlaylists(parentPlaylistID: string): Observable<string[]>
   {
-    return this.userService
-      .GetUserID()
-      .pipe(
-        switchMap(userID =>
-          this.db
-            .list(`/User_Playlists/${userID}/playlists/${key}`)
-            .snapshotChanges()
-            .pipe(
-              map(changes => changes.map(c => c.payload.key))
-            ))
-      );
+    return this
+      .sopranoAPIService
+      .Get<Object>('/subplaylists/sub', {playlistID: parentPlaylistID})
+      .pipe(map(data => Object.keys(data.body)));
   }
 
   /**
-   * TODO
-   * @param key TODO
-   * @returns TODO
+   * @param childPlaylistID id to get the parents of
+   * @returns an observable of an array of parents of the child playlist
    */
-  public GetParentPlaylists(key: string): Observable<string[]>
+  public GetParentPlaylists(childPlaylistID: string): Observable<string[]>
   {
-    return this.userService.GetUserID().pipe(
-      switchMap(userID =>
-        this.db
-          .list(`/User_Playlists/${userID}/sub_playlists/${key}`)
-          .snapshotChanges()
-          .pipe(
-            map(changes => changes.map(c => c.payload.key))
-          ))
-    );
+    return this
+      .sopranoAPIService
+      .Get<Object>('/subplaylists/parent', {playlistID: childPlaylistID})
+      .pipe(map(data => Object.keys(data.body)));
   }
 
   /**
@@ -64,53 +44,55 @@ export class PlaylistService
    * @param parent The playlist which will have songs added to it
    * @param child The playlist that will act as a source of songs for the parent
    */
-  public CreateSubPlaylist(parent: PlaylistModel, child: PlaylistModel)
+  public PairPlaylists(parent: PlaylistModel, child: PlaylistModel)
   {
-    this.userService
-      .GetUserID()
-      .subscribe(id =>
-      {
-          // TODO: Circular dependency check
-
-        this.db
-            .list(`/User_Playlists/${id}/playlists/`)
-            .update(parent.id, { [child.id]: true });
-
-        this.db
-            .list(`/User_Playlists/${id}/sub_playlists/`)
-            .update(child.id, { [parent.id]: true });
-      });
+    this.sopranoAPIService
+        .Post<Object>('/subplaylists/pair', {parentPlaylistID: parent.id, childPlaylistID: child.id})
+        .subscribe();
   }
 
+  /**
+   * Pair two playlists so that all songs in the child playlist
+   *   (70s Rock, for example) will be added to the parent playlist
+   *   (Rock, for example)
+   * @param parent The playlist which will have songs added to it
+   * @param child The playlist that will act as a source of songs for the parent
+   */
+  public UnpairPlaylists(parent: PlaylistModel, child: PlaylistModel)
+  {
+    this.sopranoAPIService
+        .Post<Object>('/subplaylists/unpair', {parentPlaylistID: parent.id, childPlaylistID: child.id})
+        .subscribe();
+  }
+
+  /**
+   * Get all playlists from Spotify for signed in user
+   */
   public GetSpotifyPlaylists(): Observable<PlaylistModel[]>
   {
     return this
-      .http
-      .get<any[]>('/api/soprano/playlists', {
-        withCredentials: true
-      })
+      .sopranoAPIService
+      .Get<PlaylistModel[]>('/playlists/all')
       .pipe(
-        map(
-          playlists => playlists.map(
-            playlist => (new PlaylistModel(playlist))
-          ))
+        map(res => res.body)
       );
   }
 
-  public GetSubPlaylistRelations(): Observable<{playlists, sub_playlists}>
+  /**
+   * Get the playlists pairings from firebase DB
+   */
+  public GetSubPlaylistRelations(): Observable<{playlists, subplaylists}>
   {
-    return this.userService
-      .GetUserID()
-      .pipe(
-        switchMap((userID: string) =>
-          this.db.database.ref(`/User_Playlists/${userID}/`).once('value')
-        ),
-        map(value => value.val())
-            // .object<{playlists, sub_playlists}>(`/User_Playlists/${userID}/`)
-            // .valueChanges()
+    return this.sopranoAPIService
+        .Get<{playlists, subplaylists}>('/subplaylists/relations')
+        .pipe(
+          map(res => res.body)
       );
   }
 
+  /**
+   * Build user playlists model using Spotify playlists and DB pairings
+   */
   public GetSubPlaylistDatabase(): Observable<UserPlaylists>
   {
     return forkJoin(this.GetSpotifyPlaylists(), this.GetSubPlaylistRelations())

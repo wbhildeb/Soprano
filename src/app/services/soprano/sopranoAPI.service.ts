@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core';
 import { Observable } from 'rxjs';
-import { HttpClient, HttpResponse, HttpHeaders } from '@angular/common/http';
+import { HttpClient, HttpResponse, HttpHeaders, HttpParams } from '@angular/common/http';
 
 @Injectable({
   providedIn: 'root'
@@ -11,14 +11,17 @@ export class SopranoAPIService
 
   /**
    * @param path of the get request
+   * @param parameters the string or string[] query parameters of the get request
    */
-  Get<T>(path: string): Observable<HttpResponse<T>>
+  Get<T>(path: string, parameters?: {[param: string]: string | string[]}): Observable<HttpResponse<T>>
   {
+    parameters = parameters || {};
     return this
       .http
       .get<T>(`/api/soprano${path}`, {
         withCredentials: true,
-        observe: 'response'
+        observe: 'response',
+        params: parameters
       });
   }
 
@@ -34,8 +37,7 @@ export class SopranoAPIService
         ContentType:  'application/json',
       })
     };
-    return this
-        .http
+    return this.http
         .post<T>(`/api/soprano${path}`, body, httpOptions);
   }
 

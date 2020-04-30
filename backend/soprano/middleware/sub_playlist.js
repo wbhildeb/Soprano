@@ -6,13 +6,13 @@ const router = express.Router();
 
 router.get('/parent', ash(async (req, res) => 
 {
-  const playlists = await SubPlaylistService.GetParentPlaylists(req.userID, req.body.playlistID);
+  const playlists = await SubPlaylistService.GetParentPlaylists(req.userID, req.query.playlistID);
   res.status(200).json(playlists);
 }));
 
 router.get('/sub', ash(async (req, res) => 
 {
-  const playlists = await SubPlaylistService.GetSubPlaylists(req.userID, req.body.playlistID);
+  const playlists = await SubPlaylistService.GetSubPlaylists(req.userID, req.query.playlistID);
   res.status(200).json(playlists);
 }));
 
