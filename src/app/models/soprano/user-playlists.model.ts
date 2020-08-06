@@ -1,4 +1,4 @@
-import { PlaylistModel } from './playlist.model';
+import { PlaylistModel } from 'src/app/models/soprano/playlist.model';
 
 export class UserPlaylists {
   private playlists: Map<string, PlaylistModel>;
@@ -64,6 +64,12 @@ export class UserPlaylists {
   public GetAllParents(): PlaylistModel[]
   {
     return Array.from(this.parentToChildren.keys());
+  }
+
+  public GetAllNonParents(): PlaylistModel[]
+  {
+    const parents = Array.from(this.parentToChildren.keys());
+    return Array.from(this.playlists.values()).filter(playlist => !parents.includes(playlist));
   }
 
   public GetChildrenOf(parent: PlaylistModel): PlaylistModel[]

@@ -6,6 +6,7 @@ import { AppComponent } from './app.component';
 import { DashboardComponent } from './components/dashboard/dashboard.component';
 import { SubPlaylistsComponent } from './components/soprano/sub-playlists/sub-playlists.component';
 import { SopranoTopBarComponent } from './components/soprano/soprano-top-bar/soprano-top-bar.component';
+import { GridGroupComponent } from './components/soprano/grid-group/grid-group.component';
 
 import { AngularFireModule } from 'angularfire2';
 import { AngularFireDatabaseModule } from 'angularfire2/database';
@@ -57,6 +58,7 @@ import {
     DashboardComponent,
     SubPlaylistsComponent,
     SopranoTopBarComponent,
+    GridGroupComponent
   ],
   imports: [
     BrowserModule,

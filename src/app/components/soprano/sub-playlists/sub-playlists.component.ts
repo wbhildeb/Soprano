@@ -14,8 +14,9 @@ export class SubPlaylistsComponent implements OnInit {
 
   ngOnInit()
   {
-    this.playlistService
-      .GetSubPlaylistDatabase()
-      .subscribe(db => this.playlistDB = db);
+    this.playlistService.GetSubPlaylistDatabase().subscribe((db) =>
+    {
+      this.playlistDB = db;
+    });
   }
 }
