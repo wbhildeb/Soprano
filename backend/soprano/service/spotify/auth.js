@@ -20,8 +20,7 @@ class SpotifyAuthService
    */
   CreateURL(sessionID, showDialog)
   {
-    showDialog = !!showDialog;
-    return this.spotifyAPI.createAuthorizeURL(env.spotify.scopes, sessionID, showDialog);
+    return this.spotifyAPI.createAuthorizeURL(env.spotify.info.scopes, sessionID, !!showDialog);
   }
 
   /**

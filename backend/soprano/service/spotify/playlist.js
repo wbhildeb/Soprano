@@ -45,7 +45,7 @@ class SpotifyPlaylistService
   async GetPlaylists()
   {
     var offset = 0;
-    const playlists = [];
+    var playlists = [];
 
     while (true)
     {
@@ -54,7 +54,7 @@ class SpotifyPlaylistService
         offset
       })).body;
 
-      playlists.push(playlistData.items);
+      playlists = playlists.concat(playlistData.items);
       offset += playlistData.limit;
 
       if (playlistData.offset + playlistData.limit >= playlistData.total)

@@ -2,7 +2,6 @@ const express = require('express');
 const bodyParser = require('body-parser');
 const session = require('express-session');
 const FileStore = require('session-file-store')(session);
-const path = require('path');
 const soprano = require('./backend/soprano/app');
 
 const app = express();
@@ -15,6 +14,7 @@ app
     store: new FileStore({}),
     resave: false,
     saveUninitialized: true,
+    retries: 0,
   }))
   .use(
     (req, res, next) =>
@@ -45,16 +45,8 @@ app
     res.redirect('/error');
   });
 
-
-app.use(express.static(__dirname + '/dist/Site'));
-
-app.get('/*', function(req, res)
-{
-  res.sendFile(path.join(__dirname + '/dist/Site/index.html'));
-});
-
 soprano.ready.then(() =>
 {
-  app.listen(process.env.PORT || 80);
+  app.listen(3000);
 });
 

@@ -1,24 +1,34 @@
 
 class DatabaseReference
 {
-  constructor(database)
+  constructor(root)
   {
-    this.database = database;
+    this.root = root;
   }
 
   UserMetadata()
   {
-    return this.database.ref('UserMetadata');
+    return this.root.child('UserMetadata');
   }
 
   Sessions()
   {
-    return this.database.ref('Sessions');
+    return this.root.child('Sessions');
   }
 
   SubPlaylists()
   {
-    return this.database.ref('SubPlaylists');
+    return this.root.child('SubPlaylists');
+  }
+
+  UserSubPlaylists(userID)
+  {
+    return this.SubPlaylists().child(userID).child('subPlaylists');
+  }
+
+  UserParentPlaylists(userID)
+  {
+    return this.SubPlaylists().child(userID).child('playlists');
   }
 
   User(userID)

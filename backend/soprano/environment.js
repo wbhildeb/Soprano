@@ -1,23 +1,20 @@
 
-const production = process.env.NODE_ENV === 'production' || process.env.NODE_ENV === 'prod';
+const isProduction = process.env.NODE_ENV === 'production';
+const isDevelopment = process.env.NODE_ENV === 'development';
+const isTest = process.env.NODE_ENV === 'test';
 
-const basePage = production ?
-  'http://www.walk-site.herokuapp.com' :
-  'http://localhost';
+const emulateSpotify = process.env.EMULATE_SPOTIFY === 'TRUE'  ||  (process.env.EMULATE_SPOTIFY !== 'FALSE' && !isProduction);
+const emulateDatabase = process.env.EMULATE_DB === 'TRUE'  ||  (process.env.EMULATE_DB !== 'FALSE' && !isProduction);
 
-const config = production ?
-  require('../../environments/soprano.prod.json') :
-  require('../../environments/soprano.json');
-
-const resolvePath = function(path)
-{
-  return basePage + path;
-};
+const firebase = require('./config/firebase.json');
+const spotify = require('./config/spotify.json');
 
 module.exports = {
-  production,
-  basePage,
-  resolvePath,
-  spotify: config.spotify,
-  firebase: config.firebase
+  isProduction,
+  isDevelopment,
+  isTest,
+  spotify,
+  firebase,
+  emulateSpotify,
+  emulateDatabase
 };

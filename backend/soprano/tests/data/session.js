@@ -1,7 +1,14 @@
 const expect = require('chai').expect;
 const database = require('../firebase_emulator/database');
 const db = require('../../data/db_reference')(database);
-const SessionInterface = require('../../data/interface/session')(database);
+const DatabaseEmulatorInterface = require('../../data/emulator/interface');
+const { SessionInterface } = require('../../data/interface');
+
+
+const resetDB = async () =>
+{
+  await DatabaseEmulatorInterface.UserDataRoot().set(require('../mock_data/session_data.json'));
+};
 
 describe('Save()', () =>
 {
@@ -17,10 +24,7 @@ describe('Save()', () =>
     }
   };
 
-  before(async () =>
-  {
-    await database.load(require('../firebase_emulator/mock_data/session_data.json'));
-  });
+  before(resetDB);
 
   it('should save session for new user', async () =>
   {
@@ -105,10 +109,7 @@ describe('Save()', () =>
 
 describe('GetUserID()', () =>
 {
-  before(async () =>
-  {
-    await database.load(require('../firebase_emulator/mock_data/session_data.json'));
-  });
+  before(resetDB);
 
   it('should work for single-session user', async () =>
   {
@@ -132,10 +133,7 @@ describe('GetUserID()', () =>
 
 describe('DeleteAll()', () =>
 {
-  before(async () =>
-  {
-    await database.load(require('../firebase_emulator/mock_data/session_data.json'));
-  });
+  before(resetDB);
 
   it('should delete everything', async () =>
   {
@@ -225,10 +223,7 @@ describe('DeleteForUser()', () =>
 
 describe('Delete()', () =>
 {
-  before(async () =>
-  {
-    await database.load(require('../firebase_emulator/mock_data/session_data.json'));
-  });
+  before(resetDB);
 
   it('should delete a single session entry', async() =>
   {

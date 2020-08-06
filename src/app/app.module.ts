@@ -11,7 +11,6 @@ import { GridGroupComponent } from './components/soprano/grid-group/grid-group.c
 import { AngularFireModule } from 'angularfire2';
 import { AngularFireDatabaseModule } from 'angularfire2/database';
 
-import * as environment from '../../environments/environment';
 import { FormsModule } from '@angular/forms';
 import { HttpClientModule } from '@angular/common/http';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
@@ -64,8 +63,6 @@ import {
   imports: [
     BrowserModule,
     AppRoutingModule,
-    AngularFireModule.initializeApp(environment.firebase, 'soprano'),
-    AngularFireDatabaseModule,
     FormsModule,
     HttpClientModule,
     BrowserAnimationsModule,
