@@ -1,0 +1,36 @@
+{
+    "Sessions": {
+        "i5rjeW-pRhcjbri1bP2mTFhe4nG_vxDX": "mockUserID"
+    },
+    "SubPlaylists": {
+        "mockUserID": {
+            "playlists": {
+                "7sPgu2LB4twT71gPOsufUp": {
+                    "77C46ash9eXpIhrlToATyO": true
+                }
+            },
+            "subPlaylists": {
+                "77C46ash9eXpIhrlToATyO": {
+                    "7sPgu2LB4twT71gPOsufUp": true
+                }
+            }
+        }
+    },
+    "UserMetadata": {
+        "mockUserID": {
+            "credentials": {
+                "authToken": "CiQAGAwHD6jtPSGx4+FGiSR6/NjgbXthEsxn8S54Y1QuEkDkCGwSpAIAbBqGodkAMDNwmJQpMR0eJBa2KsG9dFmjMKAfeDvI3Pt1ewGjkABsb+ZC7+VgHw8wKhhuXnI1wGCjT9toR4UU608H4L0QMnzcGHN7Sjj8nGp1MUKuGUHS21ZB+9wIQlC1ms0vTQT9JkLZxLocol2V9ZzHiGC/lAuGLCLOTkK0/Pr9NmZ2rDaCLmhBXu4GeKBWY6ZjCkGe3PuksAqqaJqNiy7OT/klH/nxGRiF5wxUeRDaMw/5goOrnO4UAaNZoRtrh4+xi0eDWGsQZupQcEqpLICZv7yXaIz86H4PEGb2r3fZYDpEh9lwVKPkMjibqsw4nQe3mDwE52KyxXjrtAp3gZ83y0WQ6iMUm6KQ0oQ+7BoWfHbNNKl8FN5xwIEy0GyQZw2S",
+                "refreshToken": "CiQAGAwHD+XUTIwdCC64iHPysrFkY2/2P+bqF1jnCxWmQh9klYkSrQEAbBqGoTbdZTOyJzEo977VbBju6UErgjZIdEABUzKC3+KQ1dibExjQueqrC3RjjR56p2r3MSj/JBOLxGLtjtbkCLrobxFuV1ziWMxQivfqKyv58ThJD4UvmMaa+wulMOsHq/7pXJTJZo+So99hZ1juVcKM5ry9toJnwmYxdC5hw8Wl42KBTU141vzhyXnjkxhiSa7z+4+UBzSOb8ICP6+NwQZpV3ZaAe7Ys+RkRg=="
+            },
+            "sessions": {
+                "i5rjeW-pRhcjbri1bP2mTFhe4nG_vxDX": true
+            }
+        },
+        "deadpinky": {
+            "credentials": {
+                "authToken": "CiQAGAwHDzGM/OVGh50QdcQqFVpHl4d5vWWOdi9nvpjM+4HEEQcSjwIAbBqGofugFcmJqwwwKOWT+KOLJibzvsa25ZpMAJfgugAUMeOSsZhkQgD68UGZGVpCDFagrsHsY7GIL+/jzt6vYoYHPvGSUYUu3+VBNkf0x5ryDgr4mDgci6wqTAuT+PDJvJ6/34saiEZWWsOCIrhKq7/5SN1Hn8Qxm/HWmWZd4lqVXPz42y9oERJbycvvuiEoL0mG4+ePX3qN8ayNffnZADXqHdNwtKXIVKyrjIQjE/0i/2Bbl2Ul1f2mjVZJHhW7mfWzcOQnhNOv/DBtLYirTrSARKCnCrb5Lp2zI92ulPcQTd+sD7NHZzyvZ4b+zKZXlnrVW8LcE11WrKtfSLE5ctBX91arOETrcq5BepH2",
+                "refreshToken": "CiQAGAwHDwftijR82NfeU/MWZLj4JT5lhh7jWKjOrXMULKGDaIkSrQEAbBqGoc3s4MWMKvlK7CRtAK3pk0JXKMdc0PONoiAHG5HU2fNdTjdMe9/471kFQMcswoypaa9avFib5ue5NIdPr/ogoyJBPeM/aDqABmF5+MgiXukbQTrPlWq/uExmi0ziV/r/i5lWSdfQQybODuA1hYLvNh9JYl9y9+gW/7LNKm0HXesMBBAoZyncj3KDoFipiqYxOtRwBu/qN8BvhD1JP38oPkLMa3f6TBmS9Q=="
+            }
+        }
+    }
+}

@@ -37,8 +37,7 @@ export class SopranoAPIService
         ContentType:  'application/json',
       })
     };
-    return this.http
-        .post<T>(`/api/soprano${path}`, body, httpOptions);
+    return this.http.post<T>(`/api/soprano${path}`, body, httpOptions);
   }
 
   /**

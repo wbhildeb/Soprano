@@ -89,19 +89,23 @@ class SubPlaylistDataInterface
 
   /**
    * @param {string} userID 
-   * @returns {Promise<JSON>} returns the Subplaylist structure for a user
+   * @returns {Promise<{playlists: Object, subPlaylists: Object}>} returns the Subplaylist structure for a user
    */
   async GetSubPlaylistRelations(userID) 
   {
-    return (await this.ref
+    const data = await this.ref
       .SubPlaylists()
       .child(userID)
-      .once('value')).val();
+      .once('value');
+    
+    return data.exists() ?
+      data.val() :
+      { playlists: {}, subPlaylists: {}};
   }
 
   /**
    * Gets all parent playlists for all users
-   * @returns {JSON} of all parent playlists for all users 
+   * @returns {Promise<Object>} of all parent playlists for all users 
    */
   async GetAllParentPlaylists()
   {

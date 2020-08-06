@@ -1,14 +1,17 @@
 const firebase = require('firebase');
 const env = require('../environment');
+const DatabaseEmulatorInterface = require('./emulator_interface');
 
-const database = firebase.initializeApp(env.firebase, 'soprano_prod').database();
+const dbRoot = env.emulateDatabase ?
+  DatabaseEmulatorInterface.UserDataRoot() :
+  firebase.initializeApp(env.firebase.info.client, 'soprano').database().ref();
 
-const SessionDataInterface = require('./interfaces/session')(database);
-const UserDataInterface = require('./interfaces/user')(database);
-const SubPlaylistDataInterface = require('./interfaces/sub_playlist')(database);
+const SessionDataInterface = require('./interface/session')(dbRoot);
+const UserDataInterface = require('./interface/user')(dbRoot);
+const SubPlaylistDataInterface = require('./interface/sub_playlist')(dbRoot);
 
 module.exports = {
   SessionDataInterface,
   UserDataInterface,
-  SubPlaylistDataInterface
+  SubPlaylistDataInterface,
 };

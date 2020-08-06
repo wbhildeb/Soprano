@@ -1,4 +1,4 @@
-
+const env = require('../environment');
 const AuthService = require('./auth');
 const { SpotifyUserService } = require('./spotify');
 const { SessionDataInterface } = require('../data/interface');
@@ -12,7 +12,9 @@ module.exports = class UserService
    */
   static async GetID(sessionID)
   {
-    return SessionDataInterface.GetUserID(sessionID);
+    return env.emulateDatabase ?
+      'mockUserID' :
+      SessionDataInterface.GetUserID(sessionID);
   }
 
   /**

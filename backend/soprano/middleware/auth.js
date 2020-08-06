@@ -1,5 +1,6 @@
 
 const express = require('express');
+const env = require('../environment');
 const ash = require('express-async-handler');
 const AuthService = require('../service/auth');
 
@@ -39,7 +40,15 @@ router.get('/callback', ash(async (req, res) =>
   else
   {
     await AuthService.AddNewSession(sessionID, code);
-    res.redirect('/sub-playlists');
+    
+    if (env.isProduction)
+    {
+      res.redirect('/sub-playlists');
+    }
+    else
+    {
+      res.redirect('localhost:4200/sub-playlists');
+    }
   }
 }));
 
