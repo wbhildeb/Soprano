@@ -3,13 +3,16 @@ import { ImagesModel } from './images.model';
 import { ExternalURLsModel } from './external-urls.model';
 export class PlaylistModel
 {
-  public id: string;
-  public name: string;
+  public isCollaborative: boolean;
   public description: string;
-  public url: string;
+  public id: string;
   public image: string;
-  public collaborative: boolean;
+  public name: string;
   public numTracks: number;
+  public owner: UserModel;
+  public url: string;
+
+  public isWriteable: boolean;
 
   constructor ({
     collaborative,
@@ -43,12 +46,13 @@ export class PlaylistModel
     uri: string
   })
   {
-    this.name = name;
+    this.isCollaborative = collaborative;
     this.description = description;
-    this.collaborative = collaborative;
-    this.numTracks = tracks.total;
     this.id = id;
+    this.image = images[0] ? images[0].url : '';
+    this.name = name;
+    this.numTracks = tracks.total;
+    this.owner = owner;
     this.url = external_urls.spotify;
-    this.image = images[0].url;
   }
 }

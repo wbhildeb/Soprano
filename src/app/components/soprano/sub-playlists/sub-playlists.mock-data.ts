@@ -2,6 +2,7 @@ import { ExternalURLsModel } from 'src/app/models/soprano/external-urls.model';
 import { UserPlaylists } from 'src/app/models/soprano/user-playlists.model';
 import { PlaylistModel } from 'src/app/models/soprano/playlist.model';
 import { ImagesModel } from 'src/app/models/soprano/images.model';
+import { UserModel } from 'src/app/models/soprano/user.model';
 
 /* tslint:disable:max-line-length */
 const images_cloud = [new ImagesModel({height: 256, width: 256, url: 'https://res-4.cloudinary.com/crunchbase-production/image/upload/c_thumb,h_256,w_256,f_auto,g_faces,z_0.7,q_auto:eco/v1441276345/rrwykvveztjg4bhdngyq.png'})];
@@ -14,6 +15,17 @@ const images_kirby = [new ImagesModel({height: 256, width: 256, url: 'https://pb
 /* tslint:enable:max-line-length */
 
 
+const default_user = new UserModel({
+  display_name: 'Terrance Frogmate',
+  external_urls: null,
+  followers: null,
+  href: '',
+  id: 'terry',
+  images: [{height: 1365, width: 2048, url: 'https://static01.nyt.com/images/2019/04/02/science/28SCI-ZIMMER1/28SCI-ZIMMER1-superJumbo.jpg'}],
+  type: 'user',
+  uri: 'spotify:funkvolume'
+});
+
 const default_playlist = {
   collaborative: false,
   description: 'this is a description',
@@ -22,8 +34,8 @@ const default_playlist = {
   id: 'id0',
   images: [],
   name: 'Lil\' Mac',
-  owner: null,
-    // public: boolean,
+  owner: default_user,
+  public: true,
   snapshot_id: 'asdjlaskdjlasd',
   tracks: {total: 50}, // tracks: PagingModel,
   type: 'playlist',
@@ -51,5 +63,5 @@ const relations = {
   }
 };
 
-export let mockUserPlaylists: UserPlaylists = new UserPlaylists(playlists, relations);
+export let mockUserPlaylists: UserPlaylists = new UserPlaylists(default_user, playlists, relations);
 
