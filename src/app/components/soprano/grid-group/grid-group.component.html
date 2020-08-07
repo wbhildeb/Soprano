@@ -8,7 +8,7 @@
 </div>
 <hr>
 <div class="cells-wrapper">
-    <div class="cell" *ngFor="let playlist of playlists">
+    <div class="cell" *ngFor="let playlist of playlists" [ngStyle]="{'background-color': playlist.isWriteable ? 'green' : 'grey'}">
         <div>
             <img class="playlist-image" [src]="playlist.image">
         </div>

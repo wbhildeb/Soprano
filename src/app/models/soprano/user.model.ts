@@ -38,4 +38,9 @@ export class UserModel
     this.name = display_name;
     this.image = images.length ? images[0].url : null;
   }
+
+  public SameUser(other: UserModel): boolean
+  {
+    return this.id === other.id;
+  }
 }

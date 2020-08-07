@@ -1,6 +1,8 @@
 import { PlaylistModel } from 'src/app/models/soprano/playlist.model';
+import { UserModel } from './user.model';
 
 export class UserPlaylists {
+  private user: UserModel;
   private playlists: Map<string, PlaylistModel>;
   private childToParents: Map<PlaylistModel, PlaylistModel[]>;
   private parentToChildren: Map<PlaylistModel, PlaylistModel[]>;
@@ -10,13 +12,15 @@ export class UserPlaylists {
    * @param playlists all the playlists from spotify
    * @param relations keys are parents, objects have keys which are children
    */
-  constructor(playlists: PlaylistModel[], relations: {})
+  constructor(user: UserModel, playlists: PlaylistModel[], relations: {})
   {
+    this.user = user;
+
     this.playlists = new Map<string, PlaylistModel>();
     this.childToParents = new Map<PlaylistModel, PlaylistModel[]>();
     this.parentToChildren = new Map<PlaylistModel, PlaylistModel[]>();
 
-    // Set all the pl
+    // Initialize this.playlists
     playlists.forEach(pl =>
     {
       this.playlists.set(pl.id, pl);
@@ -54,6 +58,8 @@ export class UserPlaylists {
         }
       });
     });
+
+    this.InitializePlaylistWritability();
   }
 
   public GetAllPlaylists(): PlaylistModel[]
@@ -80,5 +86,12 @@ export class UserPlaylists {
   public GetParentsOf(child: PlaylistModel): PlaylistModel[]
   {
     return this.childToParents.get(child);
+  }
+
+  private InitializePlaylistWritability()
+  {
+    this.playlists.forEach(playlist => {
+      playlist.isWriteable = this.user.SameUser(playlist.owner) || playlist.isCollaborative;
+    });
   }
 }

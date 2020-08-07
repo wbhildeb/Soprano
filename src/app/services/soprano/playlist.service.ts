@@ -4,6 +4,7 @@ import { Observable, forkJoin } from 'rxjs';
 import { UserPlaylists } from 'src/app/models/soprano/user-playlists.model';
 import { PlaylistModel } from 'src/app/models/soprano/playlist.model';
 import { SopranoAPIService } from './sopranoAPI.service';
+import { UserService } from './user.service';
 
 @Injectable({
   providedIn: 'root'
@@ -11,7 +12,9 @@ import { SopranoAPIService } from './sopranoAPI.service';
 
 export class PlaylistService
 {
-  constructor(private sopranoAPIService: SopranoAPIService) {}
+  constructor(
+    private sopranoAPIService: SopranoAPIService,
+    private userService: UserService) {}
 
   /**
    * @param parentPlaylistID id to get the children of
@@ -98,11 +101,11 @@ export class PlaylistService
    */
   public GetSubPlaylistDatabase(): Observable<UserPlaylists>
   {
-    return forkJoin(this.GetSpotifyPlaylists(), this.GetSubPlaylistRelations())
+    return forkJoin(this.userService.GetUser(), this.GetSpotifyPlaylists(), this.GetSubPlaylistRelations())
       .pipe<UserPlaylists>(
         map(
-            ([spotify_playlists, {playlists}]) =>
-          new UserPlaylists(spotify_playlists, playlists)
+            ([user, spotify_playlists, {playlists}]) =>
+          new UserPlaylists(user, spotify_playlists, playlists)
       ));
   }
 }
