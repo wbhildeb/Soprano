@@ -5,16 +5,14 @@
     "emulateDB": "cd firebase_emulator; firebase emulators:start",
     "frontend": "ng serve --proxy-config config/proxy.json",
     "prod": "ng build && NODE_ENV=production node server.js",
+    "backend-noem": "EMULATE_DB=FALSE EMULATE_SPOTIFY=false NODE_ENV=development node backend.js",
     "backend": "NODE_ENV=development node backend.js",
-    
     "lint": "npm-run-all lint-backend lint-frontend",
     "lint-frontend": "ng lint",
     "lint-backend": "eslint backend/",
-
     "lintfix": "npm-run-all lintfix-backend lintfix-frontend",
     "lintfix-frontend": "ng lint --fix",
     "lintfix-backend": "eslint --fix backend/",
-
     "test": "npm-run-all test-backend test-frontend",
     "test-frontend": "ng test",
     "test-backend": "NODE_ENV=test mocha backend/soprano/tests/**/*.js"
